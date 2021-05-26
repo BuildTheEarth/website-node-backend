@@ -6,6 +6,7 @@ class Web {
     app;
     core: Core;
     routes: Routes;
+
     constructor(core: Core) {
         this.app = express();
         this.core = core;

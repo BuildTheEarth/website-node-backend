@@ -11,15 +11,15 @@ export class Router {
     }
 
 
-    public addRoute(requestMethod: RequestMethods, endpoint: String, executor: Executor) {
+    public addRoute(requestMethod: RequestMethods, endpoint: String, executor: Executor, ...middlewares: any) {
         this.web.getCore().getLogger().debug(`Registering endpoint "${endpoint}"`)
-        switch (requestMethod) {
-            case RequestMethods.GET:
-                this.web.getApp().get(endpoint, (rq: Request, rs: Response) => executor(rq, rs));
-                break;
-            case RequestMethods.POST:
-                this.web.getApp().post(endpoint, (rq: Request, rs: Response) => executor(rq, rs));
-        }
+        this.web.getApp().all(endpoint, middlewares, (rq: Request, rs: Response, next: any) => {
+            if (rq.method === requestMethod.valueOf()) {
+                executor(rq, rs);
+                return;
+            }
+            next();
+        });
     }
 
 }
