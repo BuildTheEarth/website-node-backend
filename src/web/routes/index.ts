@@ -1,6 +1,7 @@
 import Web from "../Web";
 import {Router} from "./utils/Router";
 import {RequestMethods} from "./utils/RequestMethods";
+import User from "../../db/models/User";
 
 class Routes {
     app;
@@ -14,7 +15,10 @@ class Routes {
 
     private registerRoutes() {
         new Router(this.web)
-            .addRoute(RequestMethods.GET, '/', (request, response) => {response.send('Test')})
+            .addRoute(RequestMethods.GET, '/', (request, response) => {
+                const user = new User({name: "Bob"});
+                user.save().then(() => response.send('Test'));
+            })
     }
 }
 
