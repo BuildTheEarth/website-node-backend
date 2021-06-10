@@ -29,7 +29,7 @@ class Database {
     }
 
     private async syncModels(): Promise<void> {
-        return await this.sequelize.sync({force: true}).then(() => this.core.getLogger().debug("Model sync successful."));
+        return await this.sequelize.sync({force: false}).then(() => this.core.getLogger().debug("Model sync successful."));
     }
 }
 

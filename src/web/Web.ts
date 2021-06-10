@@ -16,6 +16,10 @@ class Web {
         this.app.listen(this.getPort(), () => {
             this.core.getLogger().info(`Starting webserver on port ${this.getPort()}`)
             this.routes = new Routes(this);
+
+            // set render engine
+            this.app.set('view engine', 'pug');
+            this.app.set('views', 'src/web/views')
         })
     }
 
