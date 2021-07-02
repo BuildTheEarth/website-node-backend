@@ -16,12 +16,15 @@ html
                 ul
                     each scope in scopes
                         li=scope
-
-                a(href="#")
+                a(href="&authorize" id="authorizeButton")
                     button(class='bg-blue-500 hover:bg-blue-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white transition w-full')
                         | Authorize #{name}
                 p(class='text-sm text-gray-300 text-center' style="margin-top: 10px")
                     | You will be redirected to #{redirectURI}
+    script.
+        window.addEventListener("load", () => {
+            document.getElementById('authorizeButton').setAttribute("href", window.location.href + "&authorize=true&code=#{code}")
+        })
 
 
 

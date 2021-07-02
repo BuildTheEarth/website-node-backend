@@ -1,7 +1,21 @@
-import { Table, Column, Model } from 'sequelize-typescript'
+import {
+  Table, Column, Model, IsEmail, DataType,
+} from 'sequelize-typescript';
 
 @Table
 export default class User extends Model {
     @Column
-    name: string
+    username: string
+
+    @Column
+    password: string
+
+    @IsEmail
+    @Column
+    email: string
+
+    @Column({
+      type: DataType.JSON,
+    })
+    authorizedClients: string
 }

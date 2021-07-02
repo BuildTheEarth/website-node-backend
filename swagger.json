@@ -1,0 +1,38 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "BuildTheEarth.net API",
+    "version": "1.0"
+  },
+  "security": [
+    {"name": []}
+  ],
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.buildtheerath.net/v1"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "description": "Test",
+		  "parameters": [],
+		  "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+
+  }
+}
