@@ -1,6 +1,7 @@
 node_modules/*
 .env
-*.js.map
+*.map
 *.js
 .idea
 package-lock.json
+keycloak.json
