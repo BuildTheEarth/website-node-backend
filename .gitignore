@@ -1,5 +1,6 @@
 node_modules/*
 .env
+*.js.map
 *.js
 .idea
 package-lock.json
