@@ -11,10 +11,51 @@ datasource db {
 }
 
 model User {
-  id            String  @id @default(uuid())
-  ssoId         String  @unique
-  discordId     String?
+  id                String      @id @default(uuid())
+  ssoId             String      @unique
+  discordId         String?
+  createdBuildTeams BuildTeam[] @relation("creator")
+  joinedBuildTeams  BuildTeam[] @relation("members")
 }
 
+model BuildTeam {
+  id              String     @id @default(uuid())
+  name            String     @unique
+  icon            String
+  backgroundImage String
+  socials         Social[]   @relation("socials")
+  invite          String
+  about           String
+  builds          Build[]    @relation("builds")
+  showcases       Showcase[] @relation("showcases")
+  creator         User       @relation("creator", references: [id], fields: [creatorId])
+  creatorId       String
+  createdAt       DateTime   @default(now())
+  members         User[]     @relation("members")
+}
 
+model Social {
+  id          String    @id @default(uuid())
+  name        String
+  icon        String
+  url         String    @unique
+  buildTeam   BuildTeam @relation("socials", fields: [buildTeamId], references: [id])
+  buildTeamId String
+}
 
+model Build {
+  id          String    @id @default(uuid())
+  name        String
+  buildTeam   BuildTeam @relation("builds", fields: [buildTeamId], references: [id])
+  createdAt   DateTime  @default(now())
+  buildTeamId String
+}
+
+model Showcase {
+  id          String    @id @default(uuid())
+  image       String
+  title       String
+  buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
+  createdAt   DateTime  @default(now())
+  buildTeamId String
+}

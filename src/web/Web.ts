@@ -33,6 +33,7 @@ class Web {
         this.core.getLogger().debug("Enabled keycloak-connect adapter")
 
 
+
         this.app.listen(this.getPort(), () => {
             this.core.getLogger().info(`Starting webserver on port ${this.getPort()}`);
             this.routes = new Routes(this);
