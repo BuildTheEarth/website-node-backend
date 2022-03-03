@@ -42,7 +42,7 @@ class Web {
     }
 
     public getPort() {
-        return process.env.webport;
+        return process.env.WEBPORT;
     }
 
     public getApp() {

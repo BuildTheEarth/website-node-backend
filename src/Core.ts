@@ -1,4 +1,4 @@
-import {getLogger, Logger} from 'log4js';
+import {configure, getLogger, Logger} from 'log4js';
 import Web from './web/Web';
 import * as Keycloak from "keycloak-connect";
 import * as session from "express-session";
@@ -34,7 +34,7 @@ class Core {
 
     private setUpLogger(): void {
         const logger = this.getLogger();
-        logger.level = process.env.loglevel;
+        logger.level = process.env.LOGLEVEL;
     }
 
     public getLogger = (): Logger => getLogger();
