@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  backend:
+    image: bteweb/backend
+    environment:
+      - LOGLEVEL=${LOGLEVEL}
+      - WEBPORT=${WEBPORT}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - KEYCLOAK_CLIENTID=${KEYCLOAK_CLIENTID}
+      - KEYCLOAK_CLIENTSECRET=${KEYCLOAK_CLIENTSECRET}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+    ports:
+      - ${WEBPORT}:${WEBPORT}
+    volumes:
+      - ./keycloak.json:/app/keycloak.json
+    depends_on:
+      - database
+    links:
+      - database
+  database:
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: "btebackend"
+      MYSQL_USER: "btebackend"
+      MYSQL_PASSWORD: "verysecurepassw0rd"
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - backenddb:/var/lib/mysql
+
+volumes:
+  backenddb:
