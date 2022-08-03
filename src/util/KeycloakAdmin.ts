@@ -8,7 +8,8 @@ class KeycloakAdmin {
     constructor(core: Core) {
         this.core = core;
         this.kcAdminClient = new KcAdminClient({
-            baseUrl: process.env.KEYCLOAK_URL
+            baseUrl: process.env.KEYCLOAK_URL,
+            realmName: process.env.KEYCLOAK_REALM
         })
 
     }
@@ -22,6 +23,7 @@ class KeycloakAdmin {
             grantType: "client_credentials",
             clientId: process.env.KEYCLOAK_CLIENTID,
             clientSecret: process.env.KEYCLOAK_CLIENTSECRET,
+
         });
     }
 }
