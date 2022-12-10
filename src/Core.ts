@@ -26,10 +26,6 @@ class Core {
             this.web.startWebserver();
         })
 
-
-
-
-
     }
 
     private setUpLogger(): void {

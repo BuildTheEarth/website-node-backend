@@ -11,27 +11,29 @@ datasource db {
 }
 
 model User {
-  id                String      @id @default(uuid())
-  ssoId             String      @unique
+  id                String           @id @default(uuid())
+  ssoId             String           @unique
   discordId         String?
-  createdBuildTeams BuildTeam[] @relation("creator")
-  joinedBuildTeams  BuildTeam[] @relation("members")
+  createdBuildTeams BuildTeam[]      @relation("creator")
+  joinedBuildTeams  BuildTeam[]      @relation("members")
+  UserPermission    UserPermission[]
 }
 
 model BuildTeam {
-  id              String     @id @default(uuid())
-  name            String     @unique
+  id              String           @id @default(uuid())
+  name            String           @unique
   icon            String
   backgroundImage String
-  socials         Social[]   @relation("socials")
+  socials         Social[]         @relation("socials")
   invite          String
   about           String
-  builds          Build[]    @relation("builds")
-  showcases       Showcase[] @relation("showcases")
-  creator         User       @relation("creator", references: [id], fields: [creatorId])
+  builds          Build[]          @relation("builds")
+  showcases       Showcase[]       @relation("showcases")
+  creator         User             @relation("creator", references: [id], fields: [creatorId])
   creatorId       String
-  createdAt       DateTime   @default(now())
-  members         User[]     @relation("members")
+  createdAt       DateTime         @default(now())
+  members         User[]           @relation("members")
+  UserPermission  UserPermission[]
 }
 
 model Social {
@@ -58,4 +60,13 @@ model Showcase {
   buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
   createdAt   DateTime  @default(now())
   buildTeamId String
+}
+
+model UserPermission {
+  id          String     @id @default(uuid())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  buildTeam   BuildTeam? @relation(fields: [buildTeamId], references: [id])
+  buildTeamId String?
+  permission  String
 }

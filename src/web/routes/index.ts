@@ -22,44 +22,23 @@ class Routes {
     }
 
     private registerRoutes() {
-        const router: Router = new Router(this.web);
+        const legacyRouter: Router = new Router(this.web, "");
+        const router: Router = new Router(this.web, "v1");
 
         const buildTeamController = new BuildTeamController(this.web.getCore());
 
-        router.addRoute(RequestMethods.GET, '/ping', (request, response) => {
-            response.send('Pong!');
-        }, this.keycloak.protect(), checkNewUser(this.web.getCore().getPrisma(), this.web.getCore()));
+        legacyRouter.addRoute(RequestMethods.GET, "/modpack/images", (request, response) => {
+            response.send({"1":{"url":"https://i.imgur.com/N5cplwx.jpeg","credit":"waggiswagen#2266, Knäggi#4895 render: jo_kil#1977"},"2":{"url":"https://i.imgur.com/tGtWJGk.jpeg","credit":"Woesh3#1155"},"3":{"url":"https://i.imgur.com/yxEWCdQ.jpeg","credit":"Juancy23#9223"},"4":{"url":"https://i.imgur.com/yQjMRlr.jpeg","credit":"Leander#2813, Grischbrei#6173, Norwod#9035 & DasBirnenDing#1574"},"5":{"url":"https://i.imgur.com/9zqFHxa.png","credit":"Schnieven#0083, XilefHD#7198, copac#6194, render: XilefHD#7198"},"logo":{"url":"https://i.imgur.com/ih6BF72.png","credit":null}})
+        });
+
+        router.addRoute(RequestMethods.GET, '/healthcheck', (request, response) => {
+            response.send({status: "up"});
+        });
 
         router.addRoute(RequestMethods.GET, '/buildteams', async (request, response) => {
             await buildTeamController.getBuildTeams(request, response);
         });
 
-        /*router.addRoute(RequestMethods.GET, '/test', async (request, response) => {
-            const user = await this.web.getCore().getPrisma().user.findUnique({
-                where: {
-                    ssoId: "be29efbf-6ba7-43d6-846a-f92fc8b1c8b8"
-                }
-            })
-            const buildteam = await this.web.getCore().getPrisma().buildTeam.create({
-                data: {
-                    creatorId: user.id,
-                    name: "BTE Kiosk"
-                }
-            })
-            response.send(buildteam)
-        });*/
-
-        router.addRoute(RequestMethods.GET, '/test2', async (request, response) => {
-            const buildteam = await this.web.getCore().getPrisma().buildTeam.findUnique({
-                where: {
-                    id: "1f1dfe8e-a999-4f90-a59a-298b3d4e259a"
-                },
-                include: {
-                    members: true
-                }
-            })
-            response.send(buildteam)
-        });
     }
 }
 
