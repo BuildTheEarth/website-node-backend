@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import Core from '../Core.js';
 import Routes from './routes/index.js';
 import session from "express-session";
+import cors from "cors";
 
 class Web {
     app;
@@ -25,6 +26,7 @@ class Web {
             saveUninitialized: true,
             store: this.core.memoryStore
         }));
+        this.app.use(cors());
 
         this.app.use(this.core.getKeycloak().middleware({
             logout: '/logout',

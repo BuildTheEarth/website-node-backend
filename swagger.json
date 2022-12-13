@@ -18,11 +18,11 @@
   },
   "servers": [
     {
-      "url": "https://api.buildthe.earth/v1",
+      "url": "https://api.buildthe.earth/api/v1",
       "description": "Development instance"
     },
     {
-      "url": "https://api.buildtheearth.net/v1",
+      "url": "https://api.buildtheearth.net/api/v1",
         "description": "Production instance"
     }
   ],
