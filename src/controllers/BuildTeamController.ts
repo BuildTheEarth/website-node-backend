@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import Core from "../Core";
+import Core from "../Core.js";
 
 class BuildTeamController {
 

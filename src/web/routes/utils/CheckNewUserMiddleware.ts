@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {PrismaClient} from "@prisma/client";
-import Core from "../../../Core";
+import Core from "../../../Core.js";
 
 const checkNewUser = (prisma: PrismaClient, core: Core) => {
     return async (req: Request, res: Response, next: NextFunction) => {

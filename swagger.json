@@ -18,6 +18,9 @@
   },
   "servers": [
     {
+      "url": "https://api.buildthe.earth/v1"
+    },
+    {
       "url": "https://api.buildtheerath.net/v1"
     }
   ],

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Executor } from './Executor';
-import { RequestMethods } from './RequestMethods';
-import Web from '../../Web';
+import { Executor } from './Executor.js';
+import { RequestMethods } from './RequestMethods.js';
+import Web from '../../Web.js';
 
 export default class Router {
     web: Web;

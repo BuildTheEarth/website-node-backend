@@ -1,9 +1,8 @@
-import Web from '../Web';
-import Router from './utils/Router';
-import {RequestMethods} from './utils/RequestMethods';
+import Web from '../Web.js';
+import Router from './utils/Router.js';
+import {RequestMethods} from './utils/RequestMethods.js';
 import {Keycloak} from "keycloak-connect";
-import checkNewUser from "./utils/CheckNewUserMiddleware";
-import BuildTeamController from "../../controllers/BuildTeamController";
+import BuildTeamController from "../../controllers/BuildTeamController.js";
 import {query} from "express-validator";
 
 class Routes {

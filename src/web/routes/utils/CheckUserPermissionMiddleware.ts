@@ -1,5 +1,5 @@
 import {PrismaClient} from "@prisma/client";
-import Core from "../../../Core";
+import Core from "../../../Core.js";
 import {NextFunction, Request, Response} from "express";
 
 const checkUserPermission = (prisma: PrismaClient, core: Core, permission: String) => {

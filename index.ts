@@ -1,4 +1,4 @@
-import Core from './src/Core';
+import Core from './src/Core.js';
 
 import * as dotenv from 'dotenv'
 dotenv.config()

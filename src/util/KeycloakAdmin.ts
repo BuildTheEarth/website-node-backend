@@ -1,5 +1,5 @@
 import KcAdminClient from "@keycloak/keycloak-admin-client";
-import Core from "../Core";
+import Core from "../Core.js";
 
 class KeycloakAdmin {
     private kcAdminClient: KcAdminClient;

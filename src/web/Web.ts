@@ -1,8 +1,8 @@
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import Core from '../Core';
-import Routes from './routes';
-import * as session from "express-session";
+import express from 'express';
+import bodyParser from 'body-parser';
+import Core from '../Core.js';
+import Routes from './routes/index.js';
+import session from "express-session";
 
 class Web {
     app;

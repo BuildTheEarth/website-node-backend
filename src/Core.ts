@@ -1,8 +1,8 @@
-import Web from './web/Web';
-import * as Keycloak from "keycloak-connect";
+import Web from './web/Web.js';
+import Keycloak from "keycloak-connect";
 import * as session from "express-session";
 import { PrismaClient } from '@prisma/client'
-import KeycloakAdmin from "./util/KeycloakAdmin";
+import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import * as winston from "winston";
 
 class Core {
