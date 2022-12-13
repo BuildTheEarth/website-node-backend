@@ -4,6 +4,7 @@ import {RequestMethods} from './utils/RequestMethods';
 import {Keycloak} from "keycloak-connect";
 import checkNewUser from "./utils/CheckNewUserMiddleware";
 import BuildTeamController from "../../controllers/BuildTeamController";
+import {query} from "express-validator";
 
 class Routes {
     app;
@@ -37,7 +38,9 @@ class Routes {
 
         router.addRoute(RequestMethods.GET, '/buildteams', async (request, response) => {
             await buildTeamController.getBuildTeams(request, response);
-        });
+        },
+            query('').isString(),
+            );
 
     }
 }

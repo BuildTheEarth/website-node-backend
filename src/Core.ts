@@ -1,4 +1,3 @@
-import {configure, getLogger, Logger} from 'log4js';
 import Web from './web/Web';
 import * as Keycloak from "keycloak-connect";
 import * as session from "express-session";
@@ -18,7 +17,15 @@ class Core {
         this.setUpLogger();
         this.memoryStore = new session.MemoryStore();
         this.keycloak = new Keycloak({
-            store: this.memoryStore
+            store: this.memoryStore,
+
+        }, {
+            "bearer-only": true,
+            realm: process.env.KEYCLOAK_REALM,
+            "auth-server-url": process.env.KEYCLOAK_URL,
+            "ssl-required": "external",
+            resource: process.env.KEYCLOAK_CLIENTID,
+            "confidential-port": 0,
         })
         this.keycloakAdmin = new KeycloakAdmin(this);
         this.keycloakAdmin.authKcClient().then(() => {

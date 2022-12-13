@@ -1,8 +1,6 @@
 # Website Node Backend
 The backend for the BuildTheEarth.net website
 
-``❗ Please place a keycloak.json inside the root folder of the project. See the example here: https://github.com/keycloak/keycloak-quickstarts/blob/latest/service-nodejs/keycloak.json``
-
 # Start Developing
 #### If you are using JetBrains WebStorm, look below under `Start Developing in WebStorm`
 

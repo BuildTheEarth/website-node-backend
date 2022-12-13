@@ -13,14 +13,14 @@ export default class Router {
     }
 
     public addRoute(requestMethod: RequestMethods, endpoint: String,
-      executor: Executor, ...middlewares: any) {
-      this.web.getCore().getLogger().debug(`Registering endpoint "${endpoint}"`);
-      this.web.getApp().all(`api/${this.version}${endpoint}`, middlewares, (rq: Request, rs: Response, next: any) => {
-        if (rq.method === requestMethod.valueOf()) {
-          executor(rq, rs);
-          return;
-        }
-        next();
-      });
+                    executor: Executor, ...middlewares: any) {
+        this.web.getCore().getLogger().debug(`Registering endpoint "${requestMethod.toString()} api/${this.version}${endpoint}"`);
+        this.web.getApp().all(`/api/${this.version}${endpoint}`, middlewares, (rq: Request, rs: Response, next: any) => {
+            if (rq.method === requestMethod.valueOf()) {
+                executor(rq, rs);
+                return;
+            }
+            next();
+        });
     }
 }
