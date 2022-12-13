@@ -1,6 +1,7 @@
 import Core from './src/Core';
 
-require('dotenv').config();
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const core = new Core();
 core.getLogger().info('Starting BTE.NET backend');
