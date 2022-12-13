@@ -13,8 +13,6 @@ services:
       - KEYCLOAK_URL=${KEYCLOAK_URL}
     ports:
       - ${WEBPORT}:${WEBPORT}
-    volumes:
-      - ./keycloak.json:/app/keycloak.json
     depends_on:
       - database
     links:

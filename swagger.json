@@ -18,22 +18,39 @@
   },
   "servers": [
     {
-      "url": "https://api.buildthe.earth/v1"
+      "url": "https://api.buildthe.earth/v1",
+      "description": "Development instance"
     },
     {
-      "url": "https://api.buildtheerath.net/v1"
+      "url": "https://api.buildtheearth.net/v1",
+        "description": "Production instance"
     }
   ],
+  "tags": [{
+    "name": "Buildteams",
+    "description": "Anything regarding the buildteams"
+  }],
   "paths": {
-    "/": {
+    "/buildteams": {
       "get": {
-        "description": "Test",
-		  "parameters": [],
+        "description": "Get a list of all build teams",
+		  "parameters": [
+            {
+                "description": "The page of results to return, **starting at 0**",
+                "in": "query",
+                "name": "page",
+                "required": false,
+                "schema": {
+                  "type": "integer"
+                }
+            }
+          ],
 		  "responses": {
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "tags": ["Buildteams"]
       }
     }
 
