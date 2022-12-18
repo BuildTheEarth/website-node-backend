@@ -9,10 +9,9 @@
   ],
   "components": {
     "securitySchemes": {
-      "jwt": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+      "openId": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://auth.buildtheearth.net/auth/realms/website/.well-known/openid-configuration"
       }
     }
   },
