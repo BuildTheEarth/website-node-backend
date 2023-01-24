@@ -9,6 +9,9 @@ const checkUserPermission = (prisma: PrismaClient, core: Core, permission: Strin
                 ssoId: req.kauth.grant.access_token.content.sub
             }
         });
+
+        core.getLogger().debug(req.kauth.grant.access_token.content)
+
         let permissions = await prisma.userPermission.findMany({
             where: {
                 userId: user.id

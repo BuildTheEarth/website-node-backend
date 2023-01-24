@@ -5,7 +5,9 @@
     "version": "1.0"
   },
   "security": [
-    {"name": []}
+    {
+      "name": []
+    }
   ],
   "components": {
     "securitySchemes": {
@@ -22,36 +24,118 @@
     },
     {
       "url": "https://api.buildtheearth.net/api/v1",
-        "description": "Production instance"
+      "description": "Production instance"
     }
   ],
-  "tags": [{
-    "name": "Buildteams",
-    "description": "Anything regarding the buildteams"
-  }],
+  "tags": [
+    {
+      "name": "Buildteams",
+      "description": "Anything regarding the buildteams"
+    }
+  ],
   "paths": {
     "/buildteams": {
       "get": {
         "description": "Get a list of all build teams",
-		  "parameters": [
-            {
-                "description": "The page of results to return, **starting at 0**",
-                "in": "query",
-                "name": "page",
-                "required": false,
-                "schema": {
-                  "type": "integer"
-                }
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
             }
-          ],
-		  "responses": {
+          }
+        ],
+        "responses": {
           "200": {
             "description": "OK"
           }
         },
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
+      }
+    },
+    "/buildteams/:id/application/question": {
+      "get": {
+        "description": "Get a list of all application questions of a buildteam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationQuestion"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {"code": 404, "message": "Buildteam does not exit.", "translationKey": "404"}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "params",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "uuid"
+            }
+          }
+        ],
+        "tags": [
+          "Buildteams"
+        ]
+      }
+
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApplicationQuestion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "cda8eee7-32eb-4abc-bfa0-15d550e15a2a"
+          },
+          "title": {
+            "type": "string",
+            "example": "This is a question."
+          },
+          "subtitle": {
+            "type": "string",
+            "example": "Do you like this question?"
+          },
+          "icon": {
+            "type": "string",
+            "example": "question-circle",
+            "description": "Icon name from https://tabler-icons.io/"
+          },
+          "additionalData": {
+            "type": "object",
+            "description": "Please see external documentation"
+          },
+          "buildTeamId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "24f85120-be02-463f-8806-8d1350562470"
+          }
+        }
       }
     }
-
   }
 }

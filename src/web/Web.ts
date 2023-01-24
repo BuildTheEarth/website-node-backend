@@ -39,7 +39,6 @@ class Web {
         this.app.listen(this.getPort(), () => {
             this.core.getLogger().info(`Starting webserver on port ${this.getPort()}`);
             this.routes = new Routes(this);
-
         });
     }
 

@@ -3,7 +3,8 @@ import Router from './utils/Router.js';
 import {RequestMethods} from './utils/RequestMethods.js';
 import {Keycloak} from "keycloak-connect";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
-import {query} from "express-validator";
+import {param, query} from "express-validator";
+import {Request, request, Response} from "express";
 
 class Routes {
     app;
@@ -39,6 +40,14 @@ class Routes {
         router.addRoute(RequestMethods.GET, '/buildteams', async (request, response) => {
             await buildTeamController.getBuildTeams(request, response);
         }, query('page').isNumeric().optional());
+
+        router.addRoute(RequestMethods.GET, "/buildteams/:id/application/questions", async (request: Request, response: Response) => {
+            await buildTeamController.getBuildTeamApplicationQuestion(request, response)
+        }, param("id").isUUID())
+
+        router.addRoute(RequestMethods.POST, "/buildteams/:id/application/questions", async (request: Request, response: Response) => {
+            await buildTeamController.getBuildTeamApplicationQuestion(request, response)
+        }, param("id").isUUID())
 
     }
 }

@@ -9,6 +9,11 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
+"@bte-germany/terraconvert@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@bte-germany/terraconvert/-/terraconvert-1.0.1.tgz#16cdb4b7aecdbef151c5f7515cf35b3cca79ed26"
+  integrity sha512-LCcXrJfUR2Tu1g4LHlmifbcV01NFO62fmaOSVq94N1yZuLcspYMXBvPd79gKR+D+QhrMF0qeOg93A3meP/wVMQ==
+
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"

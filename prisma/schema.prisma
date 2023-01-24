@@ -20,22 +20,47 @@ model User {
 }
 
 model BuildTeam {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  icon            String
-  backgroundImage String
-  socials         Social[]         @relation("socials")
-  invite          String
-  about           String
-  builds          Build[]          @relation("builds")
-  showcases       Showcase[]       @relation("showcases")
-  creator         User             @relation("creator", references: [id], fields: [creatorId])
-  creatorId       String
-  createdAt       DateTime         @default(now())
-  members         User[]           @relation("members")
-  UserPermission  UserPermission[]
-  location        String           @default("")
-  slug            String           @unique @default("")
+  id                   String                @id @default(uuid())
+  name                 String                @unique
+  icon                 String
+  backgroundImage      String
+  socials              Social[]              @relation("socials")
+  invite               String
+  about                String
+  builds               Build[]               @relation("builds")
+  showcases            Showcase[]            @relation("showcases")
+  creator              User                  @relation("creator", references: [id], fields: [creatorId])
+  creatorId            String
+  createdAt            DateTime              @default(now())
+  members              User[]                @relation("members")
+  UserPermission       UserPermission[]
+  applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
+  location             String                @default("")
+  slug                 String                @unique @default("")
+}
+
+model ApplicationQuestion {
+  id             String                  @id @default(uuid())
+  title          String
+  subtitle        String
+  type           ApplicationQuestionType
+  icon           String
+  additionalData Json                    @default("{}")
+  buildTeam      BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
+  buildTeamId    String
+}
+
+enum ApplicationQuestionType {
+  TEXT
+  SHORT_INPUT
+  LONG_INPUT
+  DROPDOWN
+  CITY
+  URL
+  MINECRAFT
+  SLIDER
+  IMAGE
+  CHECKBOX
 }
 
 model Social {
