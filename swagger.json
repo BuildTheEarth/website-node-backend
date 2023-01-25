@@ -4,19 +4,6 @@
     "title": "BuildTheEarth.net API",
     "version": "1.0"
   },
-  "security": [
-    {
-      "name": []
-    }
-  ],
-  "components": {
-    "securitySchemes": {
-      "openId": {
-        "type": "openIdConnect",
-        "openIdConnectUrl": "https://auth.buildtheearth.net/auth/realms/website/.well-known/openid-configuration"
-      }
-    }
-  },
   "servers": [
     {
       "url": "https://api.buildthe.earth/api/v1",
@@ -58,7 +45,7 @@
         ]
       }
     },
-    "/buildteams/:id/application/question": {
+    "/buildteams/{id}/application/question": {
       "get": {
         "description": "Get a list of all application questions of a buildteam",
         "responses": {
@@ -87,11 +74,11 @@
         "parameters": [
           {
             "description": "The uuid of the buildteam",
-            "in": "params",
+            "in": "path",
             "name": "id",
             "required": true,
             "schema": {
-              "type": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -103,6 +90,12 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "openId": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://auth.buildtheearth.net/auth/realms/website/.well-known/openid-configuration"
+      }
+    },
     "schemas": {
       "ApplicationQuestion": {
         "type": "object",
