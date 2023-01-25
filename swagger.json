@@ -45,7 +45,7 @@
         ]
       }
     },
-    "/buildteams/{id}/application/question": {
+    "/buildteams/{id}/application/questions": {
       "get": {
         "description": "Get a list of all application questions of a buildteam",
         "responses": {
