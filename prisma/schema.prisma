@@ -42,7 +42,9 @@ model BuildTeam {
 model ApplicationQuestion {
   id             String                  @id @default(uuid())
   title          String
-  subtitle        String
+  subtitle       String
+  placeholder    String                  @default("")
+  required       Boolean                 @default(true)
   type           ApplicationQuestionType
   icon           String
   additionalData Json                    @default("{}")

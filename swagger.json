@@ -126,6 +126,14 @@
             "type": "string",
             "format": "uuid",
             "example": "24f85120-be02-463f-8806-8d1350562470"
+          },
+          "placeholder": {
+            "type": "string",
+            "example": "This is a placeholder"
+          },
+          "required": {
+            "type": "boolean",
+            "example": true
           }
         }
       }
