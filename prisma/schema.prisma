@@ -50,6 +50,7 @@ model ApplicationQuestion {
   additionalData Json                    @default("{}")
   buildTeam      BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
   buildTeamId    String
+  sort           Int                     @unique
 }
 
 enum ApplicationQuestionType {
