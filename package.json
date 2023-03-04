@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "The backend for the BuildTheEarth.net website",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
@@ -16,7 +15,7 @@
     "url": "git+https://github.com/BuildTheEarth/website-node-backend.git"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "ts-node prisma/seed.ts"
   },
   "author": "",
   "license": "ISC",
