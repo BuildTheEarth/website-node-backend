@@ -45,13 +45,18 @@ class BuildTeamController {
     public async getBuildTeam(req: Request, res: Response) {
         
     const buildteam = await this.core.getPrisma().buildTeam.findFirst({
-        where: { id: req.params.id },
-        include: {
-          _count: {
-            select: { members: true, builds: true },
-          },
+      where: { id: req.params.id },
+      include: {
+        socials: true,
+        creator: true,
+        builds: req.query.builds && { take: 10 },
+        showcases: req.query.showcases && { take: 10 },
+        members: req.query.members && { take: 10 },
+        _count: {
+          select: { members: true, builds: true },
         },
-      });
+      },
+    });
       if (buildteam) {
         res.send(buildteam);
       } else {

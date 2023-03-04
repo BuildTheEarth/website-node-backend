@@ -70,6 +70,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Include Builds",
+            "in": "query",
+            "name": "builds",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Include Showcases",
+            "in": "query",
+            "name": "showcases",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Include Members",
+            "in": "query",
+            "name": "members",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
