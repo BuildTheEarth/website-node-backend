@@ -44,7 +44,7 @@ class BuildTeamController {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const buildteams = await this.core.getPrisma().buildTeam.findFirst({
+    const buildteam = await this.core.getPrisma().buildTeam.findFirst({
       where: { id: req.params.id },
       include: {
         _count: {
@@ -52,7 +52,15 @@ class BuildTeamController {
         },
       },
     });
-    res.send(buildteams);
+    if (buildteam) {
+      res.send(buildteam);
+    } else {
+      res.status(404).send({
+        code: 404,
+        message: "Buildteam does not exit.",
+        translationKey: "404",
+      });
+    }
   }
 
   public async getBuildTeamApplicationQuestion(req: Request, res: Response) {
