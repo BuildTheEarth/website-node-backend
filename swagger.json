@@ -134,6 +134,48 @@
           }
         ],
         "tags": ["Buildteams"]
+      },
+      "post": {
+        "description": "Update all application questions of a buildteam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationQuestion"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
       }
     }
   },
