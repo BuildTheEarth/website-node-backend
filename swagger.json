@@ -16,11 +16,26 @@
   ],
   "tags": [
     {
+      "name": "General",
+      "description": "General Utility Functions"
+    },
+    {
       "name": "Buildteams",
       "description": "Anything regarding the buildteams"
     }
   ],
   "paths": {
+    "/healthcheck": {
+      "get": {
+        "description": "Check the Health of the API",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["General"]
+      }
+    },
     "/buildteams": {
       "get": {
         "description": "Get a list of all build teams",
@@ -40,9 +55,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       }
     },
     "/buildteams/{id}/application/questions": {
@@ -66,7 +79,11 @@
             "description": "Buildteam not found",
             "content": {
               "application/json": {
-                "example": {"code": 404, "message": "Buildteam does not exit.", "translationKey": "404"}
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
               }
             }
           }
@@ -82,11 +99,8 @@
             }
           }
         ],
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       }
-
     }
   },
   "components": {

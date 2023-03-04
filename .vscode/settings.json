@@ -4,5 +4,5 @@
     "**/*.js.map": true
   },
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "conventionalCommits.scopes": ["buildteams"]
+  "conventionalCommits.scopes": ["buildteams", "swagger"]
 }
