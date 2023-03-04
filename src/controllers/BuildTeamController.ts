@@ -48,9 +48,9 @@ class BuildTeamController {
       where: { id: req.params.id },
       include: {
         socials: true,
-        builds: req.query.builds && true,
-        showcases: req.query.showcase && true,
-        members: req.query.members && true,
+        builds: req.query.builds ? true : false,
+        showcases: req.query.showcase ? true : false,
+        members: req.query.members ? true : false,
         _count: {
           select: { members: true, builds: true },
         },
