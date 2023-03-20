@@ -100,3 +100,10 @@ model UserPermission {
   buildTeamId String?
   permission  String
 }
+
+model FAQQuestion {
+  id String @id @default(uuid())
+  question String @unique
+  answer String
+  links Json[] @default([])
+}

@@ -12,6 +12,10 @@
     {
       "url": "https://api.buildtheearth.net/api/v1",
       "description": "Production instance"
+    },
+    {
+      "url": "http://localhost:8080/api/v1",
+      "description": "Local instance"
     }
   ],
   "tags": [
@@ -22,7 +26,8 @@
     {
       "name": "Buildteams",
       "description": "Anything regarding the buildteams"
-    }
+    },
+    { "name": "FAQ", "description": "Anything regarding FAQ Questions" }
   ],
   "paths": {
     "/healthcheck": {
@@ -203,6 +208,28 @@
           }
         ],
         "tags": ["Buildteams"]
+      }
+    },
+    "/faq": {
+      "get": {
+        "description": "Get a list of all FAQ Questions",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["FAQ"]
       }
     }
   },
