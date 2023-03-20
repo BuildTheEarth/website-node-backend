@@ -1,7 +1,5 @@
 import yup from "yup";
 
-
-
 export const textQuestionDataSchema = yup.object({
     validation: yup.string().notRequired(),
     length: yup.number().notRequired()
@@ -22,8 +20,8 @@ export const minecraftNameQuestionDataSchema = yup.object({
 
 export const sliderQuestionDataSchema = yup.object({
     steps: yup.number().default(1),
-    max: yup.number().default(0),
-    min: yup.number().default(10),
+    max: yup.number().default(10),
+    min: yup.number().default(0),
     unit: yup.string().notRequired()
 })
 
