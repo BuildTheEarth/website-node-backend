@@ -113,6 +113,10 @@ class Routes {
       },
       param("id").isUUID(),
       body("questions")
+      //checkUserPermission(
+      //    this.web.getCore().getPrisma(),
+      //    "buildteam.application.edit"
+      //  )
     );
 
     /*

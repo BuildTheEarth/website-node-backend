@@ -168,7 +168,7 @@
         "tags": ["Buildteams"]
       },
       "post": {
-        "description": "Update all application questions of a buildteam",
+        "description": "Update all application questions of a buildteam. Required Permission: buildteam.application.edit",
         "responses": {
           "200": {
             "description": "OK",
