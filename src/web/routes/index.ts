@@ -7,6 +7,7 @@ import { Keycloak } from "keycloak-connect";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
 import Web from "../Web.js";
+import { checkUserPermission } from "./utils/CheckUserPermissionMiddleware.js";
 
 class Routes {
   app;
@@ -127,6 +128,16 @@ class Routes {
         await faqController.getFaqQuestions(request, response);
       },
       query("page").isNumeric().optional()
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/faq",
+      async (request, response) => {
+        await faqController.addFaqQuestion(request, response);
+      },
+      body("question"),
+      body("answer")
+      //checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
     );
   }
 }

@@ -230,6 +230,18 @@
           }
         },
         "tags": ["FAQ"]
+      },
+      "post": {
+        "description": "Create a new FAQ Question. Required Permission: faq.add",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "tags": ["FAQ"]
       }
     }
   },
