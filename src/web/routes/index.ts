@@ -6,6 +6,7 @@ import FaqController from "../../controllers/FAQController.js";
 import { Keycloak } from "keycloak-connect";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
+import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
 import { checkUserPermission } from "./utils/CheckUserPermissionMiddleware.js";
 
@@ -30,6 +31,7 @@ class Routes {
 
     const buildTeamController = new BuildTeamController(this.web.getCore());
     const faqController = new FaqController(this.web.getCore());
+    const userController = new UserController(this.web.getCore());
 
     legacyRouter.addRoute(
       RequestMethods.GET,
@@ -102,6 +104,7 @@ class Routes {
       },
       param("id").isUUID()
     );
+
     router.addRoute(
       RequestMethods.POST,
       "/buildteams/:id/application/questions",
@@ -121,7 +124,7 @@ class Routes {
 
     /*
      *
-     * Build Team Routes
+     * FAQ Routes
      *
      */
 
@@ -142,6 +145,31 @@ class Routes {
       body("question"),
       body("answer")
       //checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
+    );
+
+    /*
+     *
+     * User Routes
+     *
+     */
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/users",
+      async (request, response) => {
+        await userController.getUsers(request, response);
+      },
+      query("page").isNumeric().optional()
+      //checkUserPermission(this.web.getCore().getPrisma(), "users.list")
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/users/:id/permissions",
+      async (request, response) => {
+        await userController.getPermissions(request, response);
+      },
+      param("id"),
+      checkUserPermission(this.web.getCore().getPrisma(), "users.list")
     );
   }
 }

@@ -27,7 +27,8 @@
       "name": "Buildteams",
       "description": "Anything regarding the buildteams"
     },
-    { "name": "FAQ", "description": "Anything regarding FAQ Questions" }
+    { "name": "FAQ", "description": "Anything regarding FAQ Questions" },
+    { "name": "Users", "description": "Anything regarding Users" }
   ],
   "paths": {
     "/healthcheck": {
@@ -242,6 +243,50 @@
           }
         },
         "tags": ["FAQ"]
+      }
+    },
+    "/users": {
+      "get": {
+        "description": "Get a list of all Users. Required Permission: users.list",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/users/{id}/permissions": {
+      "get": {
+        "description": "Get a list of all Permissions of a User. Required Permission: users.list",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Users"]
       }
     }
   },

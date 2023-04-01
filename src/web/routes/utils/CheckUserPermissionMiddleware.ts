@@ -8,6 +8,11 @@ export const checkUserPermission = (
   permission: String
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.kauth.grant) {
+      res.status(401).send("You don't have permission to do this!");
+      return;
+    }
+    
     let user = await prisma.user.findUnique({
       where: {
         ssoId: req.kauth.grant.access_token.content.sub,
