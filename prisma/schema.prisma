@@ -114,4 +114,5 @@ model Contact {
   role String
   discord String?
   email String? 
+  avatar String?
 }
