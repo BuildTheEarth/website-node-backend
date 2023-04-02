@@ -6,7 +6,8 @@ import { minimatch } from "minimatch";
 
 export const checkUserPermission = (
   prisma: PrismaClient,
-  permission: string
+  permission: string,
+  buildteam?: string
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
@@ -23,6 +24,7 @@ export const checkUserPermission = (
     let permissions = await prisma.userPermission.findMany({
       where: {
         userId: user.id,
+        buildTeam: { id: buildteam },
       },
     });
 
