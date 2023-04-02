@@ -159,6 +159,18 @@ class Routes {
       body("answer")
       //checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/faq/:id",
+      async (request, response) => {
+        await faqController.editFaqQuestion(request, response);
+      },
+      param("id").isUUID(),
+      body("answer").isString().optional(),
+      body("question").isString().optional(),
+      body("links").isArray().optional(),
+      checkUserPermission(this.web.getCore().getPrisma(), "faq.edit")
+    );
 
     /*
      *
