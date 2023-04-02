@@ -37,3 +37,26 @@ export const checkUserPermission = (
     }
   };
 };
+
+export async function userHasPermission(
+  prisma,
+  ssoId: string,
+  permission: string,
+  buildteam?: string
+) {
+  let user = await prisma.user.findUnique({
+    where: {
+      ssoId,
+    },
+  });
+
+  let permissions = await prisma.userPermission.findMany({
+    where: {
+      userId: user.id,
+      buildTeam: { id: buildteam },
+    },
+  });
+
+  if (permissions.find((p) => minimatch(permission, p.permission))) return true;
+  return false;
+}
