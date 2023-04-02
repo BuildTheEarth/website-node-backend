@@ -4,6 +4,7 @@ import { body, param, query } from "express-validator";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
+import GeneralController from "../../controllers/GeneralController.js";
 import { Keycloak } from "keycloak-connect";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
@@ -34,6 +35,7 @@ class Routes {
     const faqController = new FaqController(this.web.getCore());
     const userController = new UserController(this.web.getCore());
     const contactController = new ContactController(this.web.getCore());
+    const generalController = new GeneralController(this.web.getCore());
 
     legacyRouter.addRoute(
       RequestMethods.GET,
@@ -70,6 +72,15 @@ class Routes {
     router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
       response.send({ status: "up" });
     });
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/account",
+      async (request, response) => {
+        await generalController.getAccount(request, response);
+      },
+      checkUserPermission(this.web.getCore().getPrisma(), "account.info")
+    );
 
     /*
      *

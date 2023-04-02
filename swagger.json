@@ -28,7 +28,8 @@
       "description": "Anything regarding the buildteams"
     },
     { "name": "FAQ", "description": "Anything regarding FAQ Questions" },
-    { "name": "Users", "description": "Anything regarding Users" }
+    { "name": "Users", "description": "Anything regarding Users" },
+    { "name": "Contacts", "description": "Anything regarding Contacts" }
   ],
   "paths": {
     "/healthcheck": {
@@ -298,6 +299,17 @@
           }
         },
         "tags": ["Contacts"]
+      }
+    },
+    "/account": {
+      "get": {
+        "description": "Get your account information",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["General"]
       }
     }
   },
