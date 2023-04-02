@@ -2,6 +2,7 @@ import { Request, Response, response } from "express";
 import { body, param, query } from "express-validator";
 
 import BuildTeamController from "../../controllers/BuildTeamController.js";
+import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import { Keycloak } from "keycloak-connect";
 import { RequestMethods } from "./utils/RequestMethods.js";
@@ -32,6 +33,7 @@ class Routes {
     const buildTeamController = new BuildTeamController(this.web.getCore());
     const faqController = new FaqController(this.web.getCore());
     const userController = new UserController(this.web.getCore());
+    const contactController = new ContactController(this.web.getCore());
 
     legacyRouter.addRoute(
       RequestMethods.GET,
@@ -170,6 +172,19 @@ class Routes {
       },
       param("id"),
       checkUserPermission(this.web.getCore().getPrisma(), "users.list")
+    );
+
+    /*
+     *
+     * Contact Routes
+     *
+     */
+    router.addRoute(
+      RequestMethods.GET,
+      "/contacts",
+      async (request, response) => {
+        await contactController.getContacts(request, response);
+      }
     );
   }
 }

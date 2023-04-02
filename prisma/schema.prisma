@@ -107,3 +107,11 @@ model FAQQuestion {
   answer String
   links Json[] @default([])
 }
+
+model Contact {
+  id String @id @default(uuid())
+  name String
+  role String
+  discord String?
+  email String? 
+}

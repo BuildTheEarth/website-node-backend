@@ -288,6 +288,17 @@
         },
         "tags": ["Users"]
       }
+    },
+    "/contacts": {
+      "get": {
+        "description": "Get a list of contacts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Contacts"]
+      }
     }
   },
   "components": {
