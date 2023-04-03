@@ -156,8 +156,8 @@ class Routes {
         await faqController.addFaqQuestion(request, response);
       },
       body("question"),
-      body("answer")
-      //checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
+      body("answer"),
+      checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
     );
     router.addRoute(
       RequestMethods.POST,
