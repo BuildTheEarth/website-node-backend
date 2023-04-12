@@ -209,6 +209,33 @@ class Routes {
         await contactController.getContacts(request, response);
       }
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/contacts",
+      async (request, response) => {
+        await faqController.addFaqQuestion(request, response);
+      },
+      body("name"),
+      body("role"),
+      body("discord").optional(),
+      body("email").isEmail().optional(),
+      body("avatar").isURL().optional(),
+      checkUserPermission(this.web.getCore().getPrisma(), "contacts.add")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/contacts/:id",
+      async (request, response) => {
+        await faqController.editFaqQuestion(request, response);
+      },
+      param("id").isUUID(),
+      body("name").optional(),
+      body("role").optional(),
+      body("discord").optional(),
+      body("email").isEmail().optional(),
+      body("avatar").isURL().optional(),
+      checkUserPermission(this.web.getCore().getPrisma(), "contacts.edit")
+    );
   }
 }
 
