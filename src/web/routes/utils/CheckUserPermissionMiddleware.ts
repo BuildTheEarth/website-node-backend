@@ -24,7 +24,7 @@ export const checkUserPermission = (
     let permissions = await prisma.userPermission.findMany({
       where: {
         userId: user.id,
-        buildTeam: { id: buildteam },
+        buildTeam: { id: buildteam ? req[buildteam] : undefined },
       },
     });
 

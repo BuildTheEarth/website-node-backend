@@ -135,6 +135,30 @@ class Routes {
       //  )
     );
 
+    router.addRoute(
+      RequestMethods.POST,
+      "/buildteams/:id",
+      async (request: Request, response: Response) => {
+        await buildTeamController.updateBuildTeamApplicationQuestions(
+          request,
+          response
+        );
+      },
+      param("id").isUUID(),
+      body("name").isString().optional(),
+      body("icon").isURL().optional(),
+      body("backgroundImage").isURL().optional(),
+      body("invite").isURL().optional(),
+      body("about").isString().optional(),
+      body("location").isString().optional(),
+      body("slug").isString().optional(),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "buildteam.edit",
+        "params.id"
+      )
+    );
+
     /*
      *
      * FAQ Routes
