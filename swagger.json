@@ -247,6 +247,78 @@
         "tags": ["Buildteams"]
       }
     },
+    "/buildteams/{id}/socials": {
+      "get": {
+        "description": "Get a list of all socials of a buildteam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
+      },
+      "post": {
+        "description": "Update all socials of a buildteam. Required Permission: buildteam.edit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
+      }
+    },
     "/faq": {
       "get": {
         "description": "Get a list of all FAQ Questions",

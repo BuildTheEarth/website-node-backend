@@ -151,6 +151,85 @@ class BuildTeamController {
     }
   }
 
+  public async getBuildTeamSocials(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    let buildteam = await this.core.getPrisma().buildTeam.findUnique({
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        socials: true,
+      },
+    });
+
+    if (buildteam) {
+      res.send(buildteam.socials);
+    } else {
+      res.status(404).send({
+        code: 404,
+        message: "Buildteam does not exit.",
+        translationKey: "404",
+      });
+    }
+  }
+
+  public async updateBuildTeamSocials(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    let buildteam = await this.core.getPrisma().buildTeam.findUnique({
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        socials: true,
+      },
+    });
+
+    if (buildteam) {
+      // validate schema
+
+      let schema = yup.array().of(
+        yup.object({
+          id: yup.string(),
+          name: yup.string(),
+          icon: yup.string(),
+          url: yup.string(),
+        })
+      );
+
+      schema
+        .validate(req.body)
+        .then((validatedSchema) => {
+          validatedSchema.forEach((question) => {
+            this.core.getPrisma().social.update({
+              where: {
+                id: question.id,
+              },
+              data: question,
+            });
+          });
+
+          res.send(validatedSchema);
+        })
+        .catch((e) => {
+          res.status(400).send(e);
+        });
+    } else {
+      res.status(404).send({
+        code: 404,
+        message: "Buildteam does not exit.",
+        translationKey: "404",
+      });
+    }
+  }
+
   public async updateBuildTeam(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

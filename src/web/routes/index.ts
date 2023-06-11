@@ -136,13 +136,30 @@ class Routes {
     );
 
     router.addRoute(
+      RequestMethods.GET,
+      "/buildteams/:id/socials",
+      async (request: Request, response: Response) => {
+        await buildTeamController.getBuildTeamSocials(request, response);
+      },
+      param("id").isUUID()
+    );
+
+    router.addRoute(
+      RequestMethods.POST,
+      "/buildteams/:id/socials",
+      async (request: Request, response: Response) => {
+        await buildTeamController.updateBuildTeamSocials(request, response);
+      },
+      param("id").isUUID(),
+      body("socials"),
+      checkUserPermission(this.web.getCore().getPrisma(), "buildteam.edit")
+    );
+
+    router.addRoute(
       RequestMethods.POST,
       "/buildteams/:id",
       async (request: Request, response: Response) => {
-        await buildTeamController.updateBuildTeamApplicationQuestions(
-          request,
-          response
-        );
+        await buildTeamController.updateBuildTeam(request, response);
       },
       param("id").isUUID(),
       body("name").isString().optional(),
