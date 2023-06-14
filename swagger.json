@@ -29,7 +29,8 @@
     },
     { "name": "FAQ", "description": "Anything regarding FAQ Questions" },
     { "name": "Users", "description": "Anything regarding Users" },
-    { "name": "Contacts", "description": "Anything regarding Contacts" }
+    { "name": "Contacts", "description": "Anything regarding Contacts" },
+    { "name": "Newsletter", "description": "Anything regarding the Newsletter" }
   ],
   "paths": {
     "/healthcheck": {
@@ -406,6 +407,50 @@
           }
         },
         "tags": ["Contacts"]
+      }
+    },
+    "/newsletter/{id}": {
+      "get": {
+        "description": "Get a newsletter",
+        "parameters": [
+          {
+            "description": "The uuid of the newsletter",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Newsletter"]
+      }
+    },
+    "/newsletter": {
+      "get": {
+        "description": "Get a list of newsletters",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "params",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Newsletter"]
       }
     },
     "/account": {

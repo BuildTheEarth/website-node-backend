@@ -6,6 +6,7 @@ import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
 import { Keycloak } from "keycloak-connect";
+import NewsletterController from "../../controllers/NewsleterController.js";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
 import UserController from "../../controllers/UserController.js";
@@ -35,6 +36,7 @@ class Routes {
     const faqController = new FaqController(this.web.getCore());
     const userController = new UserController(this.web.getCore());
     const contactController = new ContactController(this.web.getCore());
+    const newsletterController = new NewsletterController(this.web.getCore());
     const generalController = new GeneralController(this.web.getCore());
 
     legacyRouter.addRoute(
@@ -276,6 +278,29 @@ class Routes {
       body("email").isEmail().optional(),
       body("avatar").isURL().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "contacts.edit")
+    );
+
+    /*
+     *
+     * Newsletter Routes
+     *
+     */
+    router.addRoute(
+      RequestMethods.GET,
+      "/newsletter",
+      async (request, response) => {
+        await newsletterController.getNewsletters(request, response);
+      },
+      param("page").optional()
+    );
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/newsletter/:id",
+      async (request, response) => {
+        await newsletterController.getNewsletter(request, response);
+      },
+      param("id").isUUID()
     );
   }
 }
