@@ -437,7 +437,7 @@
         "parameters": [
           {
             "description": "The page of results to return, **starting at 0**",
-            "in": "params",
+            "in": "query",
             "name": "page",
             "required": false,
             "schema": {
