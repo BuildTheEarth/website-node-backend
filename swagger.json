@@ -414,12 +414,21 @@
         "description": "Get a newsletter",
         "parameters": [
           {
-            "description": "The uuid of the newsletter",
+            "description": "The uuid/issue of the newsletter",
             "in": "path",
             "name": "id",
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "If the database should look for issues with the id and not uuids",
+            "in": "query",
+            "name": "isIssue",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],

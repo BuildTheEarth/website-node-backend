@@ -35,11 +35,25 @@ class NewsletterController {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    return await this.core.getPrisma().newsletter.findUnique({
-      where: {
-        id: req.params.id,
-      },
+    const newsletter = await this.core.getPrisma().newsletter.findUnique({
+      where: req.query.isIssue
+        ? {
+            issue: parseInt(req.params.id as string),
+          }
+        : {
+            id: req.params.id,
+          },
     });
+    if (newsletter) {
+      res.send(newsletter);
+    } else {
+      res.status(404).send({
+        code: 404,
+        message: "Newsletter does not exit.",
+        translationKey: "404",
+      });
+    }
+    return;
   }
 }
 

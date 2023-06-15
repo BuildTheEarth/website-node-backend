@@ -6,7 +6,7 @@ import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
 import { Keycloak } from "keycloak-connect";
-import NewsletterController from "../../controllers/NewsleterController.js";
+import NewsletterController from "../../controllers/NewsletterController.js";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
 import UserController from "../../controllers/UserController.js";
@@ -300,7 +300,8 @@ class Routes {
       async (request, response) => {
         await newsletterController.getNewsletter(request, response);
       },
-      param("id").isUUID()
+      param("id").optional(),
+      query("isIssue").optional()
     );
   }
 }

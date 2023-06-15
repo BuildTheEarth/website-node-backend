@@ -103,7 +103,7 @@ model Contact {
 
 model Newsletter {
   id             String   @id @default(uuid())
-  issue          Int
+  issue          Int  @unique
   title          String
   public      Boolean?
   published_date DateTime
