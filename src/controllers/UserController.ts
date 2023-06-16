@@ -41,6 +41,43 @@ class UserController {
       .userPermission.findMany({ where: { userId: req.params.id } });
     res.send(permissions);
   }
+
+  public async addPermissions(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    let permissions = await this.core
+      .getPrisma()
+      .userPermission.findMany({ where: { userId: req.params.id } });
+    console.log(permissions)
+    let addedPermissions = [];
+    for (let i = 0; i < req.body.permissions.length; i++) {
+      const newPermission = req.body.permissions[i];
+      let hasPermission = permissions.some((currentPermission) => {
+        return (currentPermission.permission == newPermission);
+      });
+      console.log("has permission ? " + hasPermission + " (" + newPermission + ")")
+      if (!hasPermission) {
+        addedPermissions.push(newPermission);
+        console.log("added " + newPermission)
+        await this.core.getPrisma().userPermission.create({
+          data: {
+            permission: newPermission,
+            user: {
+              connect: {
+                id: req.params.id,
+              },
+            },
+          },
+        });
+        addedPermissions.push(newPermission)
+      }
+    }
+
+    res.send(JSON.stringify({added: addedPermissions, permissions: permissions})).status(200);
+
+  }
 }
 
 export default UserController;
