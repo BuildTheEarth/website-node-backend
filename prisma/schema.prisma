@@ -12,8 +12,10 @@ model User {
   ssoId             String           @unique
   discordId         String?
   createdBuildTeams BuildTeam[]      @relation("creator")
-  UserPermission    UserPermission[]
+  permissions       UserPermission[]
   joinedBuildTeams  BuildTeam[]      @relation("members")
+  applications      Application[]    @relation("user")
+  reviewed          Application[]    @relation("reviewer")
 }
 
 model BuildTeam {
@@ -34,20 +36,22 @@ model BuildTeam {
   socials              Social[]              @relation("socials")
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
+  Application          Application[]
 }
 
 model ApplicationQuestion {
-  id             String                  @id @default(uuid())
-  title          String
-  subtitle       String
-  placeholder    String                  @default("")
-  required       Boolean                 @default(true)
-  type           ApplicationQuestionType
-  icon           String
-  additionalData Json                    @default("{}")
-  buildTeamId    String
-  sort           Int                     @unique
-  buildTeam      BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
+  id                String                  @id @default(uuid())
+  title             String
+  subtitle          String
+  placeholder       String                  @default("")
+  required          Boolean                 @default(true)
+  type              ApplicationQuestionType
+  icon              String
+  additionalData    Json                    @default("{}")
+  buildTeamId       String
+  sort              Int                     @unique
+  buildTeam         BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
+  ApplicationAnswer ApplicationAnswer[]
 }
 
 model Social {
@@ -103,11 +107,42 @@ model Contact {
 
 model Newsletter {
   id             String   @id @default(uuid())
-  issue          Int  @unique
+  issue          Int      @unique
   title          String
-  public      Boolean?
+  public         Boolean?
   published_date DateTime
   links          String[]
+}
+
+model Application {
+  id                String              @id @default(uuid())
+  buildteamId       String
+  buildteam         BuildTeam           @relation(fields: [buildteamId], references: [id])
+  userId            String
+  user              User                @relation("user", fields: [userId], references: [id])
+  reviewerId        String
+  reviewer          User?               @relation("reviewer", fields: [reviewerId], references: [id])
+  status            ApplicationStatus   @default(SEND)
+  createdAt         DateTime            @default(now())
+  reviewedAt        DateTime?
+  reason            String?
+  ApplicationAnswer ApplicationAnswer[]
+}
+
+model ApplicationAnswer {
+  id            String              @id @default(uuid())
+  applicationId String
+  application   Application         @relation(fields: [applicationId], references: [id])
+  questionId    String
+  question      ApplicationQuestion @relation(fields: [questionId], references: [id])
+  answer String
+}
+
+enum ApplicationStatus {
+  SEND
+  REVIEWING
+  ACCEPTED
+  DECLIEND
 }
 
 enum ApplicationQuestionType {
