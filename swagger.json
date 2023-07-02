@@ -27,6 +27,10 @@
       "name": "Buildteams",
       "description": "Anything regarding the buildteams"
     },
+    {
+      "name": "Applications",
+      "description": "Anything regarding Applications"
+    },
     { "name": "FAQ", "description": "Anything regarding FAQ Questions" },
     { "name": "Users", "description": "Anything regarding Users" },
     { "name": "Contacts", "description": "Anything regarding Contacts" },
@@ -471,6 +475,64 @@
           }
         },
         "tags": ["General"]
+      }
+    },
+    "/applications": {
+      "get": {
+        "description": "Get a list of newsletters",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The buildteam to filter for",
+            "in": "query",
+            "name": "buildteam",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Extend BuildTeam Information",
+            "in": "query",
+            "name": "includeBuildteam",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Reviewer Information",
+            "in": "query",
+            "name": "includeReviewer",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Answer Information",
+            "in": "query",
+            "name": "includeAnswers",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Applications"]
       }
     }
   },

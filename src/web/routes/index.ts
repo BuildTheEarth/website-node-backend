@@ -1,6 +1,7 @@
 import { Request, Response, response } from "express";
 import { body, param, query } from "express-validator";
 
+import ApplicationController from "../../controllers/ApplicationController.js";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
@@ -33,6 +34,7 @@ class Routes {
     const router: Router = new Router(this.web, "v1");
 
     const buildTeamController = new BuildTeamController(this.web.getCore());
+    const applicationController = new ApplicationController(this.web.getCore());
     const faqController = new FaqController(this.web.getCore());
     const userController = new UserController(this.web.getCore());
     const contactController = new ContactController(this.web.getCore());
@@ -176,6 +178,26 @@ class Routes {
         "buildteam.edit",
         "params.id"
       )
+    );
+
+    /*
+     *
+     * Application Routes
+     *
+     */
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/applications",
+      async (request, response) => {
+        await applicationController.getApplications(request, response);
+      },
+      query("page").isNumeric().optional(),
+      query("includeBuildteam").isBoolean().optional(),
+      query("includeReviewer").isBoolean().optional(),
+      query("includeAnswers").isBoolean().optional(),
+      query("buildteam").isUUID().optional()
+      // Permission check later
     );
 
     /*

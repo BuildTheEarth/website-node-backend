@@ -120,7 +120,7 @@ model Application {
   buildteam         BuildTeam           @relation(fields: [buildteamId], references: [id])
   userId            String
   user              User                @relation("user", fields: [userId], references: [id])
-  reviewerId        String
+  reviewerId        String?
   reviewer          User?               @relation("reviewer", fields: [reviewerId], references: [id])
   status            ApplicationStatus   @default(SEND)
   createdAt         DateTime            @default(now())

@@ -15,20 +15,14 @@ export const checkUserPermission = (
       return;
     }
 
-    let user = await prisma.user.findUnique({
-      where: {
-        ssoId: req.kauth.grant.access_token.content.sub,
-      },
-    });
-
-    let permissions = await prisma.userPermission.findMany({
-      where: {
-        userId: user.id,
-        buildTeam: { id: buildteam ? req[buildteam] : undefined },
-      },
-    });
-
-    if (permissions.find((p) => minimatch(permission, p.permission))) {
+    if (
+      userHasPermission(
+        prisma,
+        req.kauth.grant.access_token.content.sub,
+        permission,
+        buildteam
+      )
+    ) {
       next();
       return;
     } else {
@@ -53,10 +47,15 @@ export async function userHasPermission(
   let permissions = await prisma.userPermission.findMany({
     where: {
       userId: user.id,
-      buildTeam: { id: buildteam },
+      buildTeamId: buildteam || null,
     },
   });
 
-  if (permissions.find((p) => minimatch(permission, p.permission))) return true;
+  const foundPermissions = permissions.find((p) =>
+    minimatch(permission, p.permission)
+  );
+  if (foundPermissions != null && foundPermissions != undefined) {
+    return true;
+  }
   return false;
 }
