@@ -199,6 +199,18 @@ class Routes {
       query("buildteam").isUUID().optional()
       // Permission check later
     );
+    router.addRoute(
+      RequestMethods.GET,
+      "/applications/:id",
+      async (request, response) => {
+        await applicationController.getApplication(request, response);
+      },
+      param("id").isUUID(),
+      query("includeBuildteam").isBoolean().optional(),
+      query("includeReviewer").isBoolean().optional(),
+      query("includeAnswers").isBoolean().optional()
+      // Permission check later
+    );
 
     /*
      *

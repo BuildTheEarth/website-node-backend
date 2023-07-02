@@ -479,7 +479,7 @@
     },
     "/applications": {
       "get": {
-        "description": "Get a list of newsletters",
+        "description": "Get a list of applications",
         "parameters": [
           {
             "description": "The page of results to return, **starting at 0**",
@@ -495,6 +495,55 @@
             "in": "query",
             "name": "buildteam",
             "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Extend BuildTeam Information",
+            "in": "query",
+            "name": "includeBuildteam",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Reviewer Information",
+            "in": "query",
+            "name": "includeReviewer",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Answer Information",
+            "in": "query",
+            "name": "includeAnswers",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Applications"]
+      }
+    },
+    "/applications/{id}": {
+      "get": {
+        "description": "Get one application",
+        "parameters": [
+          {
+            "description": "The id of the application",
+            "in": "path",
+            "name": "id",
+            "required": true,
             "schema": {
               "type": "string"
             }

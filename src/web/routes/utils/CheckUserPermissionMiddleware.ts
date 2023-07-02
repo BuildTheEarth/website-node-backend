@@ -47,13 +47,13 @@ export async function userHasPermission(
   let permissions = await prisma.userPermission.findMany({
     where: {
       userId: user.id,
-      buildTeamId: buildteam || null,
     },
   });
 
-  const foundPermissions = permissions.find((p) =>
-    minimatch(permission, p.permission)
-  );
+  const foundPermissions = permissions
+    .filter((p) => p.buildTeamId == null || p.buildTeamId == buildteam)
+    .find((p) => minimatch(permission, p.permission));
+  console.log(foundPermissions);
   if (foundPermissions != null && foundPermissions != undefined) {
     return true;
   }

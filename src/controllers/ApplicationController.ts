@@ -90,6 +90,38 @@ class ApplicationController {
       });
     }
   }
+  public async getApplication(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const application = await this.core.getPrisma().application.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+    if (application) {
+      if (
+        await userHasPermission(
+          this.core.getPrisma(),
+          req.kauth.grant.access_token.content.sub,
+          "application.list",
+          application?.buildteamId
+        )
+      ) {
+        res.send(application);
+      } else {
+        res.status(403).send("You don't have permission to do this!");
+      }
+    } else {
+      res.status(404).send({
+        code: 404,
+        message: "Applicationdoes not exit.",
+        translationKey: "404",
+      });
+    }
+    return;
+  }
 }
 
 export default ApplicationController;

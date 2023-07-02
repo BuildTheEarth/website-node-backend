@@ -5,6 +5,10 @@ import { PrismaClient } from "@prisma/client";
 
 const checkNewUser = (prisma: PrismaClient, core: Core) => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.kauth.grant) {
+      next();
+      return;
+    }
     const user = await prisma.user.findUnique({
       where: {
         ssoId: req.kauth.grant.access_token.content.sub,
