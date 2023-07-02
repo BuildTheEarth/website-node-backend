@@ -99,6 +99,11 @@ class ApplicationController {
       where: {
         id: req.params.id,
       },
+      include: {
+        buildteam: req.query.includeBuildteam === "true",
+        reviewer: req.query.includeReviewer === "true",
+        ApplicationAnswer: req.query.includeAnswers === "true",
+      },
     });
     if (application) {
       if (
