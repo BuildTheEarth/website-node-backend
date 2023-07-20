@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 
+import { ApplicationStatus } from "@prisma/client";
 import Core from "../Core.js";
+import { parseApplicationStatus } from "../util/Parser.js";
 import { questions } from "../util/QuestionData.js";
+import { stat } from "fs";
 import { userHasPermission } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
@@ -24,6 +27,19 @@ class ApplicationController {
       reviewer: req.query.includeReviewer === "true",
       ApplicationAnswer: req.query.includeAnswers === "true",
     };
+
+    if (!req.kauth.grant) {
+      return res.status(400).json({
+        errors: [
+          {
+            location: "query",
+            msg: "Missing value",
+            path: "buildteam",
+            type: "field",
+          },
+        ],
+      });
+    }
 
     if (
       await userHasPermission(
@@ -126,6 +142,33 @@ class ApplicationController {
       });
     }
     return;
+  }
+
+  public async review(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { status, reason } = req.body;
+    const reviewer = req.user;
+
+    const application = await this.core.getPrisma().application.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        reviewer: { connect: { id: reviewer.id } },
+        reviewedAt: status != "reviewing" ? new Date() : null,
+        status: parseApplicationStatus(status),
+        reason,
+      },
+    });
+    console.log(req.params.id, application);
+    res.send(application);
+
+    // TODO: Update user rank+perms
+    // query: isTrial for trial building
   }
 }
 

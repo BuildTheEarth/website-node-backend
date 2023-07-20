@@ -582,6 +582,36 @@
           }
         },
         "tags": ["Applications"]
+      },
+       "post": {
+        "description": "Review one application",
+        "parameters": [
+          {
+            "description": "The id of the application",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Should the application be handeled as a trial application",
+            "in": "query",
+            "name": "isTrial",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+          
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["Applications"]
       }
     }
   },

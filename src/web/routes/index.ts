@@ -2,6 +2,7 @@ import { Request, Response, response } from "express";
 import { body, param, query } from "express-validator";
 
 import ApplicationController from "../../controllers/ApplicationController.js";
+import { ApplicationStatus } from "@prisma/client";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
@@ -210,6 +211,17 @@ class Routes {
       query("includeReviewer").isBoolean().optional(),
       query("includeAnswers").isBoolean().optional()
       // Permission check later
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/applications/:id",
+      async (request, response) => {
+        await applicationController.review(request, response);
+      },
+      param("id").isUUID(),
+      query("isTrial").isBoolean().optional(),
+      body("status").isIn(["reviewing", "accepted", "declined"]),
+      body("reason").isString().optional()
     );
 
     /*

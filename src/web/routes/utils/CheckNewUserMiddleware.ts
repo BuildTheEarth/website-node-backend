@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 
 import Core from "../../../Core.js";
 import { PrismaClient } from "@prisma/client";
@@ -35,6 +35,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
                 discordId: discordIdentity.userId,
               },
             });
+            req.user = user;
           }
         } else {
           const user = await prisma.user.update({
@@ -45,6 +46,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
               discordId: "",
             },
           });
+          req.user = user;
         }
       } else {
         const user = await prisma.user.update({
@@ -55,6 +57,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
             discordId: "",
           },
         });
+        req.user = user;
       }
       next();
       return;
@@ -74,6 +77,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
           discordId: discordIdentity ? discordIdentity.userId : undefined,
         },
       });
+      req.user = user;
       await prisma.userPermission.create({
         data: {
           user: { connect: { id: user.id } },

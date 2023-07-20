@@ -142,7 +142,7 @@ enum ApplicationStatus {
   SEND
   REVIEWING
   ACCEPTED
-  DECLIEND
+  DECLINED
 }
 
 enum ApplicationQuestionType {
