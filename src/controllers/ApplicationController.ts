@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import turf, { toPolygon } from "../util/Turf.js";
 
 import { ApplicationStatus } from "@prisma/client";
 import Core from "../Core.js";
@@ -25,6 +26,7 @@ class ApplicationController {
     const includeFilter = {
       buildteam: req.query.includeBuildteam === "true",
       reviewer: req.query.includeReviewer === "true",
+      claim: req.query.includeClaim === "true",
       ApplicationAnswer: req.query.includeAnswers === "true",
     };
 
@@ -118,6 +120,7 @@ class ApplicationController {
       include: {
         buildteam: req.query.includeBuildteam === "true",
         reviewer: req.query.includeReviewer === "true",
+        claim: req.query.includeClaim === "true",
         ApplicationAnswer: req.query.includeAnswers === "true",
       },
     });
@@ -137,7 +140,7 @@ class ApplicationController {
     } else {
       res.status(404).send({
         code: 404,
-        message: "Applicationdoes not exit.",
+        message: "Application does not exit.",
         translationKey: "404",
       });
     }
@@ -150,7 +153,7 @@ class ApplicationController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { status, reason } = req.body;
+    const { status, reason, claimActive, isTrial } = req.body;
     const reviewer = req.user;
 
     const application = await this.core.getPrisma().application.update({
@@ -160,7 +163,8 @@ class ApplicationController {
       data: {
         reviewer: { connect: { id: reviewer.id } },
         reviewedAt: status != "reviewing" ? new Date() : null,
-        status: parseApplicationStatus(status),
+        claim: { update: { active: claimActive } },
+        status: parseApplicationStatus(status, isTrial),
         reason,
       },
     });
@@ -168,7 +172,32 @@ class ApplicationController {
     res.send(application);
 
     // TODO: Update user rank+perms
-    // query: isTrial for trial building
+    // body: isTrial for trial building
+  }
+
+  public async apply(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // 1. is trial app?
+    // 2. Correct BT?
+    // 3. Region overlap?
+    // 3. add to db
+
+    /*
+     Body:
+        isTrial: bool
+        area: string[]
+        buildteam: string
+        answers: ApplicationAnswer[]
+
+    */
+
+    const { isTrial, area, buildteam, answers } = req.body;
+    const center = turf.center(toPolygon(area));
+    res.send(center);
   }
 }
 

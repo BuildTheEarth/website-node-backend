@@ -16,6 +16,8 @@ model User {
   joinedBuildTeams  BuildTeam[]      @relation("members")
   applications      Application[]    @relation("user")
   reviewed          Application[]    @relation("reviewer")
+  claims            Claim[]          @relation("owner")
+  claimsBuilder     Claim[]          @relation("builders")
 }
 
 model BuildTeam {
@@ -37,6 +39,10 @@ model BuildTeam {
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
   Application          Application[]
+  allowTrial           Boolean               @default(false)
+  rejectionMessage     String                @default("")
+  acceptionMessage     String                @default("")
+  trialMessage         String                @default("")
 }
 
 model ApplicationQuestion {
@@ -45,11 +51,12 @@ model ApplicationQuestion {
   subtitle          String
   placeholder       String                  @default("")
   required          Boolean                 @default(true)
+  trial             Boolean                 @default(false)
   type              ApplicationQuestionType
   icon              String
   additionalData    Json                    @default("{}")
   buildTeamId       String
-  sort              Int                     @unique
+  sort              Int
   buildTeam         BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
   ApplicationAnswer ApplicationAnswer[]
 }
@@ -58,7 +65,7 @@ model Social {
   id          String    @id @default(uuid())
   name        String
   icon        String
-  url         String    @unique
+  url         String
   buildTeamId String
   buildTeam   BuildTeam @relation("socials", fields: [buildTeamId], references: [id])
 }
@@ -114,6 +121,17 @@ model Newsletter {
   links          String[]
 }
 
+model Claim {
+  id          String        @id @default(uuid())
+  owner       User          @relation("owner", fields: [ownerId], references: [id])
+  ownerId     String
+  builders    User[]        @relation("builders")
+  area        String[]
+  center      String
+  active      Boolean       @default(false)
+  Application Application[]
+}
+
 model Application {
   id                String              @id @default(uuid())
   buildteamId       String
@@ -126,6 +144,9 @@ model Application {
   createdAt         DateTime            @default(now())
   reviewedAt        DateTime?
   reason            String?
+  claim             Claim?              @relation(fields: [claimId], references: [id])
+  claimId           String?
+  trial             Boolean             @default(false)
   ApplicationAnswer ApplicationAnswer[]
 }
 
@@ -135,12 +156,13 @@ model ApplicationAnswer {
   application   Application         @relation(fields: [applicationId], references: [id])
   questionId    String
   question      ApplicationQuestion @relation(fields: [questionId], references: [id])
-  answer String
+  answer        String
 }
 
 enum ApplicationStatus {
   SEND
   REVIEWING
+  TRIAL
   ACCEPTED
   DECLINED
 }

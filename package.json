@@ -46,6 +46,8 @@
     "@bte-germany/terraconvert": "^1.0.1",
     "@keycloak/keycloak-admin-client": "^20.0.2",
     "@prisma/client": "^4.7.1",
+    "@turf/helpers": "^6.5.0",
+    "@turf/turf": "^6.5.0",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

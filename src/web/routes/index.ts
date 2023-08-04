@@ -201,6 +201,13 @@ class Routes {
       // Permission check later
     );
     router.addRoute(
+      RequestMethods.POST,
+      "/applications",
+      async (request, response) => {
+        await applicationController.apply(request, response);
+      }
+    );
+    router.addRoute(
       RequestMethods.GET,
       "/applications/:id",
       async (request, response) => {
@@ -219,7 +226,8 @@ class Routes {
         await applicationController.review(request, response);
       },
       param("id").isUUID(),
-      query("isTrial").isBoolean().optional(),
+      body("isTrial").isBoolean(),
+      body("claimActive").isBoolean(),
       body("status").isIn(["reviewing", "accepted", "declined"]),
       body("reason").isString().optional()
     );
