@@ -12,6 +12,7 @@
     "middleware",
     "newsletter",
     "swagger",
-    "application"
+    "application",
+    "prisma"
   ]
 }

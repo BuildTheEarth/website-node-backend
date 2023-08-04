@@ -11,13 +11,13 @@ model User {
   id                String           @id @default(uuid())
   ssoId             String           @unique
   discordId         String?
-  createdBuildTeams BuildTeam[]      @relation("creator")
-  permissions       UserPermission[]
-  joinedBuildTeams  BuildTeam[]      @relation("members")
-  applications      Application[]    @relation("user")
   reviewed          Application[]    @relation("reviewer")
+  applications      Application[]    @relation("user")
+  createdBuildTeams BuildTeam[]      @relation("creator")
   claims            Claim[]          @relation("owner")
+  permissions       UserPermission[]
   claimsBuilder     Claim[]          @relation("builders")
+  joinedBuildTeams  BuildTeam[]      @relation("members")
 }
 
 model BuildTeam {
@@ -31,6 +31,11 @@ model BuildTeam {
   createdAt            DateTime              @default(now())
   location             String                @default("")
   slug                 String                @unique @default("")
+  acceptionMessage     String                @default("")
+  allowTrial           Boolean               @default(false)
+  rejectionMessage     String                @default("")
+  trialMessage         String                @default("")
+  Application          Application[]
   applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
   builds               Build[]               @relation("builds")
   creator              User                  @relation("creator", fields: [creatorId], references: [id])
@@ -38,11 +43,6 @@ model BuildTeam {
   socials              Social[]              @relation("socials")
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
-  Application          Application[]
-  allowTrial           Boolean               @default(false)
-  rejectionMessage     String                @default("")
-  acceptionMessage     String                @default("")
-  trialMessage         String                @default("")
 }
 
 model ApplicationQuestion {
@@ -51,14 +51,14 @@ model ApplicationQuestion {
   subtitle          String
   placeholder       String                  @default("")
   required          Boolean                 @default(true)
-  trial             Boolean                 @default(false)
   type              ApplicationQuestionType
   icon              String
   additionalData    Json                    @default("{}")
   buildTeamId       String
   sort              Int
-  buildTeam         BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
+  trial             Boolean                 @default(false)
   ApplicationAnswer ApplicationAnswer[]
+  buildTeam         BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
 }
 
 model Social {
@@ -116,55 +116,55 @@ model Newsletter {
   id             String   @id @default(uuid())
   issue          Int      @unique
   title          String
-  public         Boolean?
   published_date DateTime
   links          String[]
+  public         Boolean?
 }
 
 model Claim {
   id          String        @id @default(uuid())
-  owner       User          @relation("owner", fields: [ownerId], references: [id])
   ownerId     String
-  builders    User[]        @relation("builders")
   area        String[]
   center      String
   active      Boolean       @default(false)
   Application Application[]
+  owner       User          @relation("owner", fields: [ownerId], references: [id])
+  builders    User[]        @relation("builders")
 }
 
 model Application {
   id                String              @id @default(uuid())
   buildteamId       String
-  buildteam         BuildTeam           @relation(fields: [buildteamId], references: [id])
   userId            String
-  user              User                @relation("user", fields: [userId], references: [id])
   reviewerId        String?
-  reviewer          User?               @relation("reviewer", fields: [reviewerId], references: [id])
   status            ApplicationStatus   @default(SEND)
   createdAt         DateTime            @default(now())
   reviewedAt        DateTime?
   reason            String?
-  claim             Claim?              @relation(fields: [claimId], references: [id])
   claimId           String?
   trial             Boolean             @default(false)
+  buildteam         BuildTeam           @relation(fields: [buildteamId], references: [id])
+  claim             Claim?              @relation(fields: [claimId], references: [id])
+  reviewer          User?               @relation("reviewer", fields: [reviewerId], references: [id])
+  user              User                @relation("user", fields: [userId], references: [id])
   ApplicationAnswer ApplicationAnswer[]
 }
 
 model ApplicationAnswer {
   id            String              @id @default(uuid())
   applicationId String
-  application   Application         @relation(fields: [applicationId], references: [id])
   questionId    String
-  question      ApplicationQuestion @relation(fields: [questionId], references: [id])
   answer        String
+  application   Application         @relation(fields: [applicationId], references: [id])
+  question      ApplicationQuestion @relation(fields: [questionId], references: [id])
 }
 
 enum ApplicationStatus {
   SEND
   REVIEWING
-  TRIAL
   ACCEPTED
   DECLINED
+  TRIAL
 }
 
 enum ApplicationQuestionType {
