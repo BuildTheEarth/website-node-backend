@@ -6,12 +6,8 @@
   },
   "servers": [
     {
-      "url": "https://api.buildthe.earth/api/v1",
-      "description": "Development instance"
-    },
-    {
       "url": "https://api.buildtheearth.net/api/v1",
-      "description": "Production instance"
+      "description": "Website instance"
     },
     {
       "url": "http://localhost:8080/api/v1",
