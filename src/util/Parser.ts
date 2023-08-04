@@ -9,7 +9,7 @@ export function parseApplicationStatus(status: string): ApplicationStatus {
     case "accpeted":
       return ApplicationStatus.ACCEPTED;
     case "declined":
-      return ApplicationStatus.DECLIEND;
+      return ApplicationStatus.DECLINED;
     default:
       return ApplicationStatus.SEND;
   }
