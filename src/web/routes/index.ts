@@ -1,19 +1,18 @@
-import { Request, Response, response } from "express";
-import { body, param, query } from "express-validator";
+import {Request, response, Response} from "express";
+import {body, param, query} from "express-validator";
 
 import ApplicationController from "../../controllers/ApplicationController.js";
-import { ApplicationStatus } from "@prisma/client";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
-import { Keycloak } from "keycloak-connect";
+import {Keycloak} from "keycloak-connect";
 import NewsletterController from "../../controllers/NewsletterController.js";
-import { RequestMethods } from "./utils/RequestMethods.js";
+import {RequestMethods} from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
 import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
-import { checkUserPermission } from "./utils/CheckUserPermissionMiddleware.js";
+import {checkUserPermission} from "./utils/CheckUserPermissionMiddleware.js";
 
 class Routes {
   app;
@@ -357,6 +356,16 @@ class Routes {
       param("id").optional(),
       query("isIssue").optional()
     );
+
+    router.addRoute(
+        RequestMethods.POST,
+        "/newsletter",
+        async (request, response) => {
+          await newsletterController.addNewsletter(request, response);
+        },
+        param("public").isBoolean().optional(),
+        checkUserPermission(this.web.getCore().getPrisma(), "newsletter.create")
+    )
   }
 }
 

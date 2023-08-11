@@ -49,11 +49,23 @@ class NewsletterController {
     } else {
       res.status(404).send({
         code: 404,
-        message: "Newsletter does not exit.",
+        message: "Newsletter does not exist.",
         translationKey: "404",
       });
     }
     return;
+  }
+
+  public async addNewsletter(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      return res.status(400).json({errors: errors.array() });
+    }
+    const issue = await this.core.getPrisma().newsletter.count() + 1;
+    const newsletter = await this.core.getPrisma().newsletter.create({
+      data: {issue: issue,title: req.body.title, published_date: new Date(), links: req.body.links, public: req.body.public ? req.body.public : true},
+    });
+    res.send(newsletter);
   }
 }
 
