@@ -41,7 +41,6 @@ export const dropdownQuestionDataSchema = yup.object({
 })
 
 
-
 export const checkboxQuestionDataSchema = yup.object({
     ifTrue: yup.array().of(yup.mixed().oneOf(questionTypes)).notRequired(),
     ifFalse: yup.array().of(yup.mixed().oneOf(questionTypes)).notRequired()

@@ -1,9 +1,7 @@
 import {Request, Response} from "express";
 
 import Core from "../Core.js";
-import {questions} from "../util/QuestionData.js";
 import {validationResult} from "express-validator";
-import yup from "yup";
 
 class NewsletterController {
     private core: Core;

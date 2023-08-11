@@ -1,4 +1,4 @@
-import {Request, response, Response} from "express";
+import {Request, Response} from "express";
 import {body, param, query} from "express-validator";
 
 import ApplicationController from "../../controllers/ApplicationController.js";
