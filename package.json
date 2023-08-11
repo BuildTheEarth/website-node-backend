@@ -56,7 +56,7 @@
     "express-validator": "^6.14.2",
     "express-yup-middleware": "^1.2.3",
     "jsonwebtoken": "^9.0.0",
-    "keycloak-connect": "^20.0.2",
+    "keycloak-connect": "^22.0.0",
     "mariadb": "^3.0.2",
     "minimatch": "^7.4.3",
     "reflect-metadata": "^0.1.13",
