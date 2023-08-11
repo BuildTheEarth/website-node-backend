@@ -27,10 +27,22 @@
       "name": "Applications",
       "description": "Anything regarding Applications"
     },
-    { "name": "FAQ", "description": "Anything regarding FAQ Questions" },
-    { "name": "Users", "description": "Anything regarding Users" },
-    { "name": "Contacts", "description": "Anything regarding Contacts" },
-    { "name": "Newsletter", "description": "Anything regarding the Newsletter" }
+    {
+      "name": "FAQ",
+      "description": "Anything regarding FAQ Questions"
+    },
+    {
+      "name": "Users",
+      "description": "Anything regarding Users"
+    },
+    {
+      "name": "Contacts",
+      "description": "Anything regarding Contacts"
+    },
+    {
+      "name": "Newsletter",
+      "description": "Anything regarding the Newsletter"
+    }
   ],
   "paths": {
     "/healthcheck": {
@@ -41,7 +53,9 @@
             "description": "OK"
           }
         },
-        "tags": ["General"]
+        "tags": [
+          "General"
+        ]
       }
     },
     "/buildteams": {
@@ -63,7 +77,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/buildteams/{id}": {
@@ -124,7 +140,9 @@
             }
           }
         },
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       },
       "post": {
         "description": "Update a buildteam. Required Permission: buildteam.edit",
@@ -159,7 +177,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/buildteams/{id}/application/questions": {
@@ -203,7 +223,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       },
       "post": {
         "description": "Update all application questions of a buildteam. Required Permission: buildteam.application.edit",
@@ -245,7 +267,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/buildteams/{id}/socials": {
@@ -282,7 +306,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       },
       "post": {
         "description": "Update all socials of a buildteam. Required Permission: buildteam.edit",
@@ -317,7 +343,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/faq": {
@@ -339,7 +367,9 @@
             "description": "OK"
           }
         },
-        "tags": ["FAQ"]
+        "tags": [
+          "FAQ"
+        ]
       },
       "post": {
         "description": "Create a new FAQ Question. Required Permission: faq.add",
@@ -351,7 +381,9 @@
             }
           }
         },
-        "tags": ["FAQ"]
+        "tags": [
+          "FAQ"
+        ]
       }
     },
     "/users": {
@@ -373,7 +405,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/users/{id}/permissions": {
@@ -395,7 +429,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/contacts": {
@@ -406,7 +442,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Contacts"]
+        "tags": [
+          "Contacts"
+        ]
       }
     },
     "/newsletter/{id}": {
@@ -437,7 +475,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Newsletter"]
+        "tags": [
+          "Newsletter"
+        ]
       }
     },
     "/newsletter": {
@@ -459,7 +499,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Newsletter"]
+        "tags": [
+          "Newsletter"
+        ]
       }
     },
     "/account": {
@@ -470,7 +512,9 @@
             "description": "OK"
           }
         },
-        "tags": ["General"]
+        "tags": [
+          "General"
+        ]
       }
     },
     "/applications": {
@@ -528,7 +572,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Applications"]
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/applications/{id}": {
@@ -577,9 +623,11 @@
             "description": "OK"
           }
         },
-        "tags": ["Applications"]
+        "tags": [
+          "Applications"
+        ]
       },
-       "post": {
+      "post": {
         "description": "Review one application",
         "parameters": [
           {
@@ -600,14 +648,15 @@
               "type": "boolean"
             }
           }
-          
         ],
         "responses": {
           "200": {
             "description": "OK"
           }
         },
-        "tags": ["Applications"]
+        "tags": [
+          "Applications"
+        ]
       }
     }
   },
