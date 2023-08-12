@@ -4,6 +4,7 @@ import Core from "../Core.js";
 import {questions} from "../util/QuestionData.js";
 import {validationResult} from "express-validator";
 import yup from "yup";
+import {userHasPermission} from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class BuildTeamController {
     private core: Core;
@@ -64,6 +65,200 @@ class BuildTeamController {
                 translationKey: "404",
             });
         }
+    }
+
+    public async addReviewer(req: Request, res: Response) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array()});
+        }
+
+        if (!await this.core.getPrisma().buildTeam.findUnique({
+            where: {
+                id: req.params.id,
+            }
+        })) {
+            return res.status(404).send({
+                code: 404,
+                message: "Buildteam does not exist.",
+                translationKey: "404",
+            })
+        }
+
+        const user = await this.core.getPrisma().user.findUnique({
+            where: {
+                id: req.body.id,
+            }
+        })
+        if (!user) {
+            return res.status(404).send({
+                code: 404,
+                message: "Unidentified user.",
+                translationKey: "404",
+            })
+        }
+
+        if (await userHasPermission(this.core.getPrisma(), user.ssoId, "team.reviewer", req.params.id)) {
+            return res.status(404).send({
+                code: 404,
+                message: "User is already a reviewer of this team.",
+                translationKey: "404",
+            })
+        }
+
+        const permission = await this.core.getPrisma().userPermission.create({
+            data: {
+                user: {connect: {id: req.body.id}},
+                buildTeam: {connect: {id: req.params.id}},
+                permission: 'team.reviewer'
+            },
+        })
+        res.send(permission);
+    }
+
+    public async removeReviewer(req: Request, res: Response) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array()});
+        }
+
+        if (!await this.core.getPrisma().buildTeam.findUnique({
+            where: {
+                id: req.params.id,
+            }
+        })) {
+            return res.status(404).send({
+                code: 404,
+                message: "Buildteam does not exist.",
+                translationKey: "404",
+            })
+        }
+
+        const user = await this.core.getPrisma().user.findUnique({
+            where: {
+                id: req.body.id,
+            }
+        })
+        if (!user) {
+            return res.status(404).send({
+                code: 404,
+                message: "Unidentified user.",
+                translationKey: "404",
+            })
+        }
+
+        if (!await userHasPermission(this.core.getPrisma(), user.ssoId, "team.reviewer", req.params.id)) {
+            return res.status(404).send({
+                code: 404,
+                message: "User is not a reviewer of this team.",
+                translationKey: "404",
+            })
+        }
+
+        await this.core.getPrisma().userPermission.deleteMany({
+            where: {
+                user: user,
+                buildTeamId: req.params.id,
+                permission: "team.reviewer"
+            }
+        })
+    }
+
+    public async addAdmin(req: Request, res: Response) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array()});
+        }
+
+        if (!await this.core.getPrisma().buildTeam.findUnique({
+            where: {
+                id: req.params.id,
+            }
+        })) {
+            return res.status(404).send({
+                code: 404,
+                message: "Buildteam does not exist.",
+                translationKey: "404",
+            })
+        }
+
+        const user = await this.core.getPrisma().user.findUnique({
+            where: {
+                id: req.body.id,
+            }
+        })
+        if (!user) {
+            return res.status(404).send({
+                code: 404,
+                message: "Unidentified user.",
+                translationKey: "404",
+            })
+        }
+
+        if (await userHasPermission(this.core.getPrisma(), user.ssoId, "team.admin", req.params.id)) {
+            return res.status(404).send({
+                code: 404,
+                message: "User is already an admin of this team.",
+                translationKey: "404",
+            })
+        }
+
+        const permission = await this.core.getPrisma().userPermission.create({
+            data: {
+                user: {connect: {id: req.body.id}},
+                buildTeam: {connect: {id: req.params.id}},
+                permission: 'team.admin'
+            },
+        })
+        res.send(permission);
+    }
+
+    public async removeAdmin(req: Request, res: Response) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array()});
+        }
+
+        if (!await this.core.getPrisma().buildTeam.findUnique({
+            where: {
+                id: req.params.id,
+            }
+        })) {
+            return res.status(404).send({
+                code: 404,
+                message: "Buildteam does not exist.",
+                translationKey: "404",
+            })
+        }
+
+        const user = await this.core.getPrisma().user.findUnique({
+            where: {
+                id: req.body.id,
+            }
+        })
+        if (!user) {
+            return res.status(404).send({
+                code: 404,
+                message: "Unidentified user.",
+                translationKey: "404",
+            })
+        }
+
+        if (!await userHasPermission(this.core.getPrisma(), user.ssoId, "team.admin", req.params.id)) {
+            return res.status(404).send({
+                code: 404,
+                message: "User is not an admin of this team.",
+                translationKey: "404",
+            })
+        }
+
+        await this.core.getPrisma().userPermission.deleteMany({
+            where: {
+                user: user,
+                buildTeamId: req.params.id,
+                permission: "team.admin"
+            }
+        })
     }
 
     public async getBuildTeamApplicationQuestion(req: Request, res: Response) {
