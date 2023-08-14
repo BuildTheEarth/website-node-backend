@@ -85,9 +85,9 @@ class BuildTeamController {
             })
         }
 
-        const user = await this.core.getPrisma().user.findUnique({
-            where: {
-                id: req.body.id,
+        const user = await this.core.getPrisma().user.findFirst({
+            where : {
+                id: req.body.id
             }
         })
         if (!user) {
