@@ -247,6 +247,16 @@ class Routes {
       body("permissions").isArray(),
       checkUserPermission(this.web.getCore().getPrisma(), "users.edit")
     );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/users/:id/permissions",
+      async (request, response) => {
+        await userController.removePermission(request, response);
+      },
+      param("id"),
+      body("permissions").isArray(),
+      checkUserPermission(this.web.getCore().getPrisma(), "users.edit")
+    );
 
     /*
      *
