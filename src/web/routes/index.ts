@@ -111,6 +111,58 @@ class Routes {
         );
 
         router.addRoute(
+          RequestMethods.POST,
+          "/buildteams/:id/reviewers",
+          async (request, response) => {
+            await buildTeamController.addReviewer(request, response);
+          },
+          param("id").isUUID(),
+          checkUserPermission(
+            this.web.getCore().getPrisma(),
+            "reviewer.add",
+            "id"
+          )
+        );
+
+        router.addRoute(
+          RequestMethods.DELETE,
+          "/buildteams/:id/reviewers",
+          async (request, response) => {
+            await buildTeamController.removeReviewer(request, response);
+          },
+          param("id").isUUID(),
+          checkUserPermission(
+            this.web.getCore().getPrisma(),
+            "reviewer.remove",
+            "id"
+          )
+        );
+
+        router.addRoute(
+          RequestMethods.POST,
+          "/buildteams/:id/admins",
+          async (request, response) => {
+            await buildTeamController.addReviewer(request, response);
+          },
+          param("id").isUUID(),
+          checkUserPermission(this.web.getCore().getPrisma(), "admin.add", "id")
+        );
+
+        router.addRoute(
+          RequestMethods.DELETE,
+          "/buildteams/:id/admins",
+          async (request, response) => {
+            await buildTeamController.removeReviewer(request, response);
+          },
+          param("id").isUUID(),
+          checkUserPermission(
+            this.web.getCore().getPrisma(),
+            "admin.remove",
+            "id"
+          )
+        );
+
+        router.addRoute(
             RequestMethods.GET,
             "/buildteams/:id/application/questions",
             async (request: Request, response: Response) => {

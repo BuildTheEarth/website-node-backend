@@ -53,9 +53,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "General"
-        ]
+        "tags": ["General"]
       }
     },
     "/buildteams": {
@@ -77,9 +75,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       }
     },
     "/buildteams/{id}": {
@@ -140,9 +136,7 @@
             }
           }
         },
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       },
       "post": {
         "description": "Update a buildteam. Required Permission: buildteam.edit",
@@ -177,9 +171,7 @@
             }
           }
         ],
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       }
     },
     "/buildteams/{id}/application/questions": {
@@ -223,9 +215,7 @@
             }
           }
         ],
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       },
       "post": {
         "description": "Update all application questions of a buildteam. Required Permission: buildteam.application.edit",
@@ -267,9 +257,7 @@
             }
           }
         ],
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       }
     },
     "/buildteams/{id}/socials": {
@@ -306,9 +294,7 @@
             }
           }
         ],
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
       },
       "post": {
         "description": "Update all socials of a buildteam. Required Permission: buildteam.edit",
@@ -343,9 +329,151 @@
             }
           }
         ],
-        "tags": [
-          "Buildteams"
-        ]
+        "tags": ["Buildteams"]
+      }
+    },
+    "/buildteams/{id}/reviewers": {
+      "post": {
+        "description": "Add a reviewer to a Buildteam. Required Permission: reviewer.add",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
+      },
+      "delete": {
+        "description": "Remove a reviewer to a Buildteam. Required Permission: reviewer.remove",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
+      }
+    },
+    "/buildteams/{id}/admins": {
+      "post": {
+        "description": "Add a admin to a Buildteam. Required Permission: admin.add",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
+      },
+      "delete": {
+        "description": "Remove a admin to a Buildteam. Required Permission: admin.remove",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Buildteam not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 404,
+                  "message": "Buildteam does not exit.",
+                  "translationKey": "404"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["Buildteams"]
       }
     },
     "/faq": {
@@ -367,9 +495,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "FAQ"
-        ]
+        "tags": ["FAQ"]
       },
       "post": {
         "description": "Create a new FAQ Question. Required Permission: faq.add",
@@ -381,9 +507,7 @@
             }
           }
         },
-        "tags": [
-          "FAQ"
-        ]
+        "tags": ["FAQ"]
       }
     },
     "/users": {
@@ -405,9 +529,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Users"
-        ]
+        "tags": ["Users"]
       }
     },
     "/users/{id}/permissions": {
@@ -429,9 +551,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Users"
-        ]
+        "tags": ["Users"]
       }
     },
     "/contacts": {
@@ -442,9 +562,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Contacts"
-        ]
+        "tags": ["Contacts"]
       }
     },
     "/newsletter/{id}": {
@@ -475,9 +593,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Newsletter"
-        ]
+        "tags": ["Newsletter"]
       }
     },
     "/newsletter": {
@@ -499,9 +615,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Newsletter"
-        ]
+        "tags": ["Newsletter"]
       }
     },
     "/account": {
@@ -512,9 +626,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "General"
-        ]
+        "tags": ["General"]
       }
     },
     "/applications": {
@@ -572,9 +684,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Applications"
-        ]
+        "tags": ["Applications"]
       }
     },
     "/applications/{id}": {
@@ -623,9 +733,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Applications"
-        ]
+        "tags": ["Applications"]
       },
       "post": {
         "description": "Review one application",
@@ -654,9 +762,7 @@
             "description": "OK"
           }
         },
-        "tags": [
-          "Applications"
-        ]
+        "tags": ["Applications"]
       }
     }
   },
