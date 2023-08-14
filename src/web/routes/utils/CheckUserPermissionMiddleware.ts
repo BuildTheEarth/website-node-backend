@@ -1,4 +1,5 @@
 import {NextFunction, Request, Response} from "express";
+
 import {PrismaClient} from "@prisma/client";
 import {minimatch} from "minimatch";
 
@@ -41,6 +42,8 @@ export async function userHasPermission(
             ssoId,
         },
     });
+
+    if (!user) return false;
 
     let permissions = await prisma.userPermission.findMany({
         where: {
