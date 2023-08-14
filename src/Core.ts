@@ -1,7 +1,7 @@
 import Web from './web/Web.js';
 import Keycloak from "keycloak-connect";
 import * as session from "express-session";
-import { PrismaClient } from '@prisma/client'
+import {PrismaClient} from '@prisma/client'
 import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import * as winston from "winston";
 
@@ -36,10 +36,15 @@ class Core {
         })
 
 
-
-
-
     }
+
+    public getLogger = (): winston.Logger => this.logger;
+
+    public getKeycloak = (): Keycloak.Keycloak => this.keycloak;
+
+    public getPrisma = (): PrismaClient => this.prisma;
+
+    public getKeycloakAdmin = (): KeycloakAdmin => this.keycloakAdmin;
 
     private setUpLogger(): void {
         // const logger = this.getLogger();
@@ -57,7 +62,7 @@ class Core {
         });
 
         if (process.env.NODE_ENV !== 'production') {
-            const consoleFormat = winston.format.printf(({ level, message, timestamp }) => {
+            const consoleFormat = winston.format.printf(({level, message, timestamp}) => {
                 return `${timestamp} | ${level} » ${message}`;
             });
 
@@ -72,11 +77,6 @@ class Core {
 
         this.logger = logger;
     }
-
-    public getLogger = (): winston.Logger => this.logger;
-    public getKeycloak = (): Keycloak.Keycloak => this.keycloak;
-    public getPrisma = (): PrismaClient => this.prisma;
-    public getKeycloakAdmin = (): KeycloakAdmin => this.keycloakAdmin;
 }
 
 export default Core;

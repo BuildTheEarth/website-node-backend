@@ -6,12 +6,8 @@
   },
   "servers": [
     {
-      "url": "https://api.buildthe.earth/api/v1",
-      "description": "Development instance"
-    },
-    {
       "url": "https://api.buildtheearth.net/api/v1",
-      "description": "Production instance"
+      "description": "Website instance"
     },
     {
       "url": "http://localhost:8080/api/v1",
@@ -27,9 +23,26 @@
       "name": "Buildteams",
       "description": "Anything regarding the buildteams"
     },
-    { "name": "FAQ", "description": "Anything regarding FAQ Questions" },
-    { "name": "Users", "description": "Anything regarding Users" },
-    { "name": "Contacts", "description": "Anything regarding Contacts" }
+    {
+      "name": "Applications",
+      "description": "Anything regarding Applications"
+    },
+    {
+      "name": "FAQ",
+      "description": "Anything regarding FAQ Questions"
+    },
+    {
+      "name": "Users",
+      "description": "Anything regarding Users"
+    },
+    {
+      "name": "Contacts",
+      "description": "Anything regarding Contacts"
+    },
+    {
+      "name": "Newsletter",
+      "description": "Anything regarding the Newsletter"
+    }
   ],
   "paths": {
     "/healthcheck": {
@@ -40,7 +53,9 @@
             "description": "OK"
           }
         },
-        "tags": ["General"]
+        "tags": [
+          "General"
+        ]
       }
     },
     "/buildteams": {
@@ -62,7 +77,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/buildteams/{id}": {
@@ -123,7 +140,9 @@
             }
           }
         },
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       },
       "post": {
         "description": "Update a buildteam. Required Permission: buildteam.edit",
@@ -158,7 +177,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/buildteams/{id}/application/questions": {
@@ -202,7 +223,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       },
       "post": {
         "description": "Update all application questions of a buildteam. Required Permission: buildteam.application.edit",
@@ -244,7 +267,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/buildteams/{id}/socials": {
@@ -281,7 +306,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       },
       "post": {
         "description": "Update all socials of a buildteam. Required Permission: buildteam.edit",
@@ -316,7 +343,9 @@
             }
           }
         ],
-        "tags": ["Buildteams"]
+        "tags": [
+          "Buildteams"
+        ]
       }
     },
     "/faq": {
@@ -338,7 +367,9 @@
             "description": "OK"
           }
         },
-        "tags": ["FAQ"]
+        "tags": [
+          "FAQ"
+        ]
       },
       "post": {
         "description": "Create a new FAQ Question. Required Permission: faq.add",
@@ -350,7 +381,9 @@
             }
           }
         },
-        "tags": ["FAQ"]
+        "tags": [
+          "FAQ"
+        ]
       }
     },
     "/users": {
@@ -372,7 +405,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/users/{id}/permissions": {
@@ -394,7 +429,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/contacts": {
@@ -405,7 +442,66 @@
             "description": "OK"
           }
         },
-        "tags": ["Contacts"]
+        "tags": [
+          "Contacts"
+        ]
+      }
+    },
+    "/newsletter/{id}": {
+      "get": {
+        "description": "Get a newsletter",
+        "parameters": [
+          {
+            "description": "The uuid/issue of the newsletter",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If the database should look for issues with the id and not uuids",
+            "in": "query",
+            "name": "isIssue",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Newsletter"
+        ]
+      }
+    },
+    "/newsletter": {
+      "get": {
+        "description": "Get a list of newsletters",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Newsletter"
+        ]
       }
     },
     "/account": {
@@ -416,7 +512,151 @@
             "description": "OK"
           }
         },
-        "tags": ["General"]
+        "tags": [
+          "General"
+        ]
+      }
+    },
+    "/applications": {
+      "get": {
+        "description": "Get a list of applications",
+        "parameters": [
+          {
+            "description": "The page of results to return, **starting at 0**",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The buildteam to filter for",
+            "in": "query",
+            "name": "buildteam",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Extend BuildTeam Information",
+            "in": "query",
+            "name": "includeBuildteam",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Reviewer Information",
+            "in": "query",
+            "name": "includeReviewer",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Answer Information",
+            "in": "query",
+            "name": "includeAnswers",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Applications"
+        ]
+      }
+    },
+    "/applications/{id}": {
+      "get": {
+        "description": "Get one application",
+        "parameters": [
+          {
+            "description": "The id of the application",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Extend BuildTeam Information",
+            "in": "query",
+            "name": "includeBuildteam",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Reviewer Information",
+            "in": "query",
+            "name": "includeReviewer",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Extend Answer Information",
+            "in": "query",
+            "name": "includeAnswers",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Applications"
+        ]
+      },
+      "post": {
+        "description": "Review one application",
+        "parameters": [
+          {
+            "description": "The id of the application",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Should the application be handeled as a trial application",
+            "in": "query",
+            "name": "isTrial",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     }
   },

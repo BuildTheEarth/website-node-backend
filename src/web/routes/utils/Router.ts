@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { Executor } from './Executor.js';
-import { RequestMethods } from './RequestMethods.js';
+import {Request, Response} from 'express';
+import {Executor} from './Executor.js';
+import {RequestMethods} from './RequestMethods.js';
 import Web from '../../Web.js';
 
 export default class Router {
@@ -8,8 +8,8 @@ export default class Router {
     version: String;
 
     constructor(web: Web, version: String) {
-      this.web = web;
-      this.version = version;
+        this.web = web;
+        this.version = version;
     }
 
     public addRoute(requestMethod: RequestMethods, endpoint: String,

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,9 +11,13 @@ model User {
   id                String           @id @default(uuid())
   ssoId             String           @unique
   discordId         String?
+  reviewed          Application[]    @relation("reviewer")
+  applications      Application[]    @relation("user")
   createdBuildTeams BuildTeam[]      @relation("creator")
+  claims            Claim[]          @relation("owner")
+  permissions       UserPermission[]
+  claimsBuilder     Claim[]          @relation("builders")
   joinedBuildTeams  BuildTeam[]      @relation("members")
-  UserPermission    UserPermission[]
 }
 
 model BuildTeam {
@@ -24,33 +25,146 @@ model BuildTeam {
   name                 String                @unique
   icon                 String
   backgroundImage      String
-  socials              Social[]              @relation("socials")
   invite               String
   about                String
-  builds               Build[]               @relation("builds")
-  showcases            Showcase[]            @relation("showcases")
-  creator              User                  @relation("creator", references: [id], fields: [creatorId])
   creatorId            String
   createdAt            DateTime              @default(now())
-  members              User[]                @relation("members")
-  UserPermission       UserPermission[]
-  applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
   location             String                @default("")
   slug                 String                @unique @default("")
+  acceptionMessage     String                @default("")
+  allowTrial           Boolean               @default(false)
+  rejectionMessage     String                @default("")
+  trialMessage         String                @default("")
+  Application          Application[]
+  applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
+  builds               Build[]               @relation("builds")
+  creator              User                  @relation("creator", fields: [creatorId], references: [id])
+  showcases            Showcase[]            @relation("showcases")
+  socials              Social[]              @relation("socials")
+  UserPermission       UserPermission[]
+  members              User[]                @relation("members")
 }
 
 model ApplicationQuestion {
-  id             String                  @id @default(uuid())
+  id                String                  @id @default(uuid())
+  title             String
+  subtitle          String
+  placeholder       String                  @default("")
+  required          Boolean                 @default(true)
+  type              ApplicationQuestionType
+  icon              String
+  additionalData    Json                    @default("{}")
+  buildTeamId       String
+  sort              Int
+  trial             Boolean                 @default(false)
+  ApplicationAnswer ApplicationAnswer[]
+  buildTeam         BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
+}
+
+model Social {
+  id          String    @id @default(uuid())
+  name        String
+  icon        String
+  url         String
+  buildTeamId String
+  buildTeam   BuildTeam @relation("socials", fields: [buildTeamId], references: [id])
+}
+
+model Build {
+  id          String    @id @default(uuid())
+  name        String
+  createdAt   DateTime  @default(now())
+  buildTeamId String
+  buildTeam   BuildTeam @relation("builds", fields: [buildTeamId], references: [id])
+}
+
+model Showcase {
+  id          String    @id @default(uuid())
+  image       String
+  title       String
+  createdAt   DateTime  @default(now())
+  buildTeamId String
+  buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
+}
+
+model UserPermission {
+  id          String     @id @default(uuid())
+  userId      String
+  buildTeamId String?
+  permission  String
+  buildTeam   BuildTeam? @relation(fields: [buildTeamId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+}
+
+model FAQQuestion {
+  id       String @id @default(uuid())
+  question String
+  answer   String
+  links    Json[] @default([])
+}
+
+model Contact {
+  id      String  @id @default(uuid())
+  name    String
+  role    String
+  discord String?
+  email   String?
+  avatar  String?
+}
+
+model Newsletter {
+  id             String   @id @default(uuid())
+  issue          Int      @unique
   title          String
-  subtitle       String
-  placeholder    String                  @default("")
-  required       Boolean                 @default(true)
-  type           ApplicationQuestionType
-  icon           String
-  additionalData Json                    @default("{}")
-  buildTeam      BuildTeam               @relation("applicationQuestions", fields: [buildTeamId], references: [id])
-  buildTeamId    String
-  sort           Int                     @unique
+  published_date DateTime
+  links          String[]
+  public         Boolean?
+}
+
+model Claim {
+  id          String        @id @default(uuid())
+  ownerId     String
+  area        String[]
+  center      String
+  active      Boolean       @default(false)
+  Application Application[]
+  owner       User          @relation("owner", fields: [ownerId], references: [id])
+  builders    User[]        @relation("builders")
+}
+
+model Application {
+  id                String              @id @default(uuid())
+  buildteamId       String
+  userId            String
+  reviewerId        String?
+  status            ApplicationStatus   @default(SEND)
+  createdAt         DateTime            @default(now())
+  reviewedAt        DateTime?
+  reason            String?
+  claimId           String?
+  trial             Boolean             @default(false)
+  buildteam         BuildTeam           @relation(fields: [buildteamId], references: [id])
+  claim             Claim?              @relation(fields: [claimId], references: [id])
+  reviewer          User?               @relation("reviewer", fields: [reviewerId], references: [id])
+  user              User                @relation("user", fields: [userId], references: [id])
+  ApplicationAnswer ApplicationAnswer[]
+}
+
+model ApplicationAnswer {
+  id            String              @id @default(uuid())
+  applicationId String
+  questionId    String
+  answer        String
+  application   Application         @relation(fields: [applicationId], references: [id])
+  question      ApplicationQuestion @relation(fields: [questionId], references: [id])
+}
+
+enum ApplicationStatus {
+  SEND
+  REVIEWING
+  ACCEPTED
+  DECLINED
+  TRIAL
 }
 
 enum ApplicationQuestionType {
@@ -64,55 +178,4 @@ enum ApplicationQuestionType {
   SLIDER
   IMAGE
   CHECKBOX
-}
-
-model Social {
-  id          String    @id @default(uuid())
-  name        String
-  icon        String
-  url         String    @unique
-  buildTeam   BuildTeam @relation("socials", fields: [buildTeamId], references: [id])
-  buildTeamId String
-}
-
-model Build {
-  id          String    @id @default(uuid())
-  name        String
-  buildTeam   BuildTeam @relation("builds", fields: [buildTeamId], references: [id])
-  createdAt   DateTime  @default(now())
-  buildTeamId String
-}
-
-model Showcase {
-  id          String    @id @default(uuid())
-  image       String
-  title       String
-  buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
-  createdAt   DateTime  @default(now())
-  buildTeamId String
-}
-
-model UserPermission {
-  id          String     @id @default(uuid())
-  user        User       @relation(fields: [userId], references: [id])
-  userId      String
-  buildTeam   BuildTeam? @relation(fields: [buildTeamId], references: [id])
-  buildTeamId String?
-  permission  String
-}
-
-model FAQQuestion {
-  id String @id @default(uuid())
-  question String
-  answer String
-  links Json[] @default([])
-}
-
-model Contact {
-  id String @id @default(uuid())
-  name String
-  role String
-  discord String?
-  email String? 
-  avatar String?
 }

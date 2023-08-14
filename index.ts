@@ -1,6 +1,7 @@
 import Core from './src/Core.js';
 
 import * as dotenv from 'dotenv'
+
 dotenv.config()
 
 const core = new Core();

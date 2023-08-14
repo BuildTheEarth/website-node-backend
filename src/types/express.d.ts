@@ -1,12 +1,14 @@
-import {GrantProperties} from "keycloak-connect";
+import {User} from "@prisma/client";
 
 interface kAuth {
     grant: any;
 }
+
 declare global {
     namespace Express {
         interface Request {
-            kauth: kAuth
+            kauth: kAuth;
+            user: User;
         }
     }
 }
