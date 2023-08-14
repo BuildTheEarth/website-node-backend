@@ -1,4 +1,5 @@
 import {NextFunction, Request, Response} from "express";
+
 import {PrismaClient} from "@prisma/client";
 import {minimatch} from "minimatch";
 
@@ -14,18 +15,18 @@ export const checkUserPermission = (
         }
 
         if (
-            userHasPermission(
-                prisma,
-                req.kauth.grant.access_token.content.sub,
-                permission,
-                buildteam
-            )
+          userHasPermission(
+            prisma,
+            req.kauth.grant.access_token.content.sub,
+            permission,
+            buildteam ? req.params[buildteam] : undefined
+          )
         ) {
-            next();
-            return;
+          next();
+          return;
         } else {
-            res.status(403).send("You don't have permission to do this!");
-            return;
+          res.status(403).send("You don't have permission to do this!");
+          return;
         }
     };
 };
