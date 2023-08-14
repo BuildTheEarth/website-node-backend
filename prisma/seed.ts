@@ -12,11 +12,11 @@ async function main() {
   //   });
 
   const connection = mysql.createConnection({
-    host: "s163.webhostingserver.nl",
-    user: "deb128943_bte",
-    password: "aZT8PPvdL28a4RM7",
+    host: "",
+    user: "",
+    password: "",
     port: 3306,
-    database: "deb128943_bte",
+    database: "",
   });
 
   connection.connect(function (err) {
