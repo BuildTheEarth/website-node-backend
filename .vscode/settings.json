@@ -15,6 +15,7 @@
     "newsletter",
     "swagger",
     "application",
-    "prisma"
+    "prisma",
+    "src"
   ]
 }
