@@ -50,7 +50,14 @@
         "description": "Check the Health of the API",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok"
+                }
+              }
+            }
           }
         },
         "tags": ["General"]
@@ -72,7 +79,16 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BuildTeamMinimal"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": ["Buildteams"]
@@ -121,7 +137,16 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BuildTeamFull"
+                  }
+                }
+              }
+            }
           },
           "404": {
             "description": "Buildteam not found",
@@ -267,7 +292,13 @@
           "200": {
             "description": "OK",
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Social"
+                  }
+                }
+              }
             }
           },
           "404": {
@@ -302,151 +333,13 @@
           "200": {
             "description": "OK",
             "content": {
-              "application/json": {}
-            }
-          },
-          "404": {
-            "description": "Buildteam not found",
-            "content": {
               "application/json": {
-                "example": {
-                  "code": 404,
-                  "message": "Buildteam does not exit.",
-                  "translationKey": "404"
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Social"
+                  }
                 }
               }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "description": "The uuid of the buildteam",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": ["Buildteams"]
-      }
-    },
-    "/buildteams/{id}/reviewers": {
-      "post": {
-        "description": "Add a reviewer to a Buildteam. Required Permission: reviewer.add",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "404": {
-            "description": "Buildteam not found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": 404,
-                  "message": "Buildteam does not exit.",
-                  "translationKey": "404"
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "description": "The uuid of the buildteam",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": ["Buildteams"]
-      },
-      "delete": {
-        "description": "Remove a reviewer to a Buildteam. Required Permission: reviewer.remove",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "404": {
-            "description": "Buildteam not found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": 404,
-                  "message": "Buildteam does not exit.",
-                  "translationKey": "404"
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "description": "The uuid of the buildteam",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": ["Buildteams"]
-      }
-    },
-    "/buildteams/{id}/admins": {
-      "post": {
-        "description": "Add a admin to a Buildteam. Required Permission: admin.add",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {}
-            }
-          },
-          "404": {
-            "description": "Buildteam not found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": 404,
-                  "message": "Buildteam does not exit.",
-                  "translationKey": "404"
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "description": "The uuid of the buildteam",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": ["Buildteams"]
-      },
-      "delete": {
-        "description": "Remove a admin to a Buildteam. Required Permission: admin.remove",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {}
             }
           },
           "404": {
@@ -492,7 +385,16 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FAQ"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": ["FAQ"]
@@ -503,7 +405,11 @@
           "200": {
             "description": "OK",
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FAQ"
+                }
+              }
             }
           }
         },
@@ -559,7 +465,16 @@
         "description": "Get a list of contacts",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": ["Contacts"]
@@ -774,6 +689,278 @@
       }
     },
     "schemas": {
+      "BuildTeamMinimal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "cda8w7d7-34ub-9hw5-a4vj-11jb0dkeqa2a"
+          },
+          "name": {
+            "type": "string",
+            "example": "BTE Brasil"
+          },
+          "icon": {
+            "type": "string",
+            "format": "url",
+            "example": "https://buildtheearth.net/uploads/5f440c4d8ff134bccf1731ee50c9c341dd3f0730.png"
+          },
+          "backgroundImage": {
+            "type": "string",
+            "format": "url",
+            "example": "https://buildtheearth.net/uploads/6ac1b966e1ee674456d4b102498df832e46404ed.png"
+          },
+          "invite": {
+            "type": "string",
+            "example": "https://discord.gg/buildtheearth"
+          },
+          "about": {
+            "type": "string",
+            "example": "This team is building Brasil 1:1 in Minecraft"
+          },
+          "creatorId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "f61d1795-5ad1-4156-9fc4-58cdf50162bf"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "timestamp",
+            "example": "2023-08-14T15:56:35.795Z"
+          },
+          "location": {
+            "type": "string",
+            "example": "Brasil"
+          },
+          "slug": {
+            "type": "string",
+            "example": "br"
+          },
+          "acceptionMessage": {
+            "type": "string",
+            "example": "Welcome to the team, you are now a builder!"
+          },
+          "rejectionMessage": {
+            "type": "string",
+            "example": "Not a good application, sorry."
+          },
+          "trialMessage": {
+            "type": "string",
+            "example": "Welcome to the team as a trial, please finish your trial buildings and then reapply."
+          },
+          "allowTrial": {
+            "type": "boolean",
+            "example": true
+          },
+          "_count": {
+            "type": "object",
+            "properties": {
+              "members": {
+                "type": "number",
+                "example": 162
+              },
+              "builds": {
+                "type": "number",
+                "example": 37
+              }
+            }
+          }
+        }
+      },
+      "Social": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "f9dd9244-e777-4d6e-83ec-d36b9effa6e6"
+          },
+          "name": {
+            "type": "string",
+            "example": "Instagram"
+          },
+          "icon": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "tiktok",
+              "youtube",
+              "website",
+              "discord",
+              "twitter",
+              "twitch"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "url",
+            "example": "https://www.instagram.com/btethemeparks"
+          },
+          "buildTeamId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "b3b8c684-becd-4779-a3b3-ca81fef7b954"
+          }
+        }
+      },
+      "Build": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "cda8eee7-32eb-4abc-bfa0-15d550e15a2a"
+          },
+          "name": {
+            "type": "string",
+            "example": "Empire State Building"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "timestamp",
+            "example": "2023-08-15T12:43:57.586Z"
+          },
+          "buildTeamId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "b3b8c684-becd-4779-a3b3-ca81fef7b954"
+          }
+        }
+      },
+      "Showcase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "cda8eee7-32eb-4abc-bfa0-15d550e15a2a"
+          },
+          "name": {
+            "type": "string",
+            "example": "Empire State Building"
+          },
+          "image": {
+            "type": "string",
+            "format": "url",
+            "example": "https://buildtheearth.net/uploads/284250477abdd47940acd1f2a5c8b4ac04a968de.png"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "timestamp",
+            "example": "2023-08-15T12:43:57.586Z"
+          },
+          "buildTeamId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "b3b8c684-becd-4779-a3b3-ca81fef7b954"
+          }
+        }
+      },
+      "BuildTeamFull": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BuildTeamMinimal"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "socials": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Social"
+                }
+              },
+              "builds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Build"
+                }
+              },
+              "showcases": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Showcase"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "BuildTeam": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BuildTeamMinimal"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "socials": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Social"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FAQ": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "cda8eee7-32eb-4abc-bfa0-15d550e15a2a"
+          },
+          "question": {
+            "type": "string",
+            "example": "Is this a question?"
+          },
+          "answer": {
+            "type": "string",
+            "example": "Yes it is!"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "748342ba-cedd-4aaa-9f55-1cc3529b4a75"
+          },
+          "name": {
+            "type": "string",
+            "example": "No Leak"
+          },
+          "role": {
+            "type": "string",
+            "example": "CMO"
+          },
+          "discord": {
+            "type": "string",
+            "example": "noleak126"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "noleak@buildtheearth.net"
+          },
+          "avatar": {
+            "type": "string",
+            "format": "url",
+            "example": "https://cdn.discordapp.com/attachments/705934480908746834/895140092090400818/admin-shield-vector.png"
+          }
+        }
+      },
       "ApplicationQuestion": {
         "type": "object",
         "properties": {
