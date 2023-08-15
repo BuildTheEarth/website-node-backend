@@ -75,7 +75,10 @@ async function main() {
         });
         console.log(bt.name);
       });
+      connection.end();
     });
+
+    
   });
 
   //   for (let i = 0; i <= 20; i++) {

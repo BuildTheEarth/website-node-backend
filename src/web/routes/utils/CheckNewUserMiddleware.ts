@@ -78,11 +78,17 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
                 },
             });
             req.user = user;
-            await prisma.userPermission.create({
-                data: {
-                    user: {connect: {id: user.id}},
-                    permission: "account.info",
+            await prisma.userPermission.createMany({
+              data: [
+                {
+                  userId: user.id,
+                  permissionId: "account.info",
                 },
+                {
+                  userId: user.id,
+                  permissionId: "account.edit",
+                },
+              ],
             });
         }
         next();

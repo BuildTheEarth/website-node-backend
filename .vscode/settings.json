@@ -16,6 +16,7 @@
     "swagger",
     "application",
     "prisma",
-    "src"
+    "src",
+    "permissions"
   ]
 }

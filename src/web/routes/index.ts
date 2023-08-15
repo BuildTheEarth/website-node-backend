@@ -111,58 +111,6 @@ class Routes {
         );
 
         router.addRoute(
-          RequestMethods.POST,
-          "/buildteams/:id/reviewers",
-          async (request, response) => {
-            await buildTeamController.addReviewer(request, response);
-          },
-          param("id").isUUID(),
-          checkUserPermission(
-            this.web.getCore().getPrisma(),
-            "reviewer.add",
-            "id"
-          )
-        );
-
-        router.addRoute(
-          RequestMethods.DELETE,
-          "/buildteams/:id/reviewers",
-          async (request, response) => {
-            await buildTeamController.removeReviewer(request, response);
-          },
-          param("id").isUUID(),
-          checkUserPermission(
-            this.web.getCore().getPrisma(),
-            "reviewer.remove",
-            "id"
-          )
-        );
-
-        router.addRoute(
-          RequestMethods.POST,
-          "/buildteams/:id/admins",
-          async (request, response) => {
-            await buildTeamController.addReviewer(request, response);
-          },
-          param("id").isUUID(),
-          checkUserPermission(this.web.getCore().getPrisma(), "admin.add", "id")
-        );
-
-        router.addRoute(
-          RequestMethods.DELETE,
-          "/buildteams/:id/admins",
-          async (request, response) => {
-            await buildTeamController.removeReviewer(request, response);
-          },
-          param("id").isUUID(),
-          checkUserPermission(
-            this.web.getCore().getPrisma(),
-            "admin.remove",
-            "id"
-          )
-        );
-
-        router.addRoute(
             RequestMethods.GET,
             "/buildteams/:id/application/questions",
             async (request: Request, response: Response) => {
@@ -175,61 +123,66 @@ class Routes {
         );
 
         router.addRoute(
-            RequestMethods.POST,
-            "/buildteams/:id/application/questions",
-            async (request: Request, response: Response) => {
-                await buildTeamController.updateBuildTeamApplicationQuestions(
-                    request,
-                    response
-                );
-            },
-            param("id").isUUID(),
-            body("questions")
-            //checkUserPermission(
-            //    this.web.getCore().getPrisma(),
-            //    "buildteam.application.edit"
-            //  )
+          RequestMethods.POST,
+          "/buildteams/:id/application/questions",
+          async (request: Request, response: Response) => {
+            await buildTeamController.updateBuildTeamApplicationQuestions(
+              request,
+              response
+            );
+          },
+          param("id").isUUID(),
+          body("questions"),
+          checkUserPermission(
+            this.web.getCore().getPrisma(),
+            "team.application.edit",
+            "id"
+          )
         );
 
         router.addRoute(
-            RequestMethods.GET,
-            "/buildteams/:id/socials",
-            async (request: Request, response: Response) => {
-                await buildTeamController.getBuildTeamSocials(request, response);
-            },
-            param("id").isUUID()
+          RequestMethods.GET,
+          "/buildteams/:id/socials",
+          async (request: Request, response: Response) => {
+            await buildTeamController.getBuildTeamSocials(request, response);
+          },
+          param("id").isUUID()
         );
 
         router.addRoute(
-            RequestMethods.POST,
-            "/buildteams/:id/socials",
-            async (request: Request, response: Response) => {
-                await buildTeamController.updateBuildTeamSocials(request, response);
-            },
-            param("id").isUUID(),
-            body("socials"),
-            checkUserPermission(this.web.getCore().getPrisma(), "buildteam.edit")
+          RequestMethods.POST,
+          "/buildteams/:id/socials",
+          async (request: Request, response: Response) => {
+            await buildTeamController.updateBuildTeamSocials(request, response);
+          },
+          param("id").isUUID(),
+          body("socials"),
+          checkUserPermission(
+            this.web.getCore().getPrisma(),
+            "buildteam.socials.edit",
+            "id"
+          )
         );
 
         router.addRoute(
-            RequestMethods.POST,
-            "/buildteams/:id",
-            async (request: Request, response: Response) => {
-                await buildTeamController.updateBuildTeam(request, response);
-            },
-            param("id").isUUID(),
-            body("name").isString().optional(),
-            body("icon").isURL().optional(),
-            body("backgroundImage").isURL().optional(),
-            body("invite").isURL().optional(),
-            body("about").isString().optional(),
-            body("location").isString().optional(),
-            body("slug").isString().optional(),
-            checkUserPermission(
-                this.web.getCore().getPrisma(),
-                "buildteam.edit",
-                "params.id"
-            )
+          RequestMethods.POST,
+          "/buildteams/:id",
+          async (request: Request, response: Response) => {
+            await buildTeamController.updateBuildTeam(request, response);
+          },
+          param("id").isUUID(),
+          body("name").isString().optional(),
+          body("icon").isURL().optional(),
+          body("backgroundImage").isURL().optional(),
+          body("invite").isURL().optional(),
+          body("about").isString().optional(),
+          body("location").isString().optional(),
+          body("slug").isString().optional(),
+          checkUserPermission(
+            this.web.getCore().getPrisma(),
+            "buildteam.settings.edit",
+            "id"
+          )
         );
 
         /*
@@ -238,49 +191,50 @@ class Routes {
          *
          */
 
+        // TODO: Redo
         router.addRoute(
-            RequestMethods.GET,
-            "/applications",
-            async (request, response) => {
-                await applicationController.getApplications(request, response);
-            },
-            query("page").isNumeric().optional(),
-            query("includeBuildteam").isBoolean().optional(),
-            query("includeReviewer").isBoolean().optional(),
-            query("includeAnswers").isBoolean().optional(),
-            query("buildteam").isUUID().optional()
-            // Permission check later
+          RequestMethods.GET,
+          "/applications",
+          async (request, response) => {
+            await applicationController.getApplications(request, response);
+          },
+          query("page").isNumeric().optional(),
+          query("includeBuildteam").isBoolean().optional(),
+          query("includeReviewer").isBoolean().optional(),
+          query("includeAnswers").isBoolean().optional(),
+          query("buildteam").isUUID().optional()
+          // Permission check later
         );
         router.addRoute(
-            RequestMethods.POST,
-            "/applications",
-            async (request, response) => {
-                await applicationController.apply(request, response);
-            }
+          RequestMethods.POST,
+          "/applications",
+          async (request, response) => {
+            await applicationController.apply(request, response);
+          }
         );
         router.addRoute(
-            RequestMethods.GET,
-            "/applications/:id",
-            async (request, response) => {
-                await applicationController.getApplication(request, response);
-            },
-            param("id").isUUID(),
-            query("includeBuildteam").isBoolean().optional(),
-            query("includeReviewer").isBoolean().optional(),
-            query("includeAnswers").isBoolean().optional()
-            // Permission check later
+          RequestMethods.GET,
+          "/applications/:id",
+          async (request, response) => {
+            await applicationController.getApplication(request, response);
+          },
+          param("id").isUUID(),
+          query("includeBuildteam").isBoolean().optional(),
+          query("includeReviewer").isBoolean().optional(),
+          query("includeAnswers").isBoolean().optional()
+          // Permission check later
         );
         router.addRoute(
-            RequestMethods.POST,
-            "/applications/:id",
-            async (request, response) => {
-                await applicationController.review(request, response);
-            },
-            param("id").isUUID(),
-            body("isTrial").isBoolean(),
-            body("claimActive").isBoolean(),
-            body("status").isIn(["reviewing", "accepted", "declined"]),
-            body("reason").isString().optional()
+          RequestMethods.POST,
+          "/applications/:id",
+          async (request, response) => {
+            await applicationController.review(request, response);
+          },
+          param("id").isUUID(),
+          body("isTrial").isBoolean(),
+          body("claimActive").isBoolean(),
+          body("status").isIn(["reviewing", "accepted", "declined"]),
+          body("reason").isString().optional()
         );
 
         /*
@@ -290,34 +244,34 @@ class Routes {
          */
 
         router.addRoute(
-            RequestMethods.GET,
-            "/faq",
-            async (request, response) => {
-                await faqController.getFaqQuestions(request, response);
-            },
-            query("page").isNumeric().optional()
+          RequestMethods.GET,
+          "/faq",
+          async (request, response) => {
+            await faqController.getFaqQuestions(request, response);
+          },
+          query("page").isNumeric().optional()
         );
         router.addRoute(
-            RequestMethods.POST,
-            "/faq",
-            async (request, response) => {
-                await faqController.addFaqQuestion(request, response);
-            },
-            body("question"),
-            body("answer"),
-            checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
+          RequestMethods.POST,
+          "/faq",
+          async (request, response) => {
+            await faqController.addFaqQuestion(request, response);
+          },
+          body("question"),
+          body("answer"),
+          checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
         );
         router.addRoute(
-            RequestMethods.POST,
-            "/faq/:id",
-            async (request, response) => {
-                await faqController.editFaqQuestion(request, response);
-            },
-            param("id").isUUID(),
-            body("answer").isString().optional(),
-            body("question").isString().optional(),
-            body("links").isArray().optional(),
-            checkUserPermission(this.web.getCore().getPrisma(), "faq.edit")
+          RequestMethods.POST,
+          "/faq/:id",
+          async (request, response) => {
+            await faqController.editFaqQuestion(request, response);
+          },
+          param("id").isUUID(),
+          body("answer").isString().optional(),
+          body("question").isString().optional(),
+          body("links").isArray().optional(),
+          checkUserPermission(this.web.getCore().getPrisma(), "faq.edit")
         );
 
         /*
@@ -327,22 +281,46 @@ class Routes {
          */
 
         router.addRoute(
-            RequestMethods.GET,
-            "/users",
-            async (request, response) => {
-                await userController.getUsers(request, response);
-            },
-            query("page").isNumeric().optional()
-            //checkUserPermission(this.web.getCore().getPrisma(), "users.list")
+          RequestMethods.GET,
+          "/users",
+          async (request, response) => {
+            await userController.getUsers(request, response);
+          },
+          query("page").isNumeric().optional(),
+          checkUserPermission(this.web.getCore().getPrisma(), "users.list")
         );
         router.addRoute(
-            RequestMethods.GET,
-            "/users/:id/permissions",
-            async (request, response) => {
-                await userController.getPermissions(request, response);
-            },
-            param("id"),
-            checkUserPermission(this.web.getCore().getPrisma(), "users.list")
+          RequestMethods.GET,
+          "/users/:id/permissions",
+          async (request, response) => {
+            await userController.getPermissions(request, response);
+          },
+          param("id"),
+          checkUserPermission(this.web.getCore().getPrisma(), "users.list")
+        );
+        router.addRoute(
+          RequestMethods.POST,
+          "/users/:id/permissions",
+          async (request, response) => {
+            await userController.addPermission(request, response);
+          },
+          param("id"),
+          body("permission").isString().optional(),
+          body("permissions").isArray().optional(),
+          query("buildteam").isString().optional()
+          // Permission check later: permissions.add
+        );
+        router.addRoute(
+          RequestMethods.DELETE,
+          "/users/:id/permissions",
+          async (request, response) => {
+            await userController.removePermission(request, response);
+          },
+          param("id"),
+          body("permission").isString().optional(),
+          body("permissions").isArray().optional(),
+          query("buildteam").isString().optional()
+          // Permission check later: permissions.remove
         );
 
         /*
@@ -351,38 +329,38 @@ class Routes {
          *
          */
         router.addRoute(
-            RequestMethods.GET,
-            "/contacts",
-            async (request, response) => {
-                await contactController.getContacts(request, response);
-            }
+          RequestMethods.GET,
+          "/contacts",
+          async (request, response) => {
+            await contactController.getContacts(request, response);
+          }
         );
         router.addRoute(
-            RequestMethods.POST,
-            "/contacts",
-            async (request, response) => {
-                await faqController.addFaqQuestion(request, response);
-            },
-            body("name"),
-            body("role"),
-            body("discord").optional(),
-            body("email").isEmail().optional(),
-            body("avatar").isURL().optional(),
-            checkUserPermission(this.web.getCore().getPrisma(), "contacts.add")
+          RequestMethods.POST,
+          "/contacts",
+          async (request, response) => {
+            await faqController.addFaqQuestion(request, response);
+          },
+          body("name"),
+          body("role"),
+          body("discord").optional(),
+          body("email").isEmail().optional(),
+          body("avatar").isURL().optional(),
+          checkUserPermission(this.web.getCore().getPrisma(), "contacts.add")
         );
         router.addRoute(
-            RequestMethods.POST,
-            "/contacts/:id",
-            async (request, response) => {
-                await faqController.editFaqQuestion(request, response);
-            },
-            param("id").isUUID(),
-            body("name").optional(),
-            body("role").optional(),
-            body("discord").optional(),
-            body("email").isEmail().optional(),
-            body("avatar").isURL().optional(),
-            checkUserPermission(this.web.getCore().getPrisma(), "contacts.edit")
+          RequestMethods.POST,
+          "/contacts/:id",
+          async (request, response) => {
+            await faqController.editFaqQuestion(request, response);
+          },
+          param("id").isUUID(),
+          body("name").optional(),
+          body("role").optional(),
+          body("discord").optional(),
+          body("email").isEmail().optional(),
+          body("avatar").isURL().optional(),
+          checkUserPermission(this.web.getCore().getPrisma(), "contacts.edit")
         );
 
         /*
@@ -391,33 +369,33 @@ class Routes {
          *
          */
         router.addRoute(
-            RequestMethods.GET,
-            "/newsletter",
-            async (request, response) => {
-                await newsletterController.getNewsletters(request, response);
-            },
-            param("page").optional()
+          RequestMethods.GET,
+          "/newsletter",
+          async (request, response) => {
+            await newsletterController.getNewsletters(request, response);
+          },
+          param("page").optional()
         );
 
         router.addRoute(
-            RequestMethods.GET,
-            "/newsletter/:id",
-            async (request, response) => {
-                await newsletterController.getNewsletter(request, response);
-            },
-            param("id").optional(),
-            query("isIssue").optional()
+          RequestMethods.GET,
+          "/newsletter/:id",
+          async (request, response) => {
+            await newsletterController.getNewsletter(request, response);
+          },
+          param("id").optional(),
+          query("isIssue").optional()
         );
 
         router.addRoute(
-            RequestMethods.POST,
-            "/newsletter",
-            async (request, response) => {
-                await newsletterController.addNewsletter(request, response);
-            },
-            param("public").isBoolean().optional(),
-            checkUserPermission(this.web.getCore().getPrisma(), "newsletter.create")
-        )
+          RequestMethods.POST,
+          "/newsletter",
+          async (request, response) => {
+            await newsletterController.addNewsletter(request, response);
+          },
+          param("public").isBoolean().optional(),
+          checkUserPermission(this.web.getCore().getPrisma(), "newsletter.add")
+        );
     }
 }
 

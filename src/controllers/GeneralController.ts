@@ -29,24 +29,27 @@ class GeneralController {
             });
 
         const userPermissions = await this.core
-            .getPrisma()
-            .userPermission.findMany({
-                where: {user: user},
-                include: {user: false},
-            });
+          .getPrisma()
+          .userPermission.findMany({
+            where: { user: user },
+            include: { user: false, permission: true },
+          });
 
         res.send({
-            id: user.id,
-            ssoId: user.ssoId,
-            discordId: user.discordId,
-            username: preferred_username,
-            email,
-            emailVerified: email_verified,
-            auth: {
-                exp: {unix: exp, readable: new Date(exp * 1000).toISOString()},
-                iat: {unix: iat, readable: new Date(iat * 1000).toISOString()},
-            },
-            permissions: userPermissions,
+          id: user.id,
+          ssoId: user.ssoId,
+          discordId: user.discordId,
+          username: preferred_username,
+          email,
+          emailVerified: email_verified,
+          auth: {
+            exp: { unix: exp, readable: new Date(exp * 1000).toISOString() },
+            iat: { unix: iat, readable: new Date(iat * 1000).toISOString() },
+          },
+          permissions: userPermissions.map((p) => ({
+            ...p,
+            permission: p.permission.id,
+          })),
         });
     }
 }
