@@ -242,23 +242,30 @@ class BuildTeamController {
       name,
       icon,
       backgroundImage,
-      socials,
       invite,
       about,
       location,
+      allowTrial,
       slug,
+      acceptionMessage,
+      rejectionMessage,
+      trialMessage,
     } = req.body;
+    console.log(req.body);
     const buildteam = await this.core.getPrisma().buildTeam.update({
       where: { id: req.params.id },
       data: {
         name,
         icon,
         backgroundImage,
-        socials,
         invite,
         about,
         location,
+        allowTrial,
         slug,
+        acceptionMessage,
+        rejectionMessage,
+        trialMessage,
       },
     });
     res.send(buildteam);
