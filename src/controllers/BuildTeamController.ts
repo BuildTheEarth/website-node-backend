@@ -1,7 +1,8 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
+import { rerenderFrontend, rerenderFrontendMultiple } from "../util/Webhook.js";
 
 import Core from "../Core.js";
-import {questions} from "../util/QuestionData.js";
+import { questions } from "../util/QuestionData.js";
 import { userHasPermission } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
@@ -218,6 +219,11 @@ class BuildTeamController {
             });
           });
 
+          rerenderFrontendMultiple([
+            `/teams/${req.params.id}/apply`,
+            `/teams/${req.params.id}/manage/apply`,
+          ]);
+
           res.send(validatedSchema);
         })
         .catch((e) => {
@@ -268,6 +274,12 @@ class BuildTeamController {
         trialMessage,
       },
     });
+
+    rerenderFrontendMultiple([
+      "/teams",
+      `/teams/${req.params.id}`,
+      `/teams/${req.params.id}/manage/settings`,
+    ]);
     res.send(buildteam);
   }
 
@@ -279,4 +291,4 @@ class BuildTeamController {
   }
 }
 
-export default BuildTeamController
+export default BuildTeamController;
