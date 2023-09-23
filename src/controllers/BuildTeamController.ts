@@ -28,6 +28,11 @@ class BuildTeamController {
           _count: {
             select: { members: true, builds: true },
           },
+          members: {
+            where: {
+              id: req.user.id,
+            },
+          },
         },
       });
       let count = await this.core.getPrisma().buildTeam.count();
@@ -37,6 +42,11 @@ class BuildTeamController {
         include: {
           _count: {
             select: { members: true, builds: true },
+          },
+          members: {
+            where: {
+              id: req.user.id,
+            },
           },
         },
       });
@@ -51,7 +61,13 @@ class BuildTeamController {
         socials: true,
         builds: req.query.builds ? true : false,
         showcases: req.query.showcase ? true : false,
-        members: req.query.members ? true : false,
+        members: req.query.members
+          ? true
+          : {
+              where: {
+                id: req.user.id,
+              },
+            },
         _count: {
           select: { members: true, builds: true },
         },
