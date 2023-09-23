@@ -273,6 +273,15 @@ class Routes {
           body("links").isArray().optional(),
           checkUserPermission(this.web.getCore().getPrisma(), "faq.edit")
         );
+        router.addRoute(
+          RequestMethods.DELETE,
+          "/faq/:id",
+          async (request, response) => {
+            await faqController.deleteFaqQuestions(request, response);
+          },
+          param("id").isUUID(),
+          checkUserPermission(this.web.getCore().getPrisma(), "faq.remove")
+        );
 
         /*
          *

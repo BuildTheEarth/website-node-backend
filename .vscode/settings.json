@@ -17,6 +17,8 @@
     "application",
     "prisma",
     "src",
-    "permissions"
+    "permissions",
+    "fq",
+    "faq"
   ]
 }
