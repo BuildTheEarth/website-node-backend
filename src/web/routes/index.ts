@@ -114,9 +114,9 @@ class Routes {
             RequestMethods.GET,
             "/buildteams/:id/application/questions",
             async (request: Request, response: Response) => {
-                await buildTeamController.getBuildTeamApplicationQuestion(
-                    request,
-                    response
+                await buildTeamController.getBuildTeamApplicationQuestions(
+                  request,
+                  response
                 );
             },
             param("id").isUUID()

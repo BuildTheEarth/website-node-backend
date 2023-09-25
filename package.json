@@ -16,9 +16,6 @@
     "type": "git",
     "url": "git+https://github.com/BuildTheEarth/website-node-backend.git"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "author": "",
   "license": "ISC",
   "bugs": {

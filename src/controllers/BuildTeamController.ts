@@ -90,23 +90,22 @@ class BuildTeamController {
     }
   }
 
-  public async getBuildTeamApplicationQuestion(req: Request, res: Response) {
+  public async getBuildTeamApplicationQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let buildteam = await this.core.getPrisma().buildTeam.findUnique({
-      where: {
-        id: req.params.id,
-      },
-      include: {
-        applicationQuestions: true,
-      },
-    });
+    let applicationQuestions = await this.core
+      .getPrisma()
+      .applicationQuestion.findMany({
+        where: {
+          buildTeamId: req.params.id,
+        },
+      });
 
-    if (buildteam) {
-      res.send(buildteam.applicationQuestions);
+    if (applicationQuestions) {
+      res.send(applicationQuestions);
     } else {
       res.status(404).send({
         code: 404,

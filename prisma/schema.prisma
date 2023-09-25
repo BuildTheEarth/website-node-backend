@@ -31,6 +31,7 @@ model BuildTeam {
   createdAt            DateTime              @default(now())
   location             String                @default("")
   slug                 String                @unique @default("")
+  ip                   String                @default("buildtheearth.net")
   acceptionMessage     String                @default("")
   allowTrial           Boolean               @default(false)
   rejectionMessage     String                @default("")
@@ -88,13 +89,13 @@ model Showcase {
 }
 
 model UserPermission {
-  id            String      @id @default(uuid())
-  userId        String
-  buildTeamId   String?
+  id           String      @id @default(uuid())
+  userId       String
+  buildTeamId  String?
   permissionId String
-  permission    Permisision @relation(fields: [permissionId], references: [id])
-  buildTeam     BuildTeam?  @relation(fields: [buildTeamId], references: [id])
-  user          User        @relation(fields: [userId], references: [id])
+  permission   Permisision @relation(fields: [permissionId], references: [id])
+  buildTeam    BuildTeam?  @relation(fields: [buildTeamId], references: [id])
+  user         User        @relation(fields: [userId], references: [id])
 }
 
 model Permisision {
