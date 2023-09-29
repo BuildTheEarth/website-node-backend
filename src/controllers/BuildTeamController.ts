@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { rerenderFrontend, rerenderFrontendMultiple } from "../util/Webhook.js";
 
+import { ApplicationQuestionType } from "@prisma/client";
 import Core from "../Core.js";
 import { questions } from "../util/QuestionData.js";
 import { userHasPermission } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
@@ -139,25 +140,30 @@ class BuildTeamController {
       let schema = yup.array().of(
         yup.object({
           id: yup.string(),
-          additionalData: yup.array().of(yup.mixed().oneOf(questions)),
           title: yup.string(),
           subtitle: yup.string(),
           placeholder: yup.string(),
           required: yup.boolean().default(false),
           icon: yup.string(),
           sort: yup.number(),
+          type: yup.mixed().oneOf(Object.keys(ApplicationQuestionType)),
         })
       );
 
       schema
         .validate(req.body)
         .then((validatedSchema) => {
-          validatedSchema.forEach((question) => {
-            this.core.getPrisma().applicationQuestion.update({
+          validatedSchema.forEach(async (question: any) => {
+            await this.core.getPrisma().applicationQuestion.upsert({
               where: {
                 id: question.id,
               },
-              data: question,
+              update: { ...question, buildTeamId: undefined },
+              create: {
+                ...question,
+                buildTeamId: undefined,
+                buildTeam: { connect: { id: buildteam.id } },
+              },
             });
           });
 
