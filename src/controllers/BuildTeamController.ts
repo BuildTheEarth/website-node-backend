@@ -3,8 +3,6 @@ import { rerenderFrontend, rerenderFrontendMultiple } from "../util/Webhook.js";
 
 import { ApplicationQuestionType } from "@prisma/client";
 import Core from "../Core.js";
-import { questions } from "../util/QuestionData.js";
-import { userHasPermission } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
 
@@ -308,6 +306,98 @@ class BuildTeamController {
       `/teams/${req.params.id}/manage/settings`,
     ]);
     res.send(buildteam);
+  }
+
+  public async getBuildTeamMembers(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const members = await this.core.getPrisma().user.findMany({
+      where: {
+        joinedBuildTeams: { some: { id: req.params.id } },
+      },
+    });
+
+    const kcMembers = await Promise.all(
+      members.map(async (member) => {
+        const kcMember = await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({
+            id: member.ssoId,
+          });
+        return {
+          id: member.id,
+          ssoId: member.ssoId,
+          discordId: member.discordId,
+          createdTimestamp: kcMember?.createdTimestamp,
+          email: kcMember?.email,
+          username: kcMember?.username,
+          enabled: kcMember?.enabled,
+          emailVerified: kcMember?.emailVerified,
+        };
+      })
+    );
+    res.send(kcMembers);
+  }
+
+  public async removeBuildTeamMember(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const user = await this.core.getPrisma().user.update({
+      where: { id: req.body.user },
+      data: { joinedBuildTeams: { disconnect: { id: req.params.id } } },
+    });
+
+    rerenderFrontendMultiple([
+      "/teams",
+      `/teams/${req.params.id}`,
+      `/teams/${req.params.id}/manage/members`,
+    ]);
+
+    res.json(user);
+  }
+
+  public async getBuildTeamManagers(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const members = await this.core.getPrisma().user.findMany({
+      where: {
+        permissions: { some: { buildTeamId: req.params.id } },
+      },
+      include: { permissions: { where: { buildTeamId: req.params.id } } },
+    });
+
+    const kcMembers = await Promise.all(
+      members.map(async (member) => {
+        const kcMember = await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({
+            id: member.ssoId,
+          });
+        return {
+          id: member.id,
+          ssoId: member.ssoId,
+          discordId: member.discordId,
+          createdTimestamp: kcMember?.createdTimestamp || "",
+          email: kcMember?.email || "",
+          username: kcMember?.username || "",
+          enabled: kcMember?.enabled || false,
+          emailVerified: kcMember?.emailVerified || false,
+          permissions: member.permissions,
+        };
+      })
+    );
+    res.send(kcMembers);
   }
 
   public async apply(req: Request, res: Response) {

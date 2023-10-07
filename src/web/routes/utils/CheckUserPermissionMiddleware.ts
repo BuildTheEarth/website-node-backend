@@ -15,10 +15,10 @@ export const checkUserPermission = (
     }
 
     if (
-      userHasPermission(
+      userHasPermissions(
         prisma,
         req.kauth.grant.access_token.content.sub,
-        permission,
+        [permission],
         buildteam ? req.params[buildteam] : undefined
       )
     ) {
@@ -31,10 +31,38 @@ export const checkUserPermission = (
   };
 };
 
-export async function userHasPermission(
+export const checkUserPermissions = (
+  prisma: PrismaClient,
+  permissions: string[],
+  buildteam?: string
+) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.kauth.grant) {
+      res.status(401).send("You don't have permission to do this!");
+      return;
+    }
+
+    if (
+      userHasPermissions(
+        prisma,
+        req.kauth.grant.access_token.content.sub,
+        permissions,
+        buildteam ? req.params[buildteam] : undefined
+      )
+    ) {
+      next();
+      return;
+    } else {
+      res.status(403).send("You don't have permission to do this!");
+      return;
+    }
+  };
+};
+
+export async function userHasPermissions(
   prisma: PrismaClient,
   ssoId: string,
-  permission: string,
+  permission: string[],
   buildteam?: string
 ) {
   let user = await prisma.user.findUnique({
@@ -54,7 +82,7 @@ export async function userHasPermission(
 
   const foundPermissions = permissions
     .filter((p) => p.buildTeamId == null || p.buildTeamId == buildteam)
-    .filter((p) => minimatch(permission, p.permission.id));
+    .filter((p) => permission.some((perm) => minimatch(perm, p.permission.id)));
   if (
     foundPermissions != null &&
     foundPermissions != undefined &&

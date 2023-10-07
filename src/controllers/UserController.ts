@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import Core from "../Core.js";
 import { PrismaClient } from "@prisma/client";
-import { userHasPermission } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
 
 class UserController {
@@ -61,10 +61,10 @@ class UserController {
 
     if (req.query.buildteam) {
       if (
-        !(await userHasPermission(
+        !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          "permission.add",
+          ["permission.add"],
           req.query.buildTeam as string
         ))
       ) {
@@ -95,10 +95,10 @@ class UserController {
       );
     } else {
       if (
-        !(await userHasPermission(
+        !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          "permission.add"
+          ["permission.add"]
         ))
       ) {
         return res.status(401).send("You don't have permission to do this!");
@@ -126,10 +126,10 @@ class UserController {
 
     if (req.query.buildteam) {
       if (
-        !(await userHasPermission(
+        !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          "permission.remove",
+          ["permission.remove"],
           req.query.buildTeam as string
         ))
       ) {
@@ -160,10 +160,10 @@ class UserController {
       );
     } else {
       if (
-        !(await userHasPermission(
+        !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          "permission.remove"
+          ["permission.remove"]
         ))
       ) {
         return res.status(401).send("You don't have permission to do this!");
