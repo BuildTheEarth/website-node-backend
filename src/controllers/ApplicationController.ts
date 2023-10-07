@@ -1,5 +1,5 @@
-import {Request, Response} from "express";
-import turf, {toPolygon} from "../util/Turf.js";
+import { Request, Response } from "express";
+import turf, { toPolygon } from "../util/Turf.js";
 
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";

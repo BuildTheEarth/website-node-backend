@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 import Core from "../Core.js";
 import { rerenderFrontendMultiple } from "../util/Webhook.js";

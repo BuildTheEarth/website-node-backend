@@ -10,7 +10,8 @@
     "start-nodemon": "nodemon index.js",
     "start:migrate": "npx prisma migrate deploy && node index.js",
     "build": "yarn install --pure-lockfile && tsc",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "prettier": "prettier --write ./src"
   },
   "repository": {
     "type": "git",

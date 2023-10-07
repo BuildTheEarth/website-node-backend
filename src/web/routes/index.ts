@@ -1,5 +1,5 @@
-import {Request, Response} from "express";
-import {body, param, query} from "express-validator";
+import { Request, Response } from "express";
+import { body, param, query } from "express-validator";
 import {
   checkUserPermission,
   checkUserPermissions,

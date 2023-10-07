@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
 
 import { minimatch } from "minimatch";

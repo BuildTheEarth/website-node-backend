@@ -1,7 +1,7 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 import Core from "../Core.js";
-import {validationResult} from "express-validator";
+import { validationResult } from "express-validator";
 
 class GeneralController {
   private core: Core;

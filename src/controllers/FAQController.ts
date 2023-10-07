@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 import Core from "../Core.js";
 import { rerenderFrontendMultiple } from "../util/Webhook.js";
@@ -67,12 +67,12 @@ class FaqController {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-     const question = await this.core.getPrisma().fAQQuestion.delete({
-       where: { id: req.params.id }
-     });
+    const question = await this.core.getPrisma().fAQQuestion.delete({
+      where: { id: req.params.id },
+    });
 
-     rerenderFrontendMultiple(["/faq", "/faq/manage"]);
-     res.send(question);
+    rerenderFrontendMultiple(["/faq", "/faq/manage"]);
+    res.send(question);
   }
 }
 
