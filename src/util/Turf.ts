@@ -10,12 +10,6 @@ export function toPoint(coords: string, splitter?: string): Point {
 
 // ["lat, lng","lat, lng","lat, lng","lat, lng"]
 export function toPolygon(coords: string[], splitter?: string): Polygon {
-  console.log(
-    coords.map((c) => {
-      const s = c.split(splitter || ", ");
-      return [parseFloat(s[0]), parseFloat(s[1])];
-    })
-  );
   return polygon([
     coords.map((c) => {
       const s = c.split(splitter || ", ");

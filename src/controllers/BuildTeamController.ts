@@ -282,7 +282,6 @@ class BuildTeamController {
       rejectionMessage,
       trialMessage,
     } = req.body;
-    console.log(req.body);
     const buildteam = await this.core.getPrisma().buildTeam.update({
       where: { id: req.params.id },
       data: {
