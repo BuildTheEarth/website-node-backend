@@ -14,6 +14,7 @@ import { Keycloak } from "keycloak-connect";
 import NewsletterController from "../../controllers/NewsletterController.js";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
+import ShowcaseController from "../../controllers/ShowcaseController.js";
 import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
 
@@ -37,6 +38,7 @@ class Routes {
     const router: Router = new Router(this.web, "v1");
 
     const buildTeamController = new BuildTeamController(this.web.getCore());
+    const showcaseController = new ShowcaseController(this.web.getCore());
     const applicationController = new ApplicationController(this.web.getCore());
     const faqController = new FaqController(this.web.getCore());
     const userController = new UserController(this.web.getCore());
@@ -79,7 +81,6 @@ class Routes {
     router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
       response.send({ status: "up" });
     });
-
     router.addRoute(
       RequestMethods.GET,
       "/account",
@@ -88,7 +89,6 @@ class Routes {
       },
       checkUserPermission(this.web.getCore().getPrisma(), "account.info")
     );
-
     router.addRoute(
       RequestMethods.GET,
       "/permissions",
@@ -96,7 +96,6 @@ class Routes {
         await generalController.getPermissions(request, response);
       }
     );
-
     router.addRoute(
       RequestMethods.POST,
       "/upload",
@@ -237,6 +236,36 @@ class Routes {
         "buildteam.settings.edit",
         "id"
       )
+    );
+
+    /*
+     *
+     * Showcase Routes
+     *
+     */
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/buildteams/:id/showcases",
+      async (request, response) => {
+        await showcaseController.getShowcases(request, response);
+      },
+      param("id").isUUID()
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/showcases",
+      async (request, response) => {
+        await showcaseController.getAllShowcases(request, response);
+      }
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/showcases/random",
+      async (request, response) => {
+        await showcaseController.getRandomShowcases(request, response);
+      },
+      query("limit").isNumeric()
     );
 
     /*
