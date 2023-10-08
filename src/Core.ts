@@ -1,9 +1,12 @@
-import Web from "./web/Web.js";
-import Keycloak from "keycloak-connect";
 import * as session from "express-session";
-import { PrismaClient } from "@prisma/client";
-import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import * as winston from "winston";
+
+import AmazonAWS from "./util/AmazonAWS.js";
+import Keycloak from "keycloak-connect";
+import KeycloakAdmin from "./util/KeycloakAdmin.js";
+import { PrismaClient } from "@prisma/client";
+import Web from "./web/Web.js";
+import { middlewareUploadSrc } from "./util/Prisma.js";
 
 class Core {
   web: Web;
@@ -12,10 +15,12 @@ class Core {
   prisma: PrismaClient;
   keycloakAdmin: KeycloakAdmin;
   logger: winston.Logger;
+  aws: AmazonAWS;
 
   constructor() {
     this.setUpLogger();
     this.memoryStore = new session.MemoryStore();
+    this.aws = new AmazonAWS(this);
     this.keycloak = new Keycloak(
       {
         store: this.memoryStore,
@@ -33,6 +38,7 @@ class Core {
     this.keycloakAdmin.authKcClient().then(() => {
       this.getLogger().debug("Keycloak Admin is initialized.");
       this.prisma = new PrismaClient();
+      this.prisma.$use(middlewareUploadSrc);
       this.web = new Web(this);
       this.web.startWebserver();
     });
@@ -45,6 +51,8 @@ class Core {
   public getPrisma = (): PrismaClient => this.prisma;
 
   public getKeycloakAdmin = (): KeycloakAdmin => this.keycloakAdmin;
+
+  public getAWS = (): AmazonAWS => this.aws;
 
   private setUpLogger(): void {
     // const logger = this.getLogger();

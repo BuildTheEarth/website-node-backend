@@ -81,11 +81,12 @@ model Build {
 
 model Showcase {
   id          String    @id @default(uuid())
-  image       String
+  image       Upload    @relation(fields: [uploadId], references: [id])
   title       String
   createdAt   DateTime  @default(now())
   buildTeamId String
   buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
+  uploadId    String
 }
 
 model UserPermission {
@@ -167,6 +168,16 @@ model ApplicationAnswer {
   answer        String
   application   Application         @relation(fields: [applicationId], references: [id])
   question      ApplicationQuestion @relation(fields: [questionId], references: [id])
+}
+
+model Upload {
+  id        String     @id @default(uuid())
+  name      String
+  hash      String
+  height    Int
+  width     Int
+  createdAt DateTime   @default(now())
+  Showcase  Showcase[]
 }
 
 enum ApplicationStatus {

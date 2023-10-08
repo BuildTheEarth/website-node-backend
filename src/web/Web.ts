@@ -4,8 +4,8 @@ import bodyParser from "body-parser";
 import checkNewUser from "./routes/utils/CheckNewUserMiddleware.js";
 import cors from "cors";
 import express from "express";
+import multer from "multer";
 import session from "express-session";
-
 class Web {
   app;
 
@@ -13,9 +13,14 @@ class Web {
 
   routes: Routes;
 
+  fileStorage: any;
+  fileUpload: any;
+
   constructor(core: Core) {
     this.app = express();
     this.core = core;
+    this.fileStorage = multer.memoryStorage();
+    this.fileUpload = multer({ storage: this.fileStorage });
   }
 
   public startWebserver() {
@@ -61,6 +66,10 @@ class Web {
 
   public getKeycloak() {
     return this.core.getKeycloak();
+  }
+
+  public getFileUpload() {
+    return this.fileUpload;
   }
 }
 

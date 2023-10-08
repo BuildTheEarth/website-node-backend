@@ -97,6 +97,15 @@ class Routes {
       }
     );
 
+    router.addRoute(
+      RequestMethods.POST,
+      "/upload",
+      async (request, response) => {
+        await generalController.uploadImage(request, response);
+      },
+      this.web.getFileUpload().single("image")
+    );
+
     /*
      *
      * Build Team Routes
