@@ -1,5 +1,10 @@
+import * as blurhash from "blurhash";
+
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
 import Core from "../Core.js";
-import { S3Client } from "@aws-sdk/client-s3";
+import crypto from "crypto";
+import sharp from "sharp";
 
 class AmazonAWS {
   private s3Client: S3Client;
@@ -31,6 +36,39 @@ class AmazonAWS {
 
   public getS3Bucket() {
     return process.env.AWS_BUCKET_NAME;
+  }
+
+  public async uploadFile(file: any) {
+    const fileKey = crypto.randomBytes(32).toString("hex");
+
+    const { data: fileBuffer, info: fileInfo } = await sharp(file.buffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const command = new PutObjectCommand({
+      Bucket: this.core.getAWS().getS3Bucket(),
+      Key: "upload/" + fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+    await this.core.getAWS().getS3Client().send(command);
+
+    const upload = await this.core.getPrisma().upload.create({
+      data: {
+        name: fileKey,
+        height: fileInfo.height,
+        width: fileInfo.width,
+        hash: blurhash.encode(
+          new Uint8ClampedArray(fileBuffer),
+          fileInfo.width,
+          fileInfo.height,
+          4,
+          4
+        ),
+      },
+    });
+    return upload;
   }
 }
 export default AmazonAWS;

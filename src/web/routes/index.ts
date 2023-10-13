@@ -267,6 +267,33 @@ class Routes {
       },
       query("limit").isNumeric()
     );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/buildteams/:team/showcases/:id",
+      async (request, response) => {
+        await showcaseController.deleteShowcase(request, response);
+      },
+      param("id").isUUID(),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "team.showcases.edit",
+        "team"
+      )
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/buildteams/:id/showcases",
+      async (request, response) => {
+        await showcaseController.createShowcase(request, response);
+      },
+      param("id").isUUID(),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "team.showcases.edit",
+        "team"
+      ),
+      this.web.getFileUpload().single("image")
+    );
 
     /*
      *

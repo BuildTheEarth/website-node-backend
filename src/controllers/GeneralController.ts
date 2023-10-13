@@ -73,36 +73,8 @@ class GeneralController {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const file = req.file;
-    const fileKey = crypto.randomBytes(32).toString("hex");
 
-    const { data: fileBuffer, info: fileInfo } = await sharp(file.buffer)
-      .ensureAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-
-    const command = new PutObjectCommand({
-      Bucket: this.core.getAWS().getS3Bucket(),
-      Key: "upload/" + fileKey,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-    await this.core.getAWS().getS3Client().send(command);
-
-    const upload = await this.core.getPrisma().upload.create({
-      data: {
-        name: fileKey,
-        height: fileInfo.height,
-        width: fileInfo.width,
-        hash: blurhash.encode(
-          new Uint8ClampedArray(fileBuffer),
-          fileInfo.width,
-          fileInfo.height,
-          4,
-          4
-        ),
-      },
-    });
+    const upload = await this.core.getAWS().uploadFile(req.file);
 
     res.send(upload);
   }
