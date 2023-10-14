@@ -137,6 +137,7 @@ model Claim {
   builders    User[]        @relation("builders")
   buildTeam   BuildTeam     @relation(fields: [buildTeamId], references: [id])
   buildTeamId String
+  createdAt   DateTime      @default(now())
 }
 
 model Application {

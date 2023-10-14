@@ -44,6 +44,7 @@ class ClaimController {
 
     const claims = await this.core.getPrisma().claim.findMany({
       where: { finished: filters.finished, active: filters.active },
+      select: { id: true, area: true, finished: true },
     });
 
     res.send({
@@ -54,7 +55,7 @@ class ClaimController {
           type: "Feature",
           geometry: {
             type: "Polygon",
-            coordinates: mapped,
+            coordinates: [mapped],
           },
           properties: { ...c, area: undefined },
           id: c.id,
@@ -74,7 +75,16 @@ class ClaimController {
       },
       include: {
         owner: true,
-        buildTeam: true,
+        buildTeam: {
+          select: {
+            name: true,
+            id: true,
+            location: true,
+            slug: true,
+            icon: true,
+          },
+        },
+        builders: true,
       },
     });
     if (claim) {
