@@ -453,6 +453,15 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.GET,
+      "/users/:id",
+      async (request, response) => {
+        await userController.getUser(request, response);
+      },
+      param("id").isUUID()
+      // Permission check later
+    );
+    router.addRoute(
+      RequestMethods.GET,
       "/users/:id/permissions",
       async (request, response) => {
         await userController.getPermissions(request, response);

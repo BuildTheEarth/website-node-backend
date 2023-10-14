@@ -30,6 +30,61 @@ class UserController {
       res.send(users);
     }
   }
+  public async getUser(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (!req.kauth.grant)
+      return res.status(401).send("You don't have permission to do this!");
+
+    const user = await this.core.getPrisma().user.findUnique({
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        applications: {
+          select: {
+            id: true,
+            status: true,
+            createdAt: true,
+            reviewedAt: true,
+            reason: true,
+            trial: true,
+            buildteam: { select: { name: true, id: true } },
+            claim: { select: { id: true } },
+          },
+        },
+        createdBuildTeams: {
+          select: {
+            id: true,
+            slug: true,
+            location: true,
+            icon: true,
+            name: true,
+          },
+        },
+        claims: {
+          select: { name: true, finished: true, id: true, center: true },
+        },
+        claimsBuilder: {
+          select: { name: true, finished: true, id: true, center: true },
+        },
+        joinedBuildTeams: {
+          select: {
+            id: true,
+            slug: true,
+            location: true,
+            icon: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    res.send(user);
+  }
 
   public async getPermissions(req: Request, res: Response) {
     const errors = validationResult(req);

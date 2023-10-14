@@ -11,6 +11,8 @@ model User {
   id                String           @id @default(uuid())
   ssoId             String           @unique
   discordId         String?
+  name              String?
+  avatar            String?
   reviewed          Application[]    @relation("reviewer")
   applications      Application[]    @relation("user")
   createdBuildTeams BuildTeam[]      @relation("creator")
