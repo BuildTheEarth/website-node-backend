@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import turf, { toPolygon } from "../util/Turf.js";
 
 import Core from "../Core.js";
-import { parseApplicationStatus } from "../util/Parser.js";
-import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
 
 class ClaimController {
@@ -97,6 +95,34 @@ class ClaimController {
       });
     }
     return;
+  }
+
+  public async updateClaim(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, finished, active, area } = req.body;
+    const claim = await this.core.getPrisma().claim.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        name,
+        finished,
+        active,
+        area: area.map((p: [number, number]) => p.join(", ")),
+        center: turf
+          .center({
+            type: "Feature",
+            geometry: { coordinates: [area], type: "Polygon" },
+          })
+          .geometry.coordinates.join(", "),
+      },
+    });
+
+    res.send(claim);
   }
 }
 

@@ -268,6 +268,18 @@ class Routes {
       },
       param("id").isUUID()
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/claims/:id",
+      async (request, response) => {
+        await claimController.updateClaim(request, response);
+      },
+      param("id").isUUID(),
+      body("name").isString().optional(),
+      body("finished").isBoolean().optional(),
+      body("active").isBoolean().optional(),
+      body("area").isArray().optional()
+    );
 
     /*
      *
