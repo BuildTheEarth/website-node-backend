@@ -38,12 +38,12 @@ model BuildTeam {
   trialMessage         String                @default("")
   Application          Application[]
   applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
-  builds               Build[]               @relation("builds")
   creator              User                  @relation("creator", fields: [creatorId], references: [id])
   showcases            Showcase[]            @relation("showcases")
   socials              Social[]              @relation("socials")
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
+  claims               Claim[]
 }
 
 model ApplicationQuestion {
@@ -69,14 +69,6 @@ model Social {
   url         String
   buildTeamId String
   buildTeam   BuildTeam @relation("socials", fields: [buildTeamId], references: [id])
-}
-
-model Build {
-  id          String    @id @default(uuid())
-  name        String
-  createdAt   DateTime  @default(now())
-  buildTeamId String
-  buildTeam   BuildTeam @relation("builds", fields: [buildTeamId], references: [id])
 }
 
 model Showcase {
@@ -138,9 +130,13 @@ model Claim {
   area        String[]
   center      String
   active      Boolean       @default(false)
+  finished    Boolean       @default(false)
+  name        String        @default("")
   Application Application[]
   owner       User          @relation("owner", fields: [ownerId], references: [id])
   builders    User[]        @relation("builders")
+  buildTeam   BuildTeam     @relation(fields: [buildTeamId], references: [id])
+  buildTeamId String
 }
 
 model Application {

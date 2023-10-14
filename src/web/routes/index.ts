@@ -7,6 +7,7 @@ import {
 
 import ApplicationController from "../../controllers/ApplicationController.js";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
+import ClaimController from "../../controllers/ClaimController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
@@ -40,6 +41,7 @@ class Routes {
     const buildTeamController = new BuildTeamController(this.web.getCore());
     const showcaseController = new ShowcaseController(this.web.getCore());
     const applicationController = new ApplicationController(this.web.getCore());
+    const claimController = new ClaimController(this.web.getCore());
     const faqController = new FaqController(this.web.getCore());
     const userController = new UserController(this.web.getCore());
     const contactController = new ContactController(this.web.getCore());
@@ -236,6 +238,35 @@ class Routes {
         "buildteam.settings.edit",
         "id"
       )
+    );
+
+    /*
+     *
+     * Claim Routes
+     *
+     */
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/claims",
+      async (request, response) => {
+        await claimController.getClaims(request, response);
+      }
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/claims/geojson",
+      async (request, response) => {
+        await claimController.getClaimsGeoJson(request, response);
+      }
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/claims/:id",
+      async (request, response) => {
+        await claimController.getClaim(request, response);
+      },
+      param("id").isUUID()
     );
 
     /*
