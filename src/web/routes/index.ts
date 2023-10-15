@@ -462,6 +462,30 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.GET,
+      "/users/:id/kc",
+      async (request, response) => {
+        await userController.getKeycloakUser(request, response);
+      },
+      param("id").isUUID()
+      // Permission check later
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/users/:id",
+      async (request, response) => {
+        await userController.updateUser(request, response);
+      },
+      param("id").isUUID(),
+      body("email").isEmail().optional(),
+      body("firstName").isString().optional(),
+      body("lastName").isString().optional(),
+      body("username").isString().optional(),
+      body("name").isString().optional(),
+      body("avatar").isString().optional()
+      // Permission check later
+    );
+    router.addRoute(
+      RequestMethods.GET,
       "/users/:id/permissions",
       async (request, response) => {
         await userController.getPermissions(request, response);
