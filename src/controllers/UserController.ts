@@ -39,7 +39,7 @@ class UserController {
     if (!req.kauth.grant)
       return res.status(401).send("You don't have permission to do this!");
 
-    const user = await this.core.getPrisma().user.findUnique({
+    const user = await this.core.getPrisma().user.findFirst({
       where: {
         id: req.params.id,
       },
@@ -83,9 +83,9 @@ class UserController {
       },
     });
 
-    if (user.ssoId == req.kauth.grant.access_token.sub) {
+    if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(user);
-    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.sub, ["users.list"])) {
+    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["users.list"])) {
       res.send(user);
     } else {
       res.status(401).send("You don't have permission to do this!");
