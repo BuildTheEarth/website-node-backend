@@ -83,7 +83,13 @@ class UserController {
       },
     });
 
-    res.send(user);
+    if (user.ssoId == req.kauth.grant.access_token.sub) {
+      res.send(user);
+    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.sub, ["users.list"])) {
+      res.send(user);
+    } else {
+      res.status(401).send("You don't have permission to do this!");
+    }
   }
 
   public async getPermissions(req: Request, res: Response) {
