@@ -122,6 +122,7 @@ class ClaimController {
       },
     });
 
+    this.core.getDiscord().sendClaimUpdate(claim);
     res.send(claim);
   }
 }
