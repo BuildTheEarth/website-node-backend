@@ -3,6 +3,7 @@ import { rerenderFrontend, rerenderFrontendMultiple } from "../util/Webhook.js";
 
 import { ApplicationQuestionType } from "@prisma/client";
 import Core from "../Core.js";
+import { questions } from "../util/QuestionData.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
 
@@ -94,13 +95,11 @@ class BuildTeamController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let applicationQuestions = await this.core
-      .getPrisma()
-      .applicationQuestion.findMany({
-        where: {
-          buildTeamId: req.params.id,
-        },
-      });
+    let applicationQuestions = await this.core.getPrisma().applicationQuestion.findMany({
+      where: {
+        buildTeamId: req.params.id,
+      },
+    });
 
     if (applicationQuestions) {
       res.send(applicationQuestions);
@@ -113,10 +112,7 @@ class BuildTeamController {
     }
   }
 
-  public async updateBuildTeamApplicationQuestions(
-    req: Request,
-    res: Response
-  ) {
+  public async updateBuildTeamApplicationQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -141,6 +137,7 @@ class BuildTeamController {
           subtitle: yup.string(),
           placeholder: yup.string(),
           required: yup.boolean().default(false),
+          additionalData: yup.mixed().optional(),
           icon: yup.string(),
           sort: yup.number(),
           type: yup.mixed().oneOf(Object.keys(ApplicationQuestionType)),
@@ -243,10 +240,7 @@ class BuildTeamController {
             });
           });
 
-          rerenderFrontendMultiple([
-            `/teams/${req.params.id}/apply`,
-            `/teams/${req.params.id}/manage/apply`,
-          ]);
+          rerenderFrontendMultiple([`/teams/${req.params.id}/apply`, `/teams/${req.params.id}/manage/apply`]);
 
           res.send(validatedSchema);
         })
@@ -268,19 +262,7 @@ class BuildTeamController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {
-      name,
-      icon,
-      backgroundImage,
-      invite,
-      about,
-      location,
-      allowTrial,
-      slug,
-      acceptionMessage,
-      rejectionMessage,
-      trialMessage,
-    } = req.body;
+    const { name, icon, backgroundImage, invite, about, location, allowTrial, slug, acceptionMessage, rejectionMessage, trialMessage } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
       where: { id: req.params.id },
       data: {
@@ -298,11 +280,7 @@ class BuildTeamController {
       },
     });
 
-    rerenderFrontendMultiple([
-      "/teams",
-      `/teams/${req.params.id}`,
-      `/teams/${req.params.id}/manage/settings`,
-    ]);
+    rerenderFrontendMultiple(["/teams", `/teams/${req.params.id}`, `/teams/${req.params.id}/manage/settings`]);
     res.send(buildteam);
   }
 
@@ -320,12 +298,9 @@ class BuildTeamController {
 
     const kcMembers = await Promise.all(
       members.map(async (member) => {
-        const kcMember = await this.core
-          .getKeycloakAdmin()
-          .getKeycloakAdminClient()
-          .users.findOne({
-            id: member.ssoId,
-          });
+        const kcMember = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({
+          id: member.ssoId,
+        });
         return {
           id: member.id,
           ssoId: member.ssoId,
@@ -352,11 +327,7 @@ class BuildTeamController {
       data: { joinedBuildTeams: { disconnect: { id: req.params.id } } },
     });
 
-    rerenderFrontendMultiple([
-      "/teams",
-      `/teams/${req.params.id}`,
-      `/teams/${req.params.id}/manage/members`,
-    ]);
+    rerenderFrontendMultiple(["/teams", `/teams/${req.params.id}`, `/teams/${req.params.id}/manage/members`]);
 
     res.json(user);
   }
@@ -376,12 +347,9 @@ class BuildTeamController {
 
     const kcMembers = await Promise.all(
       members.map(async (member) => {
-        const kcMember = await this.core
-          .getKeycloakAdmin()
-          .getKeycloakAdminClient()
-          .users.findOne({
-            id: member.ssoId,
-          });
+        const kcMember = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({
+          id: member.ssoId,
+        });
         return {
           id: member.id,
           ssoId: member.ssoId,
@@ -396,13 +364,6 @@ class BuildTeamController {
       })
     );
     res.send(kcMembers);
-  }
-
-  public async apply(req: Request, res: Response) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
   }
 }
 

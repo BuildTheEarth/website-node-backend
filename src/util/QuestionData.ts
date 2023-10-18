@@ -1,26 +1,22 @@
 import yup from "yup";
 
 export const textQuestionDataSchema = yup.object({
-  validation: yup.string().notRequired(),
-  length: yup.number().notRequired(),
+  length: yup.number().default(200),
 });
 
 export const longTextQuestionDataSchema = yup.object({
-  validation: yup.string().notRequired(),
-  length: yup.number().notRequired(),
+  length: yup.number().default(200),
 });
 
 export const cityAutocompleteQuestionDataSchema = yup.object({
   country: yup.string().notRequired(),
 });
 
-export const minecraftNameQuestionDataSchema = yup.object({
-  allowBedrock: yup.boolean().notRequired(),
-});
+export const minecraftNameQuestionDataSchema = yup.object({});
 
 export const sliderQuestionDataSchema = yup.object({
   steps: yup.number().default(1),
-  max: yup.number().default(10),
+  max: yup.number().default(100),
   min: yup.number().default(0),
   unit: yup.string().notRequired(),
 });
@@ -30,24 +26,12 @@ export const imageUploadQuestionDataSchema = yup.object({
   maxAmount: yup.number().default(1),
 });
 
-const questionTypes = [
-  textQuestionDataSchema,
-  longTextQuestionDataSchema,
-  cityAutocompleteQuestionDataSchema,
-  minecraftNameQuestionDataSchema,
-  sliderQuestionDataSchema,
-  imageUploadQuestionDataSchema,
-];
-
 export const dropdownQuestionDataSchema = yup.object({
-  maxSelect: yup.number().notRequired(),
-  conditions: yup.array().of(yup.mixed().oneOf(questionTypes)).notRequired(),
+  maxSelect: yup.number().default(1),
+  conditions: yup.array().of(yup.string()).notRequired(),
 });
 
-export const checkboxQuestionDataSchema = yup.object({
-  ifTrue: yup.array().of(yup.mixed().oneOf(questionTypes)).notRequired(),
-  ifFalse: yup.array().of(yup.mixed().oneOf(questionTypes)).notRequired(),
-});
+export const checkboxQuestionDataSchema = yup.object({});
 
 export const questions = [
   textQuestionDataSchema,
