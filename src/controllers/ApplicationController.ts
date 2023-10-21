@@ -103,26 +103,29 @@ class ApplicationController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { status, reason, claimActive, isTrial } = req.body;
+    const { status, reason } = req.body;
     const reviewer = req.user;
 
     const application = await this.core.getPrisma().application.update({
       where: {
-        id: req.params.id,
+        id: req.params.app,
       },
       data: {
         reviewer: { connect: { id: reviewer.id } },
-        reviewedAt: status != "reviewing" ? new Date() : null,
-        claim: { update: { active: claimActive } },
-        status: parseApplicationStatus(status, isTrial),
+        reviewedAt: status != "REVIEWING" ? new Date() : null,
+        status: parseApplicationStatus(status),
         reason,
       },
+      include: {
+        ApplicationAnswer: { include: { question: true } },
+      },
     });
-    console.log(req.params.id, application);
-    res.send(application);
 
-    // TODO: Update user rank+perms
-    // body: isTrial for trial building
+    if (parseApplicationStatus(status) == ApplicationStatus.ACCEPTED) {
+      const user = await this.core.getPrisma().user.update({ where: { id: application.userId }, data: { joinedBuildTeams: { connect: { id: application.buildteamId } } }, select: { _count: { select: { joinedBuildTeams: true } } } });
+    }
+
+    res.send(application);
   }
 
   public async apply(req: Request, res: Response) {

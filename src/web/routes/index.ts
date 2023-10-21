@@ -314,6 +314,18 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.POST,
+      "/buildteams/:id/applications/:app",
+      async (request, response) => {
+        await applicationController.review(request, response);
+      },
+      param("app").isUUID(),
+      param("id").isUUID(),
+      body("reason").isString().optional(),
+      body("status").isString().isIn(["TRIAL", "ACCEPTED", "DECLINED"]),
+      checkUserPermission(this.web.getCore().getPrisma(), "team.application.review", "id")
+    );
+    router.addRoute(
+      RequestMethods.POST,
       "/buildteams/:id/apply",
       async (request, response) => {
         await applicationController.apply(request, response);
