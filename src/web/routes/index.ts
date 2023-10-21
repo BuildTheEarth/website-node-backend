@@ -344,7 +344,6 @@ class Routes {
      *
      */
 
-    // TODO: Redo
     router.addRoute(
       RequestMethods.GET,
       "/applications",
@@ -357,6 +356,16 @@ class Routes {
       query("includeAnswers").isBoolean().optional(),
       query("buildteam").isUUID().optional()
       // Permission check later
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/buildteams/:id/applications/:user",
+      async (request, response) => {
+        await applicationController.getApplications(request, response);
+      },
+      param("id").isUUID(),
+      param("user").isUUID(),
+      query("pending").isBoolean().optional()
     );
     router.addRoute(
       RequestMethods.POST,

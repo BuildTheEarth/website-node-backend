@@ -21,75 +21,32 @@ class ApplicationController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const includeFilter = {
-      buildteam: req.query.includeBuildteam === "true",
-      reviewer: req.query.includeReviewer === "true",
-      claim: req.query.includeClaim === "true",
-      ApplicationAnswer: req.query.includeAnswers === "true",
-    };
-
-    if (!req.kauth.grant) {
-      return res.status(400).json({
-        errors: [
-          {
-            location: "query",
-            msg: "Missing value",
-            path: "buildteam",
-            type: "field",
-          },
-        ],
-      });
+    if (!req.user) {
+      return res.status(401).json("You are not permited to do this!");
     }
 
-    if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["application.list"])) {
-      if (req.query.page) {
-        let page = parseInt(req.query.page as string);
-        const applications = await this.core.getPrisma().application.findMany({
-          skip: page * 10,
-          take: 10,
-          include: includeFilter,
-        });
-        let count = await this.core.getPrisma().application.count();
-        res.send({ pages: Math.ceil(count / 10), data: applications });
-      } else {
-        const applications = await this.core.getPrisma().application.findMany({
-          include: includeFilter,
-        });
-        res.send(applications);
-      }
-    } else if (req.query.buildteam && (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["application.list"], req.query.buildteam as string))) {
-      if (req.query.page) {
-        let page = parseInt(req.query.page as string);
-        const applications = await this.core.getPrisma().application.findMany({
-          where: {
-            buildteamId: req.query.buildteam as string,
-          },
-          skip: page * 10,
-          take: 10,
-          include: includeFilter,
-        });
-        let count = await this.core.getPrisma().application.count();
-        res.send({ pages: Math.ceil(count / 10), data: applications });
-      } else {
-        const applications = await this.core.getPrisma().application.findMany({
-          where: {
-            buildteamId: req.query.buildteam as string,
-          },
-          include: includeFilter,
-        });
-        res.send(applications);
-      }
+    let applications = await this.core.getPrisma().application.findMany({
+      where: {
+        userId: req.params.user as string,
+        buildteamId: req.params.id as string,
+      },
+    });
+    const user = await this.core.getPrisma().user.findUnique({
+      where: {
+        id: req.params.user as string,
+      },
+    });
+
+    if (req.query.pending) {
+      applications = applications.filter((a) => a.status == ApplicationStatus.REVIEWING || a.status == ApplicationStatus.SEND);
+    }
+
+    if (user.ssoId == req.kauth.grant.access_token.content.sub) {
+      res.send(applications);
+    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["team.application.list"], req.query.id as string)) {
+      res.send(applications);
     } else {
-      return res.status(400).json({
-        errors: [
-          {
-            location: "query",
-            msg: "Missing value",
-            path: "buildteam",
-            type: "field",
-          },
-        ],
-      });
+      res.status(401).send("You don't have permission to do this!");
     }
   }
 
