@@ -360,10 +360,11 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.POST,
-      "/applications",
+      "/buildteams/:id/apply",
       async (request, response) => {
         await applicationController.apply(request, response);
-      }
+      },
+      query("trial").isBoolean().optional()
     );
     router.addRoute(
       RequestMethods.GET,

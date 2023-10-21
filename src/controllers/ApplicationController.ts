@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
-import turf, { toPolygon } from "../util/Turf.js";
 
+import { ApplicationStatus } from "@prisma/client";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
+import { validate as uuidValidate } from "uuid";
 import { validationResult } from "express-validator";
+import yup from "yup";
 
 class ApplicationController {
   private core: Core;
@@ -39,13 +41,7 @@ class ApplicationController {
       });
     }
 
-    if (
-      await userHasPermissions(
-        this.core.getPrisma(),
-        req.kauth.grant.access_token.content.sub,
-        ["application.list"]
-      )
-    ) {
+    if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["application.list"])) {
       if (req.query.page) {
         let page = parseInt(req.query.page as string);
         const applications = await this.core.getPrisma().application.findMany({
@@ -61,15 +57,7 @@ class ApplicationController {
         });
         res.send(applications);
       }
-    } else if (
-      req.query.buildteam &&
-      (await userHasPermissions(
-        this.core.getPrisma(),
-        req.kauth.grant.access_token.content.sub,
-        ["application.list"],
-        req.query.buildteam as string
-      ))
-    ) {
+    } else if (req.query.buildteam && (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["application.list"], req.query.buildteam as string))) {
       if (req.query.page) {
         let page = parseInt(req.query.page as string);
         const applications = await this.core.getPrisma().application.findMany({
@@ -122,14 +110,7 @@ class ApplicationController {
       },
     });
     if (application) {
-      if (
-        await userHasPermissions(
-          this.core.getPrisma(),
-          req.kauth.grant.access_token.content.sub,
-          ["application.list"],
-          application?.buildteamId
-        )
-      ) {
+      if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["application.list"], application?.buildteamId)) {
         res.send(application);
       } else {
         res.status(403).send("You don't have permission to do this!");
@@ -177,24 +158,97 @@ class ApplicationController {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    if (!req.user) {
+      res.status(401).send("You don't have permission to do this!");
+    }
 
-    // 1. is trial app?
-    // 2. Correct BT?
-    // 3. Region overlap?
-    // 3. add to db
+    let buildteam = await this.core.getPrisma().buildTeam.findUnique({
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        applicationQuestions: true,
+      },
+    });
 
-    /*
-         Body:
-            isTrial: bool
-            area: string[]
-            buildteam: string
-            answers: ApplicationAnswer[]
+    if (buildteam) {
+      const pastApplications = await this.core.getPrisma().application.findMany({ where: { userId: req.user.id, buildteamId: buildteam.id } });
+      const answers = req.body;
+      const trial = req.query.trial ? true : false;
+      const validatedAnswers = [];
 
-        */
+      if (pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)) {
+        return res.status(400).send({
+          code: 400,
+          message: "You are already a builder of this buildteam.",
+          translationKey: "400",
+        });
+      } else if (pastApplications.some((a) => a.status == ApplicationStatus.REVIEWING || a.status == ApplicationStatus.SEND)) {
+        return res.status(400).send({
+          code: 400,
+          message: "You already have an application pending review.",
+          translationKey: "400",
+        });
+      } else if (pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) && trial) {
+        return res.status(400).send({
+          code: 400,
+          message: "You are already a trial of this buildteam.",
+          translationKey: "400",
+        });
+      }
 
-    const { isTrial, area, buildteam, answers } = req.body;
-    const center = turf.center(toPolygon(area));
-    res.send(center);
+      for (const question of buildteam.applicationQuestions) {
+        if (question.trial == trial) {
+          if (answers[question.id]) {
+            // TODO: validate answer type
+            let answer = answers[question.id];
+
+            if (typeof answer != "string") {
+              if (typeof answer == "number") {
+                answer = answer.toString();
+              } else {
+                try {
+                  answer = JSON.stringify(answer);
+                } catch (e) {}
+              }
+            }
+            validatedAnswers.push({ id: question.id, answer: answer });
+          } else if (question.required) {
+            return res.status(400).send({
+              code: 400,
+              message: "Missing required question.",
+              translationKey: "400",
+            });
+          }
+        }
+      }
+
+      if (validatedAnswers.length >= 0) {
+        const application = await this.core.getPrisma().application.create({
+          data: {
+            buildteam: { connect: { id: buildteam.id } },
+            user: { connect: { id: req.user.id } },
+            status: ApplicationStatus.SEND,
+            createdAt: new Date(),
+            trial: trial,
+          },
+        });
+        const pAnswers = await this.core.getPrisma().applicationAnswer.createMany({ data: validatedAnswers.map((a) => ({ answer: a.answer, applicationId: application.id, questionId: a.id })) });
+        res.send(application);
+      } else {
+        return res.status(400).send({
+          code: 400,
+          message: "No questions provided.",
+          translationKey: "400",
+        });
+      }
+    } else {
+      res.status(404).send({
+        code: 404,
+        message: "Buildteam does not exit.",
+        translationKey: "404",
+      });
+    }
   }
 }
 
