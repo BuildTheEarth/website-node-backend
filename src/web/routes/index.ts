@@ -275,7 +275,7 @@ class Routes {
         await showcaseController.createShowcase(request, response);
       },
       param("id"),
-      checkUserPermission(this.web.getCore().getPrisma(), "team.showcases.edit", "team"),
+      checkUserPermission(this.web.getCore().getPrisma(), "team.showcases.edit", "id"),
       this.web.getFileUpload().single("image")
     );
 

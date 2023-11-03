@@ -18,7 +18,9 @@ class ShowcaseController {
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
-      where: { buildTeamId: req.params.id },
+      where: {
+        buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+      },
       include: {
         image: true,
       },
@@ -129,7 +131,9 @@ class ShowcaseController {
       data: {
         title: req.body.title,
         image: { connect: { id: upload.id } },
-        buildTeam: { connect: { id: req.params.id } },
+        buildTeam: {
+          connect: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+        },
         createdAt: req.body.date,
       },
       select: { image: true },

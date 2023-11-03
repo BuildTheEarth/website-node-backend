@@ -60,7 +60,7 @@ class BuildTeamController {
 
   public async getBuildTeam(req: Request, res: Response) {
     const buildteam = await this.core.getPrisma().buildTeam.findFirst({
-      where: { id: req.params.id },
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       include: {
         socials: true,
         showcases: req.query.showcase ? true : false,
@@ -97,7 +97,7 @@ class BuildTeamController {
 
     let applicationQuestions = await this.core.getPrisma().applicationQuestion.findMany({
       where: {
-        buildTeamId: req.params.id,
+        buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       },
     });
 
@@ -119,9 +119,7 @@ class BuildTeamController {
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
-      where: {
-        id: req.params.id,
-      },
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       include: {
         applicationQuestions: true,
       },
@@ -182,9 +180,7 @@ class BuildTeamController {
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
-      where: {
-        id: req.params.id,
-      },
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       include: {
         socials: true,
       },
@@ -208,9 +204,7 @@ class BuildTeamController {
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
-      where: {
-        id: req.params.id,
-      },
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       include: {
         socials: true,
       },
@@ -264,7 +258,7 @@ class BuildTeamController {
 
     const { name, icon, backgroundImage, invite, about, location, allowTrial, slug, acceptionMessage, rejectionMessage, trialMessage } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
-      where: { id: req.params.id },
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       data: {
         name,
         icon,
@@ -292,7 +286,7 @@ class BuildTeamController {
 
     const members = await this.core.getPrisma().user.findMany({
       where: {
-        joinedBuildTeams: { some: { id: req.params.id } },
+        joinedBuildTeams: { some: req.query.slug ? { slug: req.params.id } : { id: req.params.id } },
       },
     });
 
@@ -324,7 +318,7 @@ class BuildTeamController {
 
     const user = await this.core.getPrisma().user.update({
       where: { id: req.body.user },
-      data: { joinedBuildTeams: { disconnect: { id: req.params.id } } },
+      data: { joinedBuildTeams: { disconnect: req.query.slug ? { slug: req.params.id } : { id: req.params.id } } },
     });
 
     rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
@@ -340,9 +334,19 @@ class BuildTeamController {
 
     const members = await this.core.getPrisma().user.findMany({
       where: {
-        permissions: { some: { buildTeamId: req.params.id } },
+        permissions: {
+          some: {
+            buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+          },
+        },
       },
-      include: { permissions: { where: { buildTeamId: req.params.id } } },
+      include: {
+        permissions: {
+          where: {
+            buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+          },
+        },
+      },
     });
 
     const kcMembers = await Promise.all(

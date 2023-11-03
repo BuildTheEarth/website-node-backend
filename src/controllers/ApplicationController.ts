@@ -26,7 +26,7 @@ class ApplicationController {
 
     let applications = await this.core.getPrisma().application.findMany({
       where: {
-        buildteamId: req.params.id as string,
+        buildteam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
         status: req.query.review ? { in: [ApplicationStatus.SEND, ApplicationStatus.REVIEWING] } : undefined,
       },
     });
@@ -47,7 +47,7 @@ class ApplicationController {
     let applications = await this.core.getPrisma().application.findMany({
       where: {
         userId: req.params.user as string,
-        buildteamId: req.params.id as string,
+        buildteam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       },
     });
     const user = await this.core.getPrisma().user.findUnique({
@@ -78,7 +78,7 @@ class ApplicationController {
     const application = await this.core.getPrisma().application.findFirst({
       where: {
         id: req.params.app,
-        buildteamId: req.params.id as string,
+        buildteam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       },
       include: {
         ApplicationAnswer: req.query.includeAnswers === "true" ? { include: { question: true } } : undefined,
@@ -118,7 +118,7 @@ class ApplicationController {
       },
       include: {
         ApplicationAnswer: { include: { question: true } },
-        buildteam: { select: { name: true, id: true } },
+        buildteam: { select: { name: true, id: true, slug: true } },
       },
     });
 
@@ -141,9 +141,7 @@ class ApplicationController {
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
-      where: {
-        id: req.params.id,
-      },
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       include: {
         applicationQuestions: true,
       },

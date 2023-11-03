@@ -22,7 +22,9 @@ class TokenRouteContoller {
     const claim = await this.core.getPrisma().claim.create({
       data: {
         owner: { connect: { id: owner } },
-        buildTeam: { connect: { id: team } },
+        buildTeam: {
+          connect: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+        },
         name,
         finished,
         active,
