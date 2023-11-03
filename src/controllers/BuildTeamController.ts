@@ -1,5 +1,5 @@
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
-import { rerenderFrontend, rerenderFrontendMultiple } from "../util/Webhook.js";
 
 import { ApplicationQuestionType } from "@prisma/client";
 import Core from "../Core.js";
@@ -240,7 +240,7 @@ class BuildTeamController {
             });
           });
 
-          rerenderFrontendMultiple([`/teams/${req.params.id}/apply`, `/teams/${req.params.id}/manage/apply`]);
+          rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
 
           res.send(validatedSchema);
         })
@@ -280,7 +280,7 @@ class BuildTeamController {
       },
     });
 
-    rerenderFrontendMultiple(["/teams", `/teams/${req.params.id}`, `/teams/${req.params.id}/manage/settings`]);
+    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
     res.send(buildteam);
   }
 
@@ -327,7 +327,7 @@ class BuildTeamController {
       data: { joinedBuildTeams: { disconnect: { id: req.params.id } } },
     });
 
-    rerenderFrontendMultiple(["/teams", `/teams/${req.params.id}`, `/teams/${req.params.id}/manage/members`]);
+    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
 
     res.json(user);
   }

@@ -1,7 +1,7 @@
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
 
 import Core from "../Core.js";
-import { rerenderFrontendMultiple } from "../util/Webhook.js";
 import { validationResult } from "express-validator";
 
 class FaqController {
@@ -39,7 +39,7 @@ class FaqController {
       data: { question: req.body.question, answer: req.body.answer },
     });
 
-    rerenderFrontendMultiple(["/faq", "/faq/manage"]);
+    rerenderFrontend(FrontendRoutesGroups.FAQ, {});
     res.send(question);
   }
 
@@ -58,7 +58,7 @@ class FaqController {
       },
     });
 
-    rerenderFrontendMultiple(["/faq", "/faq/manage"]);
+    rerenderFrontend(FrontendRoutesGroups.FAQ, {});
     res.send(question);
   }
 
@@ -71,7 +71,7 @@ class FaqController {
       where: { id: req.params.id },
     });
 
-    rerenderFrontendMultiple(["/faq", "/faq/manage"]);
+    rerenderFrontend(FrontendRoutesGroups.FAQ, {});
     res.send(question);
   }
 }

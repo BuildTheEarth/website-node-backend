@@ -1,7 +1,7 @@
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
 
 import Core from "../Core.js";
-import { rerenderFrontendMultiple } from "../util/Webhook.js";
 import { validationResult } from "express-validator";
 
 class NewsletterController {
@@ -72,7 +72,7 @@ class NewsletterController {
       },
     });
 
-    rerenderFrontendMultiple(["/newsletter", `/newsletter/${issue}`]);
+    rerenderFrontend(FrontendRoutesGroups.FAQ, { newsletter: newsletter.issue });
     res.send(newsletter);
   }
 }

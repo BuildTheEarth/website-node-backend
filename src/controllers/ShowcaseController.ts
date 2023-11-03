@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 
 import Core from "../Core.js";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { rerenderFrontendMultiple } from "../util/Webhook.js";
 import { validationResult } from "express-validator";
 
 class ShowcaseController {

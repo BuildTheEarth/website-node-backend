@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import Core from "../Core.js";
-import { rerenderFrontendMultiple } from "../util/Webhook.js";
+import { rerenderFrontend } from "../util/Frontend.js";
 import { validationResult } from "express-validator";
 
 class ContactController {
@@ -31,7 +31,7 @@ class ContactController {
       data: { name, role, discord, email, avatar },
     });
 
-    rerenderFrontendMultiple(["/contact"]);
+    rerenderFrontend("/contact", {});
     res.send(contact);
   }
 
@@ -47,7 +47,7 @@ class ContactController {
       data: { name, role, discord, email, avatar },
     });
 
-    rerenderFrontendMultiple(["/contact"]);
+    rerenderFrontend("/contact", {});
     res.send(contact);
   }
 }

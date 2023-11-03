@@ -8,6 +8,7 @@ import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import { PrismaClient } from "@prisma/client";
 import Web from "./web/Web.js";
 import { middlewareUploadSrc } from "./util/Prisma.js";
+import { rerenderFrontend } from "./util/Frontend.js";
 
 class Core {
   web: Web;
