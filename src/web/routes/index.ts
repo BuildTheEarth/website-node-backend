@@ -117,7 +117,7 @@ class Routes {
       async (request, response) => {
         await buildTeamController.getBuildTeam(request, response);
       },
-      param("id").isUUID()
+      param("id")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -125,7 +125,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.getBuildTeamApplicationQuestions(request, response);
       },
-      param("id").isUUID()
+      param("id")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -133,7 +133,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.updateBuildTeamApplicationQuestions(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       body("questions"),
       checkUserPermission(this.web.getCore().getPrisma(), "team.application.edit", "id")
     );
@@ -143,7 +143,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.getBuildTeamSocials(request, response);
       },
-      param("id").isUUID()
+      param("id")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -151,7 +151,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.updateBuildTeamSocials(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       body("socials"),
       checkUserPermission(this.web.getCore().getPrisma(), "buildteam.socials.edit", "id")
     );
@@ -161,7 +161,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.getBuildTeamMembers(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       checkUserPermissions(this.web.getCore().getPrisma(), ["permissions.add", "permissions.remove"], "id")
     );
     router.addRoute(
@@ -170,7 +170,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.removeBuildTeamMember(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       body("user"),
       checkUserPermission(this.web.getCore().getPrisma(), "buildteam.members.edit", "id")
     );
@@ -180,7 +180,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.getBuildTeamManagers(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       checkUserPermissions(this.web.getCore().getPrisma(), ["permissions.add", "permissions.remove"], "id")
     );
     router.addRoute(
@@ -189,7 +189,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await buildTeamController.updateBuildTeam(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       body("name").isString().optional(),
       body("icon").isURL().optional(),
       body("backgroundImage").isURL().optional(),
@@ -245,7 +245,7 @@ class Routes {
       async (request, response) => {
         await showcaseController.getShowcases(request, response);
       },
-      param("id").isUUID()
+      param("id")
     );
     router.addRoute(RequestMethods.GET, "/showcases", async (request, response) => {
       await showcaseController.getAllShowcases(request, response);
@@ -264,6 +264,7 @@ class Routes {
       async (request, response) => {
         await showcaseController.deleteShowcase(request, response);
       },
+      param("team"),
       param("id").isUUID(),
       checkUserPermission(this.web.getCore().getPrisma(), "team.showcases.edit", "team")
     );
@@ -273,7 +274,7 @@ class Routes {
       async (request, response) => {
         await showcaseController.createShowcase(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       checkUserPermission(this.web.getCore().getPrisma(), "team.showcases.edit", "team"),
       this.web.getFileUpload().single("image")
     );
@@ -290,7 +291,7 @@ class Routes {
       async (request, response) => {
         await applicationController.getApplications(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       query("review").isBoolean().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "team.application.list", "id")
     );
@@ -300,7 +301,7 @@ class Routes {
       async (request, response) => {
         await applicationController.getUserApplications(request, response);
       },
-      param("id").isUUID(),
+      param("id"),
       param("user").isUUID()
     );
     router.addRoute(
@@ -310,7 +311,7 @@ class Routes {
         await applicationController.getApplication(request, response);
       },
       param("app").isUUID(),
-      param("id").isUUID(),
+      param("id"),
       query("pending").isBoolean().optional(),
       query("includeAnswers").isBoolean().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "team.application.list", "id")
@@ -322,7 +323,7 @@ class Routes {
         await applicationController.review(request, response);
       },
       param("app").isUUID(),
-      param("id").isUUID(),
+      param("id"),
       body("reason").isString().optional(),
       body("status").isString().isIn(["TRIAL", "ACCEPTED", "DECLINED"]),
       checkUserPermission(this.web.getCore().getPrisma(), "team.application.review", "id")
@@ -544,7 +545,7 @@ class Routes {
       async (request, response) => {
         await newsletterController.getNewsletter(request, response);
       },
-      param("id").optional(),
+      param("id"),
       query("isIssue").optional()
     );
     router.addRoute(
@@ -569,7 +570,7 @@ class Routes {
       async (request, response) => {
         await tokenRouteContoller.addClaim(request, response);
       },
-      param("team").isString(),
+      param("team"),
       body("owner").isUUID(),
       body("area"),
       body("active").isBoolean(),
