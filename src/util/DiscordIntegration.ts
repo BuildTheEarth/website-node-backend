@@ -1,4 +1,4 @@
-import { Application, ApplicationStatus, Claim } from "@prisma/client";
+import { Application, ApplicationStatus, Claim, User } from "@prisma/client";
 
 import Core from "../Core.js";
 
@@ -29,8 +29,8 @@ class DiscordIntegration {
     });
   }
 
-  public sendClaimUpdate(claim: Claim) {
-    this.sendRawWebhook({
+  public async sendClaimUpdate(claim: Claim) {
+    return this.sendRawWebhook({
       embeds: [
         {
           title: claim.name,
@@ -55,6 +55,40 @@ class DiscordIntegration {
         },
       ],
       username: discordWebhookType.claim.username,
+    });
+  }
+
+  public async sendApplicationUpdate(application: any) {
+    return this.sendRawWebhook({
+      embeds: [
+        {
+          title: application.id.split("-")[0] + " - " + application.buildteam.name,
+          url: process.env.FRONTEND_URL + `/teams/${application.buildteam.id}/manage/review/${application.id}`,
+          color: discordWebhookType.application.color,
+          fields: [
+            {
+              name: "Trial Application",
+              value: application.trial ? "✅" : "❌",
+              inline: true,
+            },
+            {
+              name: "Application Status",
+              value: application.status,
+              inline: true,
+            },
+            application.reason && {
+              name: "Rejection Reason",
+              value: application.reason,
+              inline: false,
+            },
+          ],
+          author: {
+            name: "Application reviewed",
+          },
+          timestamp: application.reviewedAt,
+        },
+      ],
+      username: discordWebhookType.application.username,
     });
   }
 }

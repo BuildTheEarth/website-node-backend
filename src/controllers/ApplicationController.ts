@@ -118,12 +118,15 @@ class ApplicationController {
       },
       include: {
         ApplicationAnswer: { include: { question: true } },
+        buildteam: { select: { name: true, id: true } },
       },
     });
 
     if (parseApplicationStatus(status) == ApplicationStatus.ACCEPTED) {
-      const user = await this.core.getPrisma().user.update({ where: { id: application.userId }, data: { joinedBuildTeams: { connect: { id: application.buildteamId } } }, select: { _count: { select: { joinedBuildTeams: true } } } });
+      await this.core.getPrisma().user.update({ where: { id: application.userId }, data: { joinedBuildTeams: { connect: { id: application.buildteamId } } }, select: { _count: { select: { joinedBuildTeams: true } } } });
     }
+
+    await this.core.getDiscord().sendApplicationUpdate(application);
 
     res.send(application);
   }
