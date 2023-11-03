@@ -13,8 +13,10 @@ import NewsletterController from "../../controllers/NewsletterController.js";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
 import ShowcaseController from "../../controllers/ShowcaseController.js";
+import TokenRouteContoller from "../../controllers/TokenRouteController.js";
 import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
+import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
 
 class Routes {
   app;
@@ -44,6 +46,7 @@ class Routes {
     const contactController = new ContactController(this.web.getCore());
     const newsletterController = new NewsletterController(this.web.getCore());
     const generalController = new GeneralController(this.web.getCore());
+    const tokenRouteContoller = new TokenRouteContoller(this.web.getCore());
 
     legacyRouter.addRoute(RequestMethods.GET, "modpack/images", (request, response) => {
       response.send({
@@ -526,6 +529,7 @@ class Routes {
      * Newsletter Routes
      *
      */
+
     router.addRoute(
       RequestMethods.GET,
       "/newsletter",
@@ -551,6 +555,27 @@ class Routes {
       },
       param("public").isBoolean().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "newsletter.add")
+    );
+
+    /*
+     *
+     * Special Routes
+     *
+     */
+
+    router.addRoute(
+      RequestMethods.POST,
+      "/private/buildteams/:team/claims",
+      async (request, response) => {
+        await tokenRouteContoller.addClaim(request, response);
+      },
+      param("team").isString(),
+      body("owner").isUUID(),
+      body("area"),
+      body("active").isBoolean(),
+      body("finished").isBoolean(),
+      body("name").isString(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
   }
 }

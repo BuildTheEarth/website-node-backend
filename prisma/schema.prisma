@@ -38,6 +38,7 @@ model BuildTeam {
   allowTrial           Boolean               @default(false)
   rejectionMessage     String                @default("")
   trialMessage         String                @default("")
+  token                String                @default("")
   Application          Application[]
   applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
   creator              User                  @relation("creator", fields: [creatorId], references: [id])
