@@ -566,7 +566,7 @@ class Routes {
 
     router.addRoute(
       RequestMethods.POST,
-      "/private/buildteams/:team/claims",
+      "/private/buildteams/:team/claim",
       async (request, response) => {
         await tokenRouteContoller.addClaim(request, response);
       },
@@ -576,6 +576,16 @@ class Routes {
       body("active").isBoolean(),
       body("finished").isBoolean(),
       body("name").isString(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/private/buildteams/:team/claims",
+      async (request, response) => {
+        await tokenRouteContoller.addClaims(request, response);
+      },
+      body("data").isArray({ min: 1, max: 100 }),
+      param("team"),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
   }

@@ -6,5 +6,5 @@
     "**/*.js.map": true
   },
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "conventionalCommits.scopes": ["buildteams", "swagger", "faq", "users", "middleware", "newsletter", "swagger", "application", "prisma", "src", "permissions", "fq", "faq", "images", "showcase", "claims", "discord", "frontend"]
+  "conventionalCommits.scopes": ["buildteams", "swagger", "faq", "users", "middleware", "newsletter", "swagger", "application", "prisma", "src", "permissions", "fq", "faq", "images", "showcase", "claims", "discord", "frontend", "special"]
 }

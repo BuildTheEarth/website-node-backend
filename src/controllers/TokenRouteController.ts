@@ -41,6 +41,31 @@ class TokenRouteContoller {
     this.core.getDiscord().sendClaimUpdate(claim);
     res.send(claim);
   }
+
+  public async addClaims(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const claims = await this.core.getPrisma().claim.createMany({
+      data: req.body.data.map((c) => ({
+        ownerId: c.owner,
+        buildTeamId: req.params.team,
+        name: c.name,
+        finished: c.finished,
+        active: c.active,
+        area: c.area.map((p: [number, number]) => p.join(", ")),
+        center: turf
+          .center({
+            type: "Feature",
+            geometry: { coordinates: [c.area], type: "Polygon" },
+          })
+          .geometry.coordinates.join(", "),
+      })),
+    });
+
+    res.send(claims);
+  }
 }
 
 export default TokenRouteContoller;
