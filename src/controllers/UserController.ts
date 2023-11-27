@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
-import Core from "../Core.js";
 import { PrismaClient } from "@prisma/client";
-import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class UserController {
   private core: Core;
@@ -37,7 +37,8 @@ class UserController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    if (!req.kauth.grant) return res.status(401).send("You don't have permission to do this!");
+    if (!req.kauth.grant)
+      return res.status(401).send("You don't have permission to do this!");
 
     const user = await this.core.getPrisma().user.findFirst({
       where: {
@@ -85,7 +86,13 @@ class UserController {
 
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(user);
-    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["users.list"])) {
+    } else if (
+      await userHasPermissions(
+        this.core.getPrisma(),
+        req.kauth.grant.access_token.content.sub,
+        ["users.list"]
+      )
+    ) {
       res.send(user);
     } else {
       res.status(401).send("You don't have permission to do this!");
@@ -97,7 +104,8 @@ class UserController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    if (!req.kauth.grant) return res.status(401).send("You don't have permission to do this!");
+    if (!req.kauth.grant)
+      return res.status(401).send("You don't have permission to do this!");
 
     const user = await this.core.getPrisma().user.findFirst({
       where: {
@@ -105,12 +113,24 @@ class UserController {
       },
     });
 
-    const kcUser = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({ id: user.ssoId });
-    const kcSessions = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.listSessions({ id: user.ssoId });
+    const kcUser = await this.core
+      .getKeycloakAdmin()
+      .getKeycloakAdminClient()
+      .users.findOne({ id: user.ssoId });
+    const kcSessions = await this.core
+      .getKeycloakAdmin()
+      .getKeycloakAdminClient()
+      .users.listSessions({ id: user.ssoId });
 
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send({ ...user, ...kcUser, sessions: kcSessions });
-    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["users.list"])) {
+    } else if (
+      await userHasPermissions(
+        this.core.getPrisma(),
+        req.kauth.grant.access_token.content.sub,
+        ["users.list"]
+      )
+    ) {
       res.send({ ...user, ...kcUser, sessions: kcSessions });
     } else {
       res.status(401).send("You don't have permission to do this!");
@@ -131,9 +151,20 @@ class UserController {
       },
     });
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
-      const user = await this.core.getPrisma().user.update({ where: { id: req.params.id }, data: { name, avatar } });
-      await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.update({ id: user.ssoId }, { firstName, lastName, username, email });
-      const kcUser = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({ id: user.ssoId });
+      const user = await this.core
+        .getPrisma()
+        .user.update({ where: { id: req.params.id }, data: { name, avatar } });
+      await this.core
+        .getKeycloakAdmin()
+        .getKeycloakAdminClient()
+        .users.update(
+          { id: user.ssoId },
+          { firstName, lastName, username, email }
+        );
+      const kcUser = await this.core
+        .getKeycloakAdmin()
+        .getKeycloakAdminClient()
+        .users.findOne({ id: user.ssoId });
 
       res.send({ ...user, ...kcUser });
     }
@@ -168,13 +199,20 @@ class UserController {
     const userId = req.params.id;
 
     if (req.query.buildteam) {
-      if (!(await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["permission.add"], req.query.buildTeam as string))) {
+      if (
+        !(await userHasPermissions(
+          this.core.getPrisma(),
+          req.kauth.grant.access_token.content.sub,
+          ["permission.add"],
+          req.query.buildTeam as string
+        ))
+      ) {
         return res.status(401).send("You don't have permission to do this!");
       }
 
       const buildteam = await this.core.getPrisma().buildTeam.findFirst({
         where: {
-          id: req.query.buildteam as string,
+          slug: req.query.buildteam as string,
         },
       });
 
@@ -186,9 +224,22 @@ class UserController {
         });
       }
 
-      res.send(await addPermission(this.core.getPrisma(), permissions, userId, buildteam.id));
+      res.send(
+        await addPermission(
+          this.core.getPrisma(),
+          permissions,
+          userId,
+          buildteam.id
+        )
+      );
     } else {
-      if (!(await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["permission.add"]))) {
+      if (
+        !(await userHasPermissions(
+          this.core.getPrisma(),
+          req.kauth.grant.access_token.content.sub,
+          ["permission.add"]
+        ))
+      ) {
         return res.status(401).send("You don't have permission to do this!");
       }
 
@@ -213,13 +264,20 @@ class UserController {
     const userId = req.params.id;
 
     if (req.query.buildteam) {
-      if (!(await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["permission.remove"], req.query.buildTeam as string))) {
+      if (
+        !(await userHasPermissions(
+          this.core.getPrisma(),
+          req.kauth.grant.access_token.content.sub,
+          ["permission.remove"],
+          req.query.buildTeam as string
+        ))
+      ) {
         return res.status(401).send("You don't have permission to do this!");
       }
 
       const buildteam = await this.core.getPrisma().buildTeam.findFirst({
         where: {
-          id: req.query.buildteam as string,
+          slug: req.query.buildteam as string,
         },
       });
 
@@ -231,18 +289,38 @@ class UserController {
         });
       }
 
-      res.send(await removePermission(this.core.getPrisma(), permissions, userId, buildteam.id));
+      res.send(
+        await removePermission(
+          this.core.getPrisma(),
+          permissions,
+          userId,
+          buildteam.id
+        )
+      );
     } else {
-      if (!(await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["permission.remove"]))) {
+      if (
+        !(await userHasPermissions(
+          this.core.getPrisma(),
+          req.kauth.grant.access_token.content.sub,
+          ["permission.remove"]
+        ))
+      ) {
         return res.status(401).send("You don't have permission to do this!");
       }
 
-      res.send(await removePermission(this.core.getPrisma(), permissions, userId));
+      res.send(
+        await removePermission(this.core.getPrisma(), permissions, userId)
+      );
     }
   }
 }
 
-async function addPermission(prisma: PrismaClient, permissions: string[], user: string, buildteam?: string) {
+async function addPermission(
+  prisma: PrismaClient,
+  permissions: string[],
+  user: string,
+  buildteam?: string
+) {
   return await prisma.userPermission.createMany({
     data: permissions.map((permission) => ({
       userId: user,
@@ -251,7 +329,12 @@ async function addPermission(prisma: PrismaClient, permissions: string[], user: 
     })),
   });
 }
-async function removePermission(prisma: PrismaClient, permissions: string[], user: string, buildteam?: string) {
+async function removePermission(
+  prisma: PrismaClient,
+  permissions: string[],
+  user: string,
+  buildteam?: string
+) {
   return await prisma.userPermission.deleteMany({
     where: {
       userId: user,

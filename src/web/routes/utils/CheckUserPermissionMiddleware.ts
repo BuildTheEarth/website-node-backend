@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { NextFunction, Request, Response } from "express";
 
 import { minimatch } from "minimatch";
 
@@ -77,11 +77,16 @@ export async function userHasPermissions(
     where: {
       userId: user.id,
     },
-    include: { permission: true },
+    include: { permission: true, buildTeam: { select: { slug: true } } },
   });
 
   const foundPermissions = permissions
-    .filter((p) => p.buildTeamId == null || p.buildTeamId == buildteam)
+    .filter(
+      (p) =>
+        p.buildTeamId == null ||
+        p.buildTeamId == buildteam ||
+        p.buildTeam.slug == buildteam
+    )
     .filter((p) => permission.some((perm) => minimatch(perm, p.permission.id)));
   if (
     foundPermissions != null &&
