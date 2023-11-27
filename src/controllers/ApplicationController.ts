@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 
 import { ApplicationStatus } from "@prisma/client";
+import { validationResult } from "express-validator";
+import { validate as uuidValidate } from "uuid";
+import yup from "yup";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
-import { validate as uuidValidate } from "uuid";
-import { validationResult } from "express-validator";
-import yup from "yup";
 
 class ApplicationController {
   private core: Core;
@@ -26,8 +26,12 @@ class ApplicationController {
 
     let applications = await this.core.getPrisma().application.findMany({
       where: {
-        buildteam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
-        status: req.query.review ? { in: [ApplicationStatus.SEND, ApplicationStatus.REVIEWING] } : undefined,
+        buildteam: req.query.slug
+          ? { slug: req.params.id }
+          : { id: req.params.id },
+        status: req.query.review
+          ? { in: [ApplicationStatus.SEND, ApplicationStatus.REVIEWING] }
+          : undefined,
       },
     });
 
@@ -47,9 +51,12 @@ class ApplicationController {
     let applications = await this.core.getPrisma().application.findMany({
       where: {
         userId: req.params.user as string,
-        buildteam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+        buildteam: req.query.slug
+          ? { slug: req.params.id }
+          : { id: req.params.id },
       },
     });
+
     const user = await this.core.getPrisma().user.findUnique({
       where: {
         id: req.params.user as string,
@@ -57,12 +64,23 @@ class ApplicationController {
     });
 
     if (req.query.pending) {
-      applications = applications.filter((a) => a.status == ApplicationStatus.REVIEWING || a.status == ApplicationStatus.SEND);
+      applications = applications.filter(
+        (a) =>
+          a.status == ApplicationStatus.REVIEWING ||
+          a.status == ApplicationStatus.SEND
+      );
     }
 
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(applications);
-    } else if (await userHasPermissions(this.core.getPrisma(), req.kauth.grant.access_token.content.sub, ["team.application.list"], req.query.id as string)) {
+    } else if (
+      await userHasPermissions(
+        this.core.getPrisma(),
+        req.kauth.grant.access_token.content.sub,
+        ["team.application.list"],
+        req.query.id as string
+      )
+    ) {
       res.send(applications);
     } else {
       res.status(401).send("You don't have permission to do this!");
@@ -78,10 +96,15 @@ class ApplicationController {
     const application = await this.core.getPrisma().application.findFirst({
       where: {
         id: req.params.app,
-        buildteam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+        buildteam: req.query.slug
+          ? { slug: req.params.id }
+          : { id: req.params.id },
       },
       include: {
-        ApplicationAnswer: req.query.includeAnswers === "true" ? { include: { question: true } } : undefined,
+        ApplicationAnswer:
+          req.query.includeAnswers === "true"
+            ? { include: { question: true } }
+            : undefined,
       },
     });
 
@@ -123,7 +146,13 @@ class ApplicationController {
     });
 
     if (parseApplicationStatus(status) == ApplicationStatus.ACCEPTED) {
-      await this.core.getPrisma().user.update({ where: { id: application.userId }, data: { joinedBuildTeams: { connect: { id: application.buildteamId } } }, select: { _count: { select: { joinedBuildTeams: true } } } });
+      await this.core.getPrisma().user.update({
+        where: { id: application.userId },
+        data: {
+          joinedBuildTeams: { connect: { id: application.buildteamId } },
+        },
+        select: { _count: { select: { joinedBuildTeams: true } } },
+      });
     }
 
     await this.core.getDiscord().sendApplicationUpdate(application);
@@ -148,24 +177,39 @@ class ApplicationController {
     });
 
     if (buildteam) {
-      const pastApplications = await this.core.getPrisma().application.findMany({ where: { userId: req.user.id, buildteamId: buildteam.id } });
+      const pastApplications = await this.core
+        .getPrisma()
+        .application.findMany({
+          where: { userId: req.user.id, buildteamId: buildteam.id },
+        });
       const answers = req.body;
       const trial = req.query.trial ? true : false;
       const validatedAnswers = [];
 
-      if (pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)) {
+      if (
+        pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)
+      ) {
         return res.status(400).send({
           code: 400,
           message: "You are already a builder of this buildteam.",
           translationKey: "400",
         });
-      } else if (pastApplications.some((a) => a.status == ApplicationStatus.REVIEWING || a.status == ApplicationStatus.SEND)) {
+      } else if (
+        pastApplications.some(
+          (a) =>
+            a.status == ApplicationStatus.REVIEWING ||
+            a.status == ApplicationStatus.SEND
+        )
+      ) {
         return res.status(400).send({
           code: 400,
           message: "You already have an application pending review.",
           translationKey: "400",
         });
-      } else if (pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) && trial) {
+      } else if (
+        pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) &&
+        trial
+      ) {
         return res.status(400).send({
           code: 400,
           message: "You are already a trial of this buildteam.",
@@ -209,7 +253,15 @@ class ApplicationController {
             trial: trial,
           },
         });
-        const pAnswers = await this.core.getPrisma().applicationAnswer.createMany({ data: validatedAnswers.map((a) => ({ answer: a.answer, applicationId: application.id, questionId: a.id })) });
+        const pAnswers = await this.core
+          .getPrisma()
+          .applicationAnswer.createMany({
+            data: validatedAnswers.map((a) => ({
+              answer: a.answer,
+              applicationId: application.id,
+              questionId: a.id,
+            })),
+          });
         res.send(application);
       } else {
         return res.status(400).send({
