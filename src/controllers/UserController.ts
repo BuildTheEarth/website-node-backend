@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
-import Core from "../Core.js";
 import { PrismaClient } from "@prisma/client";
-import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class UserController {
   private core: Core;
@@ -64,6 +64,7 @@ class UserController {
             location: true,
             icon: true,
             name: true,
+            creatorId: true,
           },
         },
         claims: {
@@ -79,11 +80,29 @@ class UserController {
             location: true,
             icon: true,
             name: true,
+            creatorId: true,
           },
         },
       },
     });
-
+    const buildTeamManager = await this.core.getPrisma().buildTeam.findMany({
+      where: {
+        UserPermission: {
+          some: {
+            userId: user.id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        location: true,
+        icon: true,
+        name: true,
+        creatorId: true,
+      },
+    });
+    user.createdBuildTeams = user.createdBuildTeams.concat(buildTeamManager);
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(user);
     } else if (
