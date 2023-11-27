@@ -2,12 +2,12 @@ import * as blurhash from "blurhash";
 
 import { Request, Response } from "express";
 
-import Core from "../Core.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
+import { validationResult } from "express-validator";
 import { parse } from "path";
 import sharp from "sharp";
-import { validationResult } from "express-validator";
+import Core from "../Core.js";
 
 class GeneralController {
   private core: Core;
@@ -38,7 +38,11 @@ class GeneralController {
       .getPrisma()
       .userPermission.findMany({
         where: { user: user },
-        include: { user: false, permission: true },
+        include: {
+          user: false,
+          permission: true,
+          buildTeam: { select: { slug: true } },
+        },
       });
 
     res.send({
@@ -55,6 +59,7 @@ class GeneralController {
       permissions: userPermissions.map((p) => ({
         ...p,
         permission: p.permission.id,
+        buildTeamSlug: p.buildTeam && p.buildTeam?.slug,
       })),
     });
   }

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
-import { PrismaClient } from "@prisma/client";
-import { validationResult } from "express-validator";
 import Core from "../Core.js";
+import { PrismaClient } from "@prisma/client";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
+import { validationResult } from "express-validator";
 
 class UserController {
   private core: Core;
@@ -98,6 +98,7 @@ class UserController {
       res.status(401).send("You don't have permission to do this!");
     }
   }
+
   public async getKeycloakUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
