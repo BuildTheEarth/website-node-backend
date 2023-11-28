@@ -1,11 +1,11 @@
-import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
 import { ApplicationQuestionType } from "@prisma/client";
-import Core from "../Core.js";
-import { questions } from "../util/QuestionData.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
+import Core from "../Core.js";
+import { questions } from "../util/QuestionData.js";
 
 class BuildTeamController {
   private core: Core;
@@ -95,11 +95,15 @@ class BuildTeamController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let applicationQuestions = await this.core.getPrisma().applicationQuestion.findMany({
-      where: {
-        buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
-      },
-    });
+    let applicationQuestions = await this.core
+      .getPrisma()
+      .applicationQuestion.findMany({
+        where: {
+          buildTeam: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
+        },
+      });
 
     if (applicationQuestions) {
       res.send(applicationQuestions);
@@ -112,7 +116,10 @@ class BuildTeamController {
     }
   }
 
-  public async updateBuildTeamApplicationQuestions(req: Request, res: Response) {
+  public async updateBuildTeamApplicationQuestions(
+    req: Request,
+    res: Response
+  ) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -234,7 +241,7 @@ class BuildTeamController {
             });
           });
 
-          rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
+          rerenderFrontend(FrontendRoutesGroups.TEAM, { team: buildteam.slug });
 
           res.send(validatedSchema);
         })
@@ -256,7 +263,19 @@ class BuildTeamController {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, icon, backgroundImage, invite, about, location, allowTrial, slug, acceptionMessage, rejectionMessage, trialMessage } = req.body;
+    const {
+      name,
+      icon,
+      backgroundImage,
+      invite,
+      about,
+      location,
+      allowTrial,
+      slug,
+      acceptionMessage,
+      rejectionMessage,
+      trialMessage,
+    } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
       where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       data: {
@@ -274,7 +293,7 @@ class BuildTeamController {
       },
     });
 
-    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
+    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: buildteam.slug });
     res.send(buildteam);
   }
 
@@ -286,15 +305,22 @@ class BuildTeamController {
 
     const members = await this.core.getPrisma().user.findMany({
       where: {
-        joinedBuildTeams: { some: req.query.slug ? { slug: req.params.id } : { id: req.params.id } },
+        joinedBuildTeams: {
+          some: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
+        },
       },
     });
 
     const kcMembers = await Promise.all(
       members.map(async (member) => {
-        const kcMember = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({
-          id: member.ssoId,
-        });
+        const kcMember = await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({
+            id: member.ssoId,
+          });
         return {
           id: member.id,
           ssoId: member.ssoId,
@@ -318,7 +344,13 @@ class BuildTeamController {
 
     const user = await this.core.getPrisma().user.update({
       where: { id: req.body.user },
-      data: { joinedBuildTeams: { disconnect: req.query.slug ? { slug: req.params.id } : { id: req.params.id } } },
+      data: {
+        joinedBuildTeams: {
+          disconnect: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
+        },
+      },
     });
 
     rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
@@ -336,14 +368,18 @@ class BuildTeamController {
       where: {
         permissions: {
           some: {
-            buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+            buildTeam: req.query.slug
+              ? { slug: req.params.id }
+              : { id: req.params.id },
           },
         },
       },
       include: {
         permissions: {
           where: {
-            buildTeam: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+            buildTeam: req.query.slug
+              ? { slug: req.params.id }
+              : { id: req.params.id },
           },
         },
       },
@@ -351,9 +387,12 @@ class BuildTeamController {
 
     const kcMembers = await Promise.all(
       members.map(async (member) => {
-        const kcMember = await this.core.getKeycloakAdmin().getKeycloakAdminClient().users.findOne({
-          id: member.ssoId,
-        });
+        const kcMember = await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({
+            id: member.ssoId,
+          });
         return {
           id: member.id,
           ssoId: member.ssoId,
