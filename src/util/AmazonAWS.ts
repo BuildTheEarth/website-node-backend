@@ -2,9 +2,9 @@ import * as blurhash from "blurhash";
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-import Core from "../Core.js";
 import crypto from "crypto";
 import sharp from "sharp";
+import Core from "../Core.js";
 
 class AmazonAWS {
   private s3Client: S3Client;
@@ -43,6 +43,7 @@ class AmazonAWS {
 
     const { data: fileBuffer, info: fileInfo } = await sharp(file.buffer)
       .ensureAlpha()
+      .resize(1920, 1080, { fit: "cover" })
       .raw()
       .toBuffer({ resolveWithObject: true });
 
@@ -59,13 +60,13 @@ class AmazonAWS {
         name: fileKey,
         height: fileInfo.height,
         width: fileInfo.width,
-        hash: blurhash.encode(
+        hash: /*blurhash.encode(
           new Uint8ClampedArray(fileBuffer),
           fileInfo.width,
           fileInfo.height,
           4,
           4
-        ),
+        ),*/ "",
       },
     });
     return upload;
