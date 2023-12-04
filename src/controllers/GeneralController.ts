@@ -52,6 +52,7 @@ class GeneralController {
       username: preferred_username,
       email,
       emailVerified: email_verified,
+      avatar: user.avatar,
       auth: {
         exp: { unix: exp, readable: new Date(exp * 1000).toISOString() },
         iat: { unix: iat, readable: new Date(iat * 1000).toISOString() },
