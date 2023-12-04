@@ -1,14 +1,14 @@
 import * as session from "express-session";
 import * as winston from "winston";
 
+import { PrismaClient } from "@prisma/client";
+import Keycloak from "keycloak-connect";
 import AmazonAWS from "./util/AmazonAWS.js";
 import DiscordIntegration from "./util/DiscordIntegration.js";
-import Keycloak from "keycloak-connect";
-import KeycloakAdmin from "./util/KeycloakAdmin.js";
-import { PrismaClient } from "@prisma/client";
-import Web from "./web/Web.js";
-import { middlewareUploadSrc } from "./util/Prisma.js";
 import { rerenderFrontend } from "./util/Frontend.js";
+import KeycloakAdmin from "./util/KeycloakAdmin.js";
+import { middlewareUploadSrc } from "./util/Prisma.js";
+import Web from "./web/Web.js";
 
 class Core {
   web: Web;
@@ -24,7 +24,11 @@ class Core {
     this.setUpLogger();
     this.memoryStore = new session.MemoryStore();
     this.aws = new AmazonAWS(this);
-    this.discord = new DiscordIntegration(this, process.env.DISCORD_WEBHOOK_URL);
+    this.discord = new DiscordIntegration(
+      this,
+      process.env.DISCORD_WEBHOOK_URL,
+      process.env.DISCORD_BOT_URL
+    );
     this.keycloak = new Keycloak(
       {
         store: this.memoryStore,
@@ -65,7 +69,10 @@ class Core {
     // logger.level = process.env.LOGLEVEL;
     const logger = winston.createLogger({
       level: process.env.LOGLEVEL,
-      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      ),
       transports: [
         new winston.transports.File({
           filename: "logs/error.log",
@@ -76,13 +83,19 @@ class Core {
     });
 
     if (process.env.NODE_ENV !== "production") {
-      const consoleFormat = winston.format.printf(({ level, message, timestamp }) => {
-        return `${timestamp} | ${level} » ${message}`;
-      });
+      const consoleFormat = winston.format.printf(
+        ({ level, message, timestamp }) => {
+          return `${timestamp} | ${level} » ${message}`;
+        }
+      );
 
       logger.add(
         new winston.transports.Console({
-          format: winston.format.combine(winston.format.colorize(), winston.format.simple(), consoleFormat),
+          format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple(),
+            consoleFormat
+          ),
         })
       );
     }

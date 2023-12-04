@@ -72,7 +72,9 @@ class NewsletterController {
       },
     });
 
-    rerenderFrontend(FrontendRoutesGroups.FAQ, { newsletter: newsletter.issue });
+    rerenderFrontend(FrontendRoutesGroups.FAQ, {
+      newsletter: newsletter.issue,
+    });
     res.send(newsletter);
   }
 }

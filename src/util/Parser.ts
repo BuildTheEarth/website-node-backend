@@ -1,6 +1,9 @@
 import { ApplicationStatus } from "@prisma/client";
 
-export function parseApplicationStatus(status: string, isTrial?: boolean): ApplicationStatus {
+export function parseApplicationStatus(
+  status: string,
+  isTrial?: boolean
+): ApplicationStatus {
   switch (status.toLowerCase()) {
     case "send":
       return ApplicationStatus.SEND;

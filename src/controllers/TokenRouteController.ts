@@ -23,7 +23,9 @@ class TokenRouteContoller {
       data: {
         owner: { connect: { id: owner } },
         buildTeam: {
-          connect: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+          connect: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
         },
         name,
         finished,

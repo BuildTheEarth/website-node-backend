@@ -11,8 +11,14 @@ export async function rerenderFrontend(query: string, props: any) {
       }
       return r;
     });
-  const res = await fetch(process.env.FRONTEND_URL + `/api/revalidate?secret=${process.env.FRONTEND_KEY}&paths=${JSON.stringify(routes)}`);
-  if (res.status !== 200) core.getLogger().warn("Website Frontend is down, cannot rerender pages.");
+  const res = await fetch(
+    process.env.FRONTEND_URL +
+      `/api/revalidate?secret=${
+        process.env.FRONTEND_KEY
+      }&paths=${JSON.stringify(routes)}`
+  );
+  if (res.status !== 200)
+    core.getLogger().warn("Website Frontend is down, cannot rerender pages.");
 }
 
 export const frontendRoutes = [

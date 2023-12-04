@@ -9,7 +9,9 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       res.status(401).send("No token provided");
       return;
     }
-    const tokenTeam = await prisma.buildTeam.findFirst({ where: { id: req.params[buildteam] } });
+    const tokenTeam = await prisma.buildTeam.findFirst({
+      where: { id: req.params[buildteam] },
+    });
 
     if (!tokenTeam) {
       res.status(401).send("Invalid token");
@@ -19,7 +21,11 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
     const authHeader = req.headers.key;
 
     if (!authHeader) {
-      res.status(401).send("Invalid authorization header, please use api keys for private routes.");
+      res
+        .status(401)
+        .send(
+          "Invalid authorization header, please use api keys for private routes."
+        );
       return;
     }
 

@@ -4,19 +4,32 @@ import Core from "../Core.js";
 
 class DiscordIntegration {
   private webhookUrl: string;
+  private botUrl: string;
   private core: Core;
 
-  constructor(core: Core, webhookUrl: string) {
+  constructor(core: Core, webhookUrl: string, botUrl: string) {
     this.core = core;
     this.webhookUrl = webhookUrl;
+    this.botUrl = botUrl;
   }
 
   public getWebhookUrl() {
     return this.webhookUrl;
   }
+  public getBotUrl() {
+    return this.botUrl;
+  }
 
-  public async sendWebhook(props: { embeds?: DiscordWebhookEmbed[]; content?: string; type: string }) {
-    await this.sendRawWebhook({ embeds: props.embeds, content: props.content, username: discordWebhookType[props.type].username });
+  public async sendWebhook(props: {
+    embeds?: DiscordWebhookEmbed[];
+    content?: string;
+    type: string;
+  }) {
+    await this.sendRawWebhook({
+      embeds: props.embeds,
+      content: props.content,
+      username: discordWebhookType[props.type].username,
+    });
   }
 
   public async sendRawWebhook(content: any) {
@@ -27,6 +40,16 @@ class DiscordIntegration {
       },
       body: JSON.stringify(content),
     });
+  }
+
+  public async sendBotMessage(content: any, users: string[]) {
+    return fetch(this.botUrl + "/api/v1/website/message?message=blank", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ text: content, ids: users }),
+    }).then((res) => res.json());
   }
 
   public async sendClaimUpdate(claim: Claim) {
@@ -62,8 +85,11 @@ class DiscordIntegration {
     return this.sendRawWebhook({
       embeds: [
         {
-          title: application.id.split("-")[0] + " - " + application.buildteam.name,
-          url: process.env.FRONTEND_URL + `/teams/${application.buildteam.id}/manage/review/${application.id}`,
+          title:
+            application.id.split("-")[0] + " - " + application.buildteam.name,
+          url:
+            process.env.FRONTEND_URL +
+            `/teams/${application.buildteam.id}/manage/review/${application.id}`,
           color: discordWebhookType.application.color,
           fields: [
             {
