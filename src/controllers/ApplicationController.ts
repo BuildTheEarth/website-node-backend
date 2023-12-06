@@ -110,6 +110,10 @@ class ApplicationController {
           req.query.includeAnswers === "true"
             ? { include: { question: true } }
             : undefined,
+        user:
+          req.query.includeUser === "true"
+            ? { select: { id: true, discordId: true, name: true } }
+            : undefined,
       },
     });
 

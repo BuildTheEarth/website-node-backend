@@ -381,6 +381,7 @@ class Routes {
       param("id"),
       query("pending").isBoolean().optional(),
       query("includeAnswers").isBoolean().optional(),
+      query("includeUser").isBoolean().optional(),
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.application.list",
