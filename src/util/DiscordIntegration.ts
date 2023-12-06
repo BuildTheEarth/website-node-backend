@@ -5,12 +5,19 @@ import Core from "../Core.js";
 class DiscordIntegration {
   private webhookUrl: string;
   private botUrl: string;
+  private botSecret: string;
   private core: Core;
 
-  constructor(core: Core, webhookUrl: string, botUrl: string) {
+  constructor(
+    core: Core,
+    webhookUrl: string,
+    botUrl: string,
+    botSecret: string
+  ) {
     this.core = core;
     this.webhookUrl = webhookUrl;
     this.botUrl = botUrl;
+    this.botSecret = botSecret;
   }
 
   public getWebhookUrl() {
@@ -43,12 +50,13 @@ class DiscordIntegration {
   }
 
   public async sendBotMessage(content: any, users: string[]) {
-    return fetch(this.botUrl + "/api/v1/website/message?message=blank", {
+    return fetch(this.botUrl + "/api/v1/website/message/blank", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
+        Authorization: `Bearer ${this.botSecret}`,
       },
-      body: JSON.stringify({ text: content, ids: users }),
+      body: JSON.stringify({ params: { text: content }, ids: users }),
     }).then((res) => res.json());
   }
 

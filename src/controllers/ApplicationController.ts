@@ -1,6 +1,11 @@
+import {
+  Application,
+  ApplicationStatus,
+  BuildTeam,
+  User,
+} from "@prisma/client";
 import { Request, Response } from "express";
 
-import { ApplicationStatus } from "@prisma/client";
 import { validationResult } from "express-validator";
 import { validate as uuidValidate } from "uuid";
 import yup from "yup";
@@ -141,18 +146,75 @@ class ApplicationController {
       },
       include: {
         ApplicationAnswer: { include: { question: true } },
-        buildteam: { select: { name: true, id: true, slug: true } },
+        buildteam: {
+          select: {
+            name: true,
+            id: true,
+            slug: true,
+            acceptionMessage: true,
+            rejectionMessage: true,
+            trialMessage: true,
+          },
+        },
       },
     });
 
     if (parseApplicationStatus(status) == ApplicationStatus.ACCEPTED) {
-      await this.core.getPrisma().user.update({
+      const user = await this.core.getPrisma().user.update({
         where: { id: application.userId },
         data: {
           joinedBuildTeams: { connect: { id: application.buildteamId } },
         },
-        select: { _count: { select: { joinedBuildTeams: true } } },
+        select: { discordId: true },
       });
+
+      await this.core
+        .getDiscord()
+        .sendBotMessage(
+          this.mutateApplicationMessage(
+            application.buildteam.acceptionMessage,
+            application,
+            user,
+            application.buildteam
+          ),
+          [user.discordId]
+        );
+    } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
+      const user = await this.core.getPrisma().user.findFirst({
+        where: { id: application.userId },
+        select: { discordId: true },
+      });
+      await this.core
+        .getDiscord()
+        .sendBotMessage(
+          this.mutateApplicationMessage(
+            application.buildteam.trialMessage,
+            application,
+            user,
+            application.buildteam
+          ),
+          [user.discordId]
+        );
+    } else {
+      const user = await this.core.getPrisma().user.update({
+        where: { id: application.userId },
+        data: {
+          joinedBuildTeams: { disconnect: { id: application.buildteamId } },
+        },
+        select: { discordId: true },
+      });
+
+      await this.core
+        .getDiscord()
+        .sendBotMessage(
+          this.mutateApplicationMessage(
+            application.buildteam.rejectionMessage,
+            application,
+            user,
+            application.buildteam
+          ),
+          [user.discordId]
+        );
     }
 
     await this.core.getDiscord().sendApplicationUpdate(application);
@@ -277,6 +339,36 @@ class ApplicationController {
         translationKey: "404",
       });
     }
+  }
+
+  private mutateApplicationMessage(
+    message: string,
+    application: Application,
+    user: { discordId: string },
+    team: { slug: string; name: string }
+  ): string {
+    return message
+      .replace("{user}", `<@${user.discordId}>`)
+      .replace("{team}", team.name)
+      .replace("{url}", process.env.FRONTEND_URL + `/teams/${team.slug}`)
+      .replace("{reason}", application.reason)
+      .replace(
+        "{reviewedAt}",
+        new Date(application.reviewedAt).toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        })
+      )
+      .replace(
+        "{createdAt}",
+        new Date(application.createdAt).toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        })
+      )
+      .replace("{id}", application.id.toString().split("-")[0]);
   }
 }
 

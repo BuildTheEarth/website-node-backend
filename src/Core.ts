@@ -1,14 +1,14 @@
 import * as session from "express-session";
 import * as winston from "winston";
 
-import { PrismaClient } from "@prisma/client";
-import Keycloak from "keycloak-connect";
 import AmazonAWS from "./util/AmazonAWS.js";
 import DiscordIntegration from "./util/DiscordIntegration.js";
-import { rerenderFrontend } from "./util/Frontend.js";
+import Keycloak from "keycloak-connect";
 import KeycloakAdmin from "./util/KeycloakAdmin.js";
-import { middlewareUploadSrc } from "./util/Prisma.js";
+import { PrismaClient } from "@prisma/client";
 import Web from "./web/Web.js";
+import { middlewareUploadSrc } from "./util/Prisma.js";
+import { rerenderFrontend } from "./util/Frontend.js";
 
 class Core {
   web: Web;
@@ -27,7 +27,8 @@ class Core {
     this.discord = new DiscordIntegration(
       this,
       process.env.DISCORD_WEBHOOK_URL,
-      process.env.DISCORD_BOT_URL
+      process.env.DISCORD_BOT_URL,
+      process.env.DISCORD_BOT_SECRET
     );
     this.keycloak = new Keycloak(
       {
