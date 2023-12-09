@@ -20,9 +20,20 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       return;
     }
 
-    const authHeader = req.headers.key;
+    const authHeader = req.headers.authorization;
 
     if (!authHeader) {
+      res
+        .status(401)
+        .send(
+          "No authorization header, please use api keys for public routes."
+        );
+      return;
+    }
+
+    const authToken = authHeader.toString().split(" ")[1];
+
+    if (!authToken) {
       res
         .status(401)
         .send(
@@ -31,7 +42,7 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       return;
     }
 
-    if (tokenTeam.token !== authHeader) {
+    if (tokenTeam.token !== authToken) {
       res.status(401).send("You don't have permission to do this!");
       return;
     }
