@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { NextFunction, Request, Response } from "express";
 
 import { minimatch } from "minimatch";
 
@@ -10,7 +10,9 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       return;
     }
     const tokenTeam = await prisma.buildTeam.findFirst({
-      where: { id: req.params[buildteam] },
+      where: req.query.slug
+        ? { slug: req.params[buildteam] }
+        : { id: req.params[buildteam] },
     });
 
     if (!tokenTeam) {
@@ -24,7 +26,7 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       res
         .status(401)
         .send(
-          "Invalid authorization header, please use api keys for private routes."
+          "Invalid authorization header, please use api keys for public routes."
         );
       return;
     }
@@ -34,6 +36,7 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       return;
     }
 
+    req.team = tokenTeam;
     next();
   };
 };

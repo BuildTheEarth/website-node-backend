@@ -51,38 +51,6 @@ class Routes {
     const generalController = new GeneralController(this.web.getCore());
     const tokenRouteContoller = new TokenRouteContoller(this.web.getCore());
 
-    legacyRouter.addRoute(
-      RequestMethods.GET,
-      "modpack/images",
-      (request, response) => {
-        response.send({
-          "1": {
-            url: "https://i.imgur.com/N5cplwx.jpeg",
-            credit: "waggiswagen#2266, Knäggi#4895 render: jo_kil#1977",
-          },
-          "2": {
-            url: "https://i.imgur.com/tGtWJGk.jpeg",
-            credit: "Woesh3#1155",
-          },
-          "3": {
-            url: "https://i.imgur.com/yxEWCdQ.jpeg",
-            credit: "Juancy23#9223",
-          },
-          "4": {
-            url: "https://i.imgur.com/yQjMRlr.jpeg",
-            credit:
-              "Leander#2813, Grischbrei#6173, Norwod#9035 & DasBirnenDing#1574",
-          },
-          "5": {
-            url: "https://i.imgur.com/9zqFHxa.png",
-            credit:
-              "Schnieven#0083, XilefHD#7198, copac#6194, render: XilefHD#7198",
-          },
-          logo: { url: "https://i.imgur.com/ih6BF72.png", credit: null },
-        });
-      }
-    );
-
     router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
       response.send({ status: "up" });
     });
@@ -570,6 +538,7 @@ class Routes {
      * Contact Routes
      *
      */
+
     router.addRoute(
       RequestMethods.GET,
       "/contacts",
@@ -663,6 +632,86 @@ class Routes {
       "/private/buildteams/:team/claims",
       async (request, response) => {
         await tokenRouteContoller.addClaims(request, response);
+      },
+      body("data").isArray({ min: 1, max: 100 }),
+      param("team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+
+    /*
+     *
+     * Public Routes
+     *
+     */
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/public/buildteams/:team/claims",
+      async (request, response) => {
+        await tokenRouteContoller.getClaims(request, response);
+      },
+      param("team"),
+      query("page").isNumeric().optional(),
+      query("withBuilders").isBoolean().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/public/buildteams/:team/claims/:id",
+      async (request, response) => {
+        await tokenRouteContoller.getClaim(request, response);
+      },
+      param("team"),
+      param("id"),
+      query("withBuilders").isBoolean().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/public/buildteams/:team/claims/:id",
+      async (request, response) => {
+        await tokenRouteContoller.updateClaim(request, response);
+      },
+      param("team"),
+      param("id"),
+      body("owner").isUUID().optional(),
+      body("area").optional(),
+      body("active").isBoolean().optional(),
+      body("finished").isBoolean().optional(),
+      body("name").isString().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/public/buildteams/:team/claims",
+      async (request, response) => {
+        await tokenRouteContoller.addClaim(request, response);
+      },
+      param("team"),
+      body("owner").isUUID(),
+      body("builders").isArray({ max: 20 }).optional(),
+      body("area"),
+      body("active").isBoolean(),
+      body("finished").isBoolean(),
+      body("name").isString(),
+      body("id").isUUID().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/public/buildteams/:team/claims/batch",
+      async (request, response) => {
+        await tokenRouteContoller.addClaims(request, response);
+      },
+      body("data").isArray({ min: 1, max: 100 }),
+      param("team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/public/buildteams/:team/claims/:id",
+      async (request, response) => {
+        await tokenRouteContoller.removeClaim(request, response);
       },
       body("data").isArray({ min: 1, max: 100 }),
       param("team"),

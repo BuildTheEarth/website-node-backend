@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { BuildTeam, User } from "@prisma/client";
 
 interface kAuth {
   grant: any;
@@ -9,6 +9,7 @@ declare global {
     interface Request {
       kauth: kAuth;
       user: User;
+      team?: BuildTeam;
     }
   }
 }
