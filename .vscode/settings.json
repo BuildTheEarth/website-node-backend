@@ -27,6 +27,7 @@
     "frontend",
     "special",
     "auth",
-    "upload"
+    "upload",
+    "config"
   ]
 }
