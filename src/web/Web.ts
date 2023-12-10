@@ -1,11 +1,12 @@
-import Core from "../Core.js";
-import Routes from "./routes/index.js";
 import bodyParser from "body-parser";
-import checkNewUser from "./routes/utils/CheckNewUserMiddleware.js";
 import cors from "cors";
 import express from "express";
-import multer from "multer";
 import session from "express-session";
+import multer from "multer";
+import Core from "../Core.js";
+import Routes from "./routes/index.js";
+import checkNewUser from "./routes/utils/CheckNewUserMiddleware.js";
+import metricsMiddleware from "./routes/utils/MetricsMiddleware.js";
 class Web {
   app;
 
@@ -25,6 +26,7 @@ class Web {
 
   public startWebserver() {
     this.app.use(bodyParser.json());
+    this.app.use(metricsMiddleware);
     this.app.use(
       session({
         secret: process.env.SESSION_SECRET,
