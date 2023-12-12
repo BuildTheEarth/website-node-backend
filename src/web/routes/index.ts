@@ -210,6 +210,16 @@ class Routes {
         "id"
       )
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/buildteams/:id/token",
+      async (request: Request, response: Response) => {
+        await buildTeamController.generateBuildTeamToken(request, response);
+      },
+      param("id"),
+      query("slug").optional()
+      // Permission check later: Creator
+    );
 
     /*
      *

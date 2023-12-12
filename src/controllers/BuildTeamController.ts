@@ -443,13 +443,10 @@ class BuildTeamController {
     }
     const token = crypto.randomBytes(21).toString("hex");
 
-    await this.core
-      .getPrisma()
-      .buildTeam.update({
-        where: { id: buildteam.id },
-        data: { token },
-        select: {},
-      });
+    await this.core.getPrisma().buildTeam.update({
+      where: { id: buildteam.id },
+      data: { token },
+    });
 
     await this.core
       .getDiscord()
@@ -457,6 +454,8 @@ class BuildTeamController {
         `**${buildteam.name}** \\nGenerated new API Token: ||${token}|| \\nPlease save it somewhere secure.`,
         [buildteam.creator.discordId]
       );
+
+    res.send({ message: "Token generated, check your Discord DMs" });
   }
 }
 
