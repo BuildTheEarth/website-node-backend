@@ -60,6 +60,27 @@ class DiscordIntegration {
     }).then((res) => res.json());
   }
 
+  public async updateBuilderRole(user: string, isBuilder: boolean) {
+    return fetch(this.botUrl + `/api/v1/website/builder/${user}`, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${this.botSecret}`,
+      },
+      body: JSON.stringify({ add: isBuilder }),
+    }).then((res) => res.json());
+  }
+
+  public async getBuilderRole(user: string) {
+    return fetch(this.botUrl + `/api/v1/website/builder/${user}`, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${this.botSecret}`,
+      },
+    }).then((res) => res.json());
+  }
+
   public async sendClaimUpdate(claim: Claim) {
     return this.sendRawWebhook({
       embeds: [
@@ -87,6 +108,26 @@ class DiscordIntegration {
       ],
       username: discordWebhookType.claim.username,
     });
+  }
+
+  public async getUserPunishments(user: string) {
+    return fetch(this.botUrl + `/api/v1/website/punish/${user}`, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${this.botSecret}`,
+      },
+    }).then((res) => res.json());
+  }
+
+  public async getUserRoles(user: string) {
+    return fetch(this.botUrl + `/api/v1/website/role/${user}`, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${this.botSecret}`,
+      },
+    }).then((res) => res.json());
   }
 
   public async sendApplicationUpdate(application: any) {
