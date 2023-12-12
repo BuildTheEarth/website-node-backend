@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
 import { ApplicationQuestionType } from "@prisma/client";
+import crypto from "crypto";
 import { validationResult } from "express-validator";
 import yup from "yup";
 import Core from "../Core.js";
@@ -407,6 +408,55 @@ class BuildTeamController {
       })
     );
     res.send(kcMembers);
+  }
+
+  public async generateBuildTeamToken(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const buildteam = await this.core.getPrisma().buildTeam.findUnique({
+      where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
+      select: {
+        token: true,
+        id: true,
+        name: true,
+        creator: { select: { id: true, discordId: true } },
+      },
+    });
+
+    if (!buildteam) {
+      return res.status(404).send({
+        code: 404,
+        message: "Buildteam does not exit.",
+        translationKey: "404",
+      });
+    }
+
+    if (buildteam.creator.id !== req.user.id) {
+      return res.status(403).send({
+        code: 403,
+        message: "You are not the creator of this buildteam.",
+        translationKey: "403",
+      });
+    }
+    const token = crypto.randomBytes(21).toString("hex");
+
+    await this.core
+      .getPrisma()
+      .buildTeam.update({
+        where: { id: buildteam.id },
+        data: { token },
+        select: {},
+      });
+
+    await this.core
+      .getDiscord()
+      .sendBotMessage(
+        `**${buildteam.name}** \\nGenerated new API Token: ||${token}|| \\nPlease save it somewhere secure.`,
+        [buildteam.creator.discordId]
+      );
   }
 }
 
