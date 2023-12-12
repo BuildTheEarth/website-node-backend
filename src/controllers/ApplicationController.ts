@@ -183,6 +183,8 @@ class ApplicationController {
           ),
           [user.discordId]
         );
+      await this.core.getDiscord().updateBuilderRole(user.discordId, true);
+      
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
       const user = await this.core.getPrisma().user.findFirst({
         where: { id: application.userId },
@@ -205,7 +207,12 @@ class ApplicationController {
         data: {
           joinedBuildTeams: { disconnect: { id: application.buildteamId } },
         },
-        select: { discordId: true },
+        select: {
+          discordId: true,
+          _count: {
+            select: { joinedBuildTeams: true },
+          },
+        },
       });
 
       await this.core
@@ -219,6 +226,10 @@ class ApplicationController {
           ),
           [user.discordId]
         );
+
+      if (user._count.joinedBuildTeams < 1) {
+        await this.core.getDiscord().updateBuilderRole(user.discordId, false);
+      }
     }
 
     await this.core.getDiscord().sendApplicationUpdate(application);

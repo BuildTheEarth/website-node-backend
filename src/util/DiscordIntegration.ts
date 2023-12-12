@@ -61,7 +61,7 @@ class DiscordIntegration {
   }
 
   public async updateBuilderRole(user: string, isBuilder: boolean) {
-    return fetch(this.botUrl + `/api/v1/website/builder/${user}`, {
+    return fetch(this.botUrl + `/api/v1/builder/${user}`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -72,7 +72,7 @@ class DiscordIntegration {
   }
 
   public async getBuilderRole(user: string) {
-    return fetch(this.botUrl + `/api/v1/website/builder/${user}`, {
+    return fetch(this.botUrl + `/api/v1/builder/${user}`, {
       method: "GET",
       headers: {
         "Content-type": "application/json",
@@ -111,7 +111,7 @@ class DiscordIntegration {
   }
 
   public async getUserPunishments(user: string) {
-    return fetch(this.botUrl + `/api/v1/website/punish/${user}`, {
+    return fetch(this.botUrl + `/api/v1/punish/${user}`, {
       method: "GET",
       headers: {
         "Content-type": "application/json",
@@ -121,7 +121,7 @@ class DiscordIntegration {
   }
 
   public async getUserRoles(user: string) {
-    return fetch(this.botUrl + `/api/v1/website/role/${user}`, {
+    return fetch(this.botUrl + `/api/v1/role/${user}`, {
       method: "GET",
       headers: {
         "Content-type": "application/json",
