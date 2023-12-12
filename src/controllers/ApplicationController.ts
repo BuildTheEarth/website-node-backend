@@ -6,12 +6,12 @@ import {
 } from "@prisma/client";
 import { Request, Response } from "express";
 
-import { validationResult } from "express-validator";
-import { validate as uuidValidate } from "uuid";
-import yup from "yup";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
+import { validate as uuidValidate } from "uuid";
+import { validationResult } from "express-validator";
+import yup from "yup";
 
 class ApplicationController {
   private core: Core;
@@ -184,7 +184,6 @@ class ApplicationController {
           [user.discordId]
         );
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
-      
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
       const user = await this.core.getPrisma().user.findFirst({
         where: { id: application.userId },
@@ -339,6 +338,20 @@ class ApplicationController {
               questionId: a.id,
             })),
           });
+
+        const reviewers = await this.core.getPrisma().userPermission.findMany({
+          where: {
+            permissionId: "team.application.review",
+            buildTeamId: buildteam.id,
+          },
+          select: { user: { select: { id: true, discordId: true } } },
+        });
+
+        await this.core.getDiscord().sendBotMessage(
+          `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}>. Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
+          reviewers.map((r) => r.user.discordId)
+        );
+
         res.send(application);
       } else {
         return res.status(400).send({
