@@ -276,6 +276,8 @@ class BuildTeamController {
       acceptionMessage,
       rejectionMessage,
       trialMessage,
+      allowBuilderClaim,
+      instantAccept,
     } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
       where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
@@ -291,6 +293,8 @@ class BuildTeamController {
         acceptionMessage,
         rejectionMessage,
         trialMessage,
+        allowBuilderClaim,
+        instantAccept,
       },
     });
 

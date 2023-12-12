@@ -47,6 +47,8 @@ model BuildTeam {
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
   claims               Claim[]
+  allowBuilderClaim    Boolean?              @default(true)
+  instantAccept        Boolean?              @default(false)
 }
 
 model ApplicationQuestion {

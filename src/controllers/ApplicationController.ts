@@ -247,8 +247,13 @@ class ApplicationController {
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
       where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
-      include: {
+      select: {
+        instantAccept: true,
         applicationQuestions: true,
+        id: true,
+        slug: true,
+        name: true,
+        acceptionMessage: true,
       },
     });
 
@@ -262,6 +267,7 @@ class ApplicationController {
       const trial = req.query.trial ? true : false;
       const validatedAnswers = [];
 
+      // User is already accepted to the buildteam
       if (
         pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)
       ) {
@@ -270,6 +276,8 @@ class ApplicationController {
           message: "You are already a builder of this buildteam.",
           translationKey: "400",
         });
+
+        // User already applied, waiting for review
       } else if (
         pastApplications.some(
           (a) =>
@@ -282,6 +290,8 @@ class ApplicationController {
           message: "You already have an application pending review.",
           translationKey: "400",
         });
+
+        // Double trial application
       } else if (
         pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) &&
         trial
@@ -293,7 +303,33 @@ class ApplicationController {
         });
       }
 
+      if (buildteam.instantAccept) {
+        const application = await this.core.getPrisma().application.create({
+          data: {
+            buildteam: { connect: { id: buildteam.id } },
+            user: { connect: { id: req.user.id } },
+            status: ApplicationStatus.ACCEPTED,
+            createdAt: new Date(),
+            reviewedAt: new Date(),
+            trial: false,
+          },
+        });
+
+        await this.core
+          .getDiscord()
+          .sendBotMessage(
+            this.mutateApplicationMessage(
+              buildteam.acceptionMessage,
+              application,
+              req.user,
+              buildteam
+            ),
+            [req.user.discordId]
+          );
+      }
+
       for (const question of buildteam.applicationQuestions) {
+        // Filter by correct questions
         if (question.trial == trial) {
           if (answers[question.id]) {
             // TODO: validate answer type
