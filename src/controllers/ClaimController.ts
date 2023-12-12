@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import turf, { toPolygon } from "../util/Turf.js";
 
-import Core from "../Core.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
 
 class ClaimController {
   private core: Core;
@@ -80,6 +80,7 @@ class ClaimController {
             location: true,
             slug: true,
             icon: true,
+            allowBuilderClaim: true,
           },
         },
         builders: true,
