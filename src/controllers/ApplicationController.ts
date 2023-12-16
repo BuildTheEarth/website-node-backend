@@ -6,12 +6,12 @@ import {
 } from "@prisma/client";
 import { Request, Response } from "express";
 
+import { validationResult } from "express-validator";
+import { validate as uuidValidate } from "uuid";
+import yup from "yup";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
-import { validate as uuidValidate } from "uuid";
-import { validationResult } from "express-validator";
-import yup from "yup";
 
 class ApplicationController {
   private core: Core;
@@ -271,11 +271,12 @@ class ApplicationController {
       if (
         pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)
       ) {
-        return res.status(400).send({
+        res.status(400).send({
           code: 400,
           message: "You are already a builder of this buildteam.",
           translationKey: "400",
         });
+        return;
 
         // User already applied, waiting for review
       } else if (
@@ -285,22 +286,24 @@ class ApplicationController {
             a.status == ApplicationStatus.SEND
         )
       ) {
-        return res.status(400).send({
+        res.status(400).send({
           code: 400,
           message: "You already have an application pending review.",
           translationKey: "400",
         });
+        return;
 
         // Double trial application
       } else if (
         pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) &&
         trial
       ) {
-        return res.status(400).send({
+        res.status(400).send({
           code: 400,
           message: "You are already a trial of this buildteam.",
           translationKey: "400",
         });
+        return;
       }
 
       if (buildteam.instantAccept) {
@@ -326,6 +329,8 @@ class ApplicationController {
             ),
             [req.user.discordId]
           );
+        res.send(application);
+        return;
       }
 
       for (const question of buildteam.applicationQuestions) {
@@ -346,11 +351,12 @@ class ApplicationController {
             }
             validatedAnswers.push({ id: question.id, answer: answer });
           } else if (question.required) {
-            return res.status(400).send({
+            res.status(400).send({
               code: 400,
               message: "Missing required question.",
               translationKey: "400",
             });
+            return;
           }
         }
       }
@@ -389,12 +395,14 @@ class ApplicationController {
         );
 
         res.send(application);
+        return;
       } else {
-        return res.status(400).send({
+        res.status(400).send({
           code: 400,
           message: "No questions provided.",
           translationKey: "400",
         });
+        return;
       }
     } else {
       res.status(404).send({
