@@ -257,6 +257,7 @@ class ApplicationController {
       },
     });
 
+    console.log(buildteam.id, "btid");
     if (buildteam) {
       const pastApplications = await this.core
         .getPrisma()
@@ -271,6 +272,7 @@ class ApplicationController {
       if (
         pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)
       ) {
+        console.log("already builder");
         res.status(400).send({
           code: 400,
           message: "You are already a builder of this buildteam.",
@@ -286,6 +288,7 @@ class ApplicationController {
             a.status == ApplicationStatus.SEND
         )
       ) {
+        console.log("already applied");
         res.status(400).send({
           code: 400,
           message: "You already have an application pending review.",
@@ -298,6 +301,7 @@ class ApplicationController {
         pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) &&
         trial
       ) {
+        console.log("already trial");
         res.status(400).send({
           code: 400,
           message: "You are already a trial of this buildteam.",
@@ -307,6 +311,7 @@ class ApplicationController {
       }
 
       if (buildteam.instantAccept) {
+        console.log("instant accept");
         const application = await this.core.getPrisma().application.create({
           data: {
             buildteam: { connect: { id: buildteam.id } },
@@ -351,6 +356,7 @@ class ApplicationController {
             }
             validatedAnswers.push({ id: question.id, answer: answer });
           } else if (question.required) {
+            console.log("required missing", question.title);
             res.status(400).send({
               code: 400,
               message: "Missing required question.",
@@ -362,6 +368,7 @@ class ApplicationController {
       }
 
       if (validatedAnswers.length >= 0) {
+        console.log("validated >0");
         const application = await this.core.getPrisma().application.create({
           data: {
             buildteam: { connect: { id: buildteam.id } },
@@ -371,6 +378,7 @@ class ApplicationController {
             trial: trial,
           },
         });
+        console.log("application", application.id);
         const pAnswers = await this.core
           .getPrisma()
           .applicationAnswer.createMany({
@@ -380,6 +388,7 @@ class ApplicationController {
               questionId: a.id,
             })),
           });
+        console.log("answers", pAnswers.count);
 
         const reviewers = await this.core.getPrisma().userPermission.findMany({
           where: {
@@ -389,14 +398,19 @@ class ApplicationController {
           select: { user: { select: { id: true, discordId: true } } },
         });
 
-        await this.core.getDiscord().sendBotMessage(
-          `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}>. Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
-          reviewers.map((r) => r.user.discordId)
-        );
+        console.log(reviewers.length);
 
+        console.log(
+          await this.core.getDiscord().sendBotMessage(
+            `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}>. Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
+            reviewers.map((r) => r.user.discordId)
+          )
+        );
+        console.log("app send");
         res.send(application);
         return;
       } else {
+        console.log("no questions");
         res.status(400).send({
           code: 400,
           message: "No questions provided.",
@@ -405,11 +419,13 @@ class ApplicationController {
         return;
       }
     } else {
+      console.log("bt doesnt exist");
       res.status(404).send({
         code: 404,
         message: "Buildteam does not exit.",
         translationKey: "404",
       });
+      return;
     }
   }
 
