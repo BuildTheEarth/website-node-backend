@@ -1,6 +1,6 @@
+import { ApplicationStatus, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 
-import { PrismaClient } from "@prisma/client";
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
@@ -155,6 +155,45 @@ class UserController {
     } else {
       res.status(401).send("You don't have permission to do this!");
     }
+  }
+
+  public async getUserReviews(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (!req.kauth.grant) {
+      return res.status(401).json("You are not permited to do this!");
+    }
+    const user = await this.core.getPrisma().user.findFirst({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (user.ssoId != req.kauth.grant.access_token.content.sub) {
+      return res.status(401).json("You are not permited to do this!");
+    }
+
+    const reviewPermissions = await this.core
+      .getPrisma()
+      .userPermission.findMany({
+        where: { userId: user.id, permissionId: "team.application.review" },
+        select: { buildTeamId: true, id: true },
+      });
+
+    const applications = await this.core.getPrisma().application.findMany({
+      where: {
+        status: { in: [ApplicationStatus.SEND, ApplicationStatus.REVIEWING] },
+        buildteamId: { in: reviewPermissions.map((p) => p.buildTeamId) },
+      },
+      include: {
+        buildteam: { select: { slug: true, name: true, icon: true } },
+      },
+    });
+
+    res.send(applications);
   }
 
   public async updateUser(req: Request, res: Response) {
