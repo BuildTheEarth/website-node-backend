@@ -6,12 +6,12 @@ import {
 } from "@prisma/client";
 import { Request, Response } from "express";
 
+import { validationResult } from "express-validator";
+import { validate as uuidValidate } from "uuid";
+import yup from "yup";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
-import { validate as uuidValidate } from "uuid";
-import { validationResult } from "express-validator";
-import yup from "yup";
 
 class ApplicationController {
   private core: Core;
@@ -377,7 +377,7 @@ class ApplicationController {
 
         const reviewers = await this.core.getPrisma().userPermission.findMany({
           where: {
-            permissionId: "team.application.review",
+            permissionId: "team.application.notify",
             buildTeamId: buildteam.id,
           },
           select: { user: { select: { id: true, discordId: true } } },
