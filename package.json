@@ -11,7 +11,8 @@
     "start:migrate": "npx prisma migrate deploy && node index.js",
     "build": "yarn install --pure-lockfile && tsc",
     "studio": "prisma studio",
-    "prettier": "prettier --write ./src"
+    "prettier": "prettier --write ./src",
+    "seed":"esbuild prisma/seed.ts --outfile=node_modules/tmp-seed.cjs --platform=node --bundle --format=cjs --external:prisma --external:@prisma/client && node node_modules/tmp-seed.cjs --preview-feature"
   },
   "repository": {
     "type": "git",
