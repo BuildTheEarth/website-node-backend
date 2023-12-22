@@ -14,7 +14,6 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
         ssoId: req.kauth.grant.access_token.content.sub,
       },
     });
-    console.log(user?.id);
 
     // If there is an user present in the DB -> Not first request
     if (user) {
@@ -91,7 +90,6 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
       const oldUser = await prisma.user.findFirst({
         where: { ssoId: "o_" + discordIdentity.userId },
       });
-      console.log(oldUser?.ssoId);
       if (oldUser) {
         // Update migrated user
         await prisma.user.update({
