@@ -9,7 +9,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
       next();
       return;
     }
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: {
         ssoId: req.kauth.grant.access_token.content.sub,
       },
@@ -86,23 +86,41 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
         (fi) => fi.identityProvider === "discord"
       );
 
-      // Create new user
-      const user = await prisma.user.create({
-        data: {
-          ssoId: req.kauth.grant.access_token.content.sub,
-          discordId: discordIdentity ? discordIdentity.userId : undefined,
-        },
+      // !! ONLY TO MIGRATE OLD WEBSITE BUILDERS
+      const oldUser = await prisma.user.findFirst({
+        where: { ssoId: "o_" + discordIdentity.userId },
       });
-      req.user = user;
+      if (oldUser) {
+        // Update migrated user
+        await prisma.user.update({
+          where: {
+            id: oldUser.id,
+          },
+          data: {
+            ssoId: req.kauth.grant.access_token.content.sub,
+          },
+        });
+        req.user = oldUser;
+      } else {
+        // Create new user
+        const user = await prisma.user.create({
+          data: {
+            ssoId: req.kauth.grant.access_token.content.sub,
+            discordId: discordIdentity ? discordIdentity.userId : undefined,
+          },
+        });
+        req.user = user;
+      }
+
       // Create default Permission
       await prisma.userPermission.createMany({
         data: [
           {
-            userId: user.id,
+            userId: req.user.id,
             permissionId: "account.info",
           },
           {
-            userId: user.id,
+            userId: req.user.id,
             permissionId: "account.edit",
           },
         ],
