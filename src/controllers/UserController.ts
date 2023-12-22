@@ -92,6 +92,7 @@ class UserController {
             userId: user.id,
           },
         },
+        id: { notIn: user.createdBuildTeams.map((b) => b.id) },
       },
       select: {
         id: true,
