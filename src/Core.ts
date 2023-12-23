@@ -1,14 +1,15 @@
 import * as session from "express-session";
 import * as winston from "winston";
 
-import AmazonAWS from "./util/AmazonAWS.js";
-import DiscordIntegration from "./util/DiscordIntegration.js";
-import Keycloak from "keycloak-connect";
-import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import { PrismaClient } from "@prisma/client";
-import Web from "./web/Web.js";
-import { middlewareUploadSrc } from "./util/Prisma.js";
+import Keycloak from "keycloak-connect";
+import AmazonAWS from "./util/AmazonAWS.js";
+import CronHandler from "./util/CronHandler.js";
+import DiscordIntegration from "./util/DiscordIntegration.js";
 import { rerenderFrontend } from "./util/Frontend.js";
+import KeycloakAdmin from "./util/KeycloakAdmin.js";
+import { middlewareUploadSrc } from "./util/Prisma.js";
+import Web from "./web/Web.js";
 
 class Core {
   web: Web;
@@ -19,6 +20,7 @@ class Core {
   logger: winston.Logger;
   aws: AmazonAWS;
   discord: DiscordIntegration;
+  cron: CronHandler;
 
   constructor() {
     this.setUpLogger();
@@ -50,6 +52,7 @@ class Core {
       this.prisma.$use(middlewareUploadSrc);
       this.web = new Web(this);
       this.web.startWebserver();
+      this.cron = new CronHandler(this);
     });
   }
 
