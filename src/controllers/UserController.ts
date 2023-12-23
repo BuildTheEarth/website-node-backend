@@ -180,7 +180,11 @@ class UserController {
     const reviewPermissions = await this.core
       .getPrisma()
       .userPermission.findMany({
-        where: { userId: user.id, permissionId: "team.application.review" },
+        where: {
+          userId: user.id,
+          permissionId: "team.application.review",
+          buildTeamId: { not: null },
+        },
         select: { buildTeamId: true, id: true },
       });
 
