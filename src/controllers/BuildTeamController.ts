@@ -39,7 +39,10 @@ class BuildTeamController {
         },
       });
       let count = await this.core.getPrisma().buildTeam.count();
-      res.send({ pages: Math.ceil(count / 10), data: buildteams });
+      res.send({
+        pages: Math.ceil(count / 10),
+        data: buildteams.map((b) => ({ ...b, token: undefined })),
+      });
     } else {
       const buildteams = await this.core.getPrisma().buildTeam.findMany({
         include: {
@@ -55,7 +58,7 @@ class BuildTeamController {
             : false,
         },
       });
-      res.send(buildteams);
+      res.send(buildteams.map((b) => ({ ...b, token: undefined })));
     }
   }
 
@@ -80,7 +83,7 @@ class BuildTeamController {
       },
     });
     if (buildteam) {
-      res.send(buildteam);
+      res.send({ ...buildteam, token: undefined });
     } else {
       res.status(404).send({
         code: 404,

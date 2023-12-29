@@ -254,6 +254,7 @@ class ApplicationController {
         slug: true,
         name: true,
         acceptionMessage: true,
+        token: false,
       },
     });
 

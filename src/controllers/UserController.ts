@@ -101,6 +101,7 @@ class UserController {
         icon: true,
         name: true,
         creatorId: true,
+        token: false,
       },
     });
     user.createdBuildTeams = user.createdBuildTeams.concat(buildTeamManager);
@@ -278,6 +279,7 @@ class UserController {
         where: {
           slug: req.query.buildteam as string,
         },
+        select:{token:false,id:true}
       });
 
       if (!buildteam) {
@@ -343,6 +345,7 @@ class UserController {
         where: {
           slug: req.query.buildteam as string,
         },
+        select: { token: false, id: true },
       });
 
       if (!buildteam) {
