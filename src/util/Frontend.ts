@@ -1,5 +1,5 @@
-import Core from "../Core.js";
 import { core } from "../../index.js";
+import Core from "../Core.js";
 
 export async function rerenderFrontend(query: string, props: any) {
   const routes = frontendRoutes
@@ -19,6 +19,7 @@ export async function rerenderFrontend(query: string, props: any) {
   );
   if (res.status !== 200)
     core.getLogger().warn("Website Frontend is down, cannot rerender pages.");
+  else core.getLogger().info(`Rerendered ${routes.length} pages.`);
 }
 
 export const frontendRoutes = [

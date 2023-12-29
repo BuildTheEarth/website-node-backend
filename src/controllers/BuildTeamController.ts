@@ -170,6 +170,7 @@ class BuildTeamController {
             });
           });
 
+          rerenderFrontend("/teams/[team]", { team: buildteam.slug });
           res.send(validatedSchema);
         })
         .catch((e) => {
