@@ -235,15 +235,22 @@ class BuildTeamController {
       );
 
       schema
-        .validate(req.body)
+        .validate(req.body.socials)
         .then((validatedSchema) => {
-          validatedSchema.forEach((question) => {
-            this.core.getPrisma().social.update({
+          validatedSchema.forEach(async (question) => {
+            const d = await this.core.getPrisma().social.upsert({
               where: {
                 id: question.id,
               },
-              data: question,
+              update: question,
+              create: {
+                name: question.name || "Website",
+                icon: question.icon,
+                url: question.url,
+                buildTeam: { connect: { id: buildteam.id } },
+              },
             });
+            console.log(d);
           });
 
           rerenderFrontend(FrontendRoutesGroups.TEAM, { team: buildteam.slug });
