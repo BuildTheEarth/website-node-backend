@@ -251,6 +251,19 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.POST,
+      "/claims",
+      async (request, response) => {
+        await claimController.createClaim(request, response);
+      },
+      body("team").isString(),
+      body("area").isArray().optional(),
+      body("name").isString().optional(),
+      body("finished").isBoolean().optional(),
+      body("active").isBoolean().optional(),
+      body("builders").isArray().optional()
+    );
+    router.addRoute(
+      RequestMethods.POST,
       "/claims/:id",
       async (request, response) => {
         await claimController.updateClaim(request, response);

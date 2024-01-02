@@ -81,6 +81,7 @@ class UserController {
             icon: true,
             name: true,
             creatorId: true,
+            allowBuilderClaim: true,
           },
         },
       },

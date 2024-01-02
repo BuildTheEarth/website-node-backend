@@ -133,7 +133,7 @@ model Claim {
   id          String        @id @default(uuid())
   ownerId     String
   area        String[]
-  center      String
+  center      String?
   active      Boolean       @default(false)
   finished    Boolean       @default(false)
   name        String        @default("")

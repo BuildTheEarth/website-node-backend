@@ -126,6 +126,68 @@ class ClaimController {
     this.core.getDiscord().sendClaimUpdate(claim);
     res.send(claim);
   }
+
+  public async createClaim(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const buildteam = await this.core.getPrisma().buildTeam.findUnique({
+      where: req.query.slug ? { slug: req.body.team } : { id: req.body.team },
+      select: {
+        allowBuilderClaim: true,
+        id: true,
+        members: { where: { id: req.user.id } },
+      },
+    });
+
+    if (buildteam.allowBuilderClaim === false) {
+      return res.status(400).send({
+        code: 400,
+        message: "Buildteam does not allow builder claims.",
+        translationKey: "400",
+      });
+    }
+
+    if (buildteam.members.length <= 0) {
+      return res.status(400).send({
+        code: 400,
+        message: "You are not a member of this buildteam.",
+        translationKey: "400",
+      });
+    }
+
+    const area = req.body.area?.map((p: [number, number]) => p.join(", "));
+
+    const claim = await this.core.getPrisma().claim.create({
+      data: {
+        buildTeam: {
+          connect: {
+            id: buildteam.id,
+          },
+        },
+        area: area,
+        center:
+          area &&
+          turf
+            .center({
+              type: "Feature",
+              geometry: { coordinates: area, type: "Polygon" },
+            })
+            .geometry.coordinates.join(", "),
+        owner: { connect: { id: req.user.id } },
+        builders: req.body.builders
+          ? { connect: req.body.builders.map((b: any) => ({ id: b })) }
+          : undefined,
+        name: req.body.name,
+        finished: req.body.finished,
+        active: req.body.active,
+      },
+    });
+
+    res.send(claim);
+  }
 }
 
 export default ClaimController;
