@@ -1,5 +1,6 @@
 import {
   Application,
+  ApplicationQuestionType,
   ApplicationStatus,
   BuildTeam,
   User,
@@ -335,6 +336,7 @@ class ApplicationController {
           if (answers[question.id]) {
             // TODO: validate answer type
             let answer = answers[question.id];
+            const type = question.type;
 
             if (typeof answer != "string") {
               if (typeof answer == "number") {
@@ -346,7 +348,16 @@ class ApplicationController {
               }
             }
             validatedAnswers.push({ id: question.id, answer: answer });
-          } else if (question.required) {
+
+            if (type == ApplicationQuestionType.MINECRAFT) {
+              console.log("Hi");
+              const user = await this.core.getPrisma().user.update({
+                where: { id: req.user.id },
+                data: { name: answer },
+              });
+              req.user = user;
+            }
+          } else if (question.required && question.sort >= 0) {
             return res.status(400).send({
               code: 400,
               message: "Missing required question.",
