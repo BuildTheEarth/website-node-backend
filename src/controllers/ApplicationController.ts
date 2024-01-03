@@ -263,6 +263,7 @@ class ApplicationController {
         name: true,
         acceptionMessage: true,
         token: false,
+        allowApplications: true,
       },
     });
 
@@ -308,6 +309,14 @@ class ApplicationController {
         return res.status(400).send({
           code: 400,
           message: "You are already a trial of this buildteam.",
+          translationKey: "400",
+        });
+      }
+
+      if (!buildteam.allowApplications) {
+        return res.status(400).send({
+          code: 400,
+          message: "Applications are not allowed for this buildteam.",
           translationKey: "400",
         });
       }

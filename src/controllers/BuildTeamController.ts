@@ -310,7 +310,9 @@ class BuildTeamController {
       rejectionMessage,
       trialMessage,
       allowBuilderClaim,
-      instantAccept,webhook,
+      allowApplications,
+      instantAccept,
+      webhook,
       ip,
     } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
@@ -329,6 +331,7 @@ class BuildTeamController {
         trialMessage,
         allowBuilderClaim,
         instantAccept,
+        allowApplications,
         webhook,
         ip,
       },
