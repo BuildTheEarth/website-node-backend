@@ -96,23 +96,35 @@ class TokenRouteContoller {
         p.split(", ").map((s: string) => parseFloat(s))
       );
     }
+    const o = await this.core
+      .getPrisma()
+      .user.findFirst({ where: { name: owner } });
 
     const claim = await this.core.getPrisma().claim.create({
       data: {
         id,
-        ownerId: owner,
-        buildTeamId: req.team.id,
-        builders: { connect: builders.map((b: any) => ({ id: b })) },
+        owner: { connect: { id: o.id } },
+        buildTeam: { connect: { id: req.team.id } },
+        builders: builders
+          ? { connect: builders.map((b: any) => ({ id: b })) }
+          : undefined,
         name,
         finished,
         active,
-        area: area.map((p: any[]) => p.join(", ")),
-        center: turf
-          .center({
-            type: "Feature",
-            geometry: { coordinates: [area], type: "Polygon" },
-          })
-          .geometry.coordinates.join(", "),
+        area: area
+          ? area.map((p: any[]) => [p[1], p[0]].join(", "))
+          : undefined,
+        center: area
+          ? turf
+              .center({
+                type: "Feature",
+                geometry: {
+                  coordinates: [area.map((p: any[]) => [p[1], p[0]])],
+                  type: "Polygon",
+                },
+              })
+              .geometry.coordinates.join(", ")
+          : undefined,
       },
     });
 
@@ -125,28 +137,42 @@ class TokenRouteContoller {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const claims = await this.core.getPrisma().claim.createMany({
-      data: req.body.data.map((c) => ({
-        id: c.id,
-        ownerId: c.owner,
-        buildTeamId: req.params.team,
-        name: c.name,
-        finished: c.finished,
-        active: c.active,
-        builders: c.builders
-          ? { connect: c.builders.map((b: any) => ({ id: b })) }
-          : undefined,
-        area: c.area.map((p: [number, number]) => p.join(", ")),
-        center: turf
-          .center({
-            type: "Feature",
-            geometry: { coordinates: [c.area], type: "Polygon" },
-          })
-          .geometry.coordinates.join(", "),
-      })),
-    });
 
-    res.send(claims);
+    let claims = 0;
+    for (const c of req.body.data) {
+      const owner = await this.core
+        .getPrisma()
+        .user.findFirst({ where: { name: c.owner } });
+      if (!owner) continue;
+      c.owner = owner.id;
+
+      const claim = await this.core.getPrisma().claim.create({
+        data: {
+          id: c.id,
+          ownerId: c.owner,
+          buildTeamId: req.params.team,
+          name: c.name,
+          finished: c.finished,
+          active: c.active,
+          builders: c.builders
+            ? { connect: c.builders.map((b: any) => ({ name: b })) }
+            : undefined,
+          area: c.area.map((p: any[]) => [p[1], p[0]].join(", ")),
+          center: turf
+            .center({
+              type: "Feature",
+              geometry: {
+                coordinates: [c.area.map((p: any[]) => [p[1], p[0]])],
+                type: "Polygon",
+              },
+            })
+            .geometry.coordinates.join(", "),
+        },
+      });
+      claims++;
+    }
+
+    res.send({ count: claims });
   }
 
   public async updateClaim(req: Request, res: Response) {

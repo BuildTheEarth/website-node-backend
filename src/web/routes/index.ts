@@ -700,6 +700,16 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.POST,
+      "/public/buildteams/:team/claimsbatch",
+      async (request, response) => {
+        await tokenRouteContoller.addClaims(request, response);
+      },
+      // body("data").isArray({ min: 1, max: 100 }),
+      param("team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.POST,
       "/public/buildteams/:team/claims/:id",
       async (request, response) => {
         await tokenRouteContoller.updateClaim(request, response);
@@ -720,23 +730,13 @@ class Routes {
         await tokenRouteContoller.addClaim(request, response);
       },
       param("team"),
-      body("owner").isUUID(),
+      body("owner").isString(),
       body("builders").isArray({ max: 20 }).optional(),
       body("area"),
       body("active").isBoolean(),
       body("finished").isBoolean(),
       body("name").isString(),
       body("id").isUUID().optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team")
-    );
-    router.addRoute(
-      RequestMethods.POST,
-      "/public/buildteams/:team/claims/batch",
-      async (request, response) => {
-        await tokenRouteContoller.addClaims(request, response);
-      },
-      body("data").isArray({ min: 1, max: 100 }),
-      param("team"),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
