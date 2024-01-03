@@ -203,6 +203,7 @@ class Routes {
       body("about").isString().optional(),
       body("location").isString().optional(),
       body("slug").isString().optional(),
+      body("ip").isString().optional(),
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "buildteam.settings.edit",
