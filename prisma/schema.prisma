@@ -131,6 +131,7 @@ model Newsletter {
 
 model Claim {
   id          String        @id @default(uuid())
+  externalId  String?
   ownerId     String?
   area        String[]
   center      String?

@@ -85,7 +85,8 @@ class TokenRouteContoller {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let { owner, area, active, finished, name, id, builders } = req.body;
+    let { owner, area, active, finished, name, id, builders, externalId } =
+      req.body;
 
     if (area[0] != area[area.length - 1]) {
       area.push(area[0]);
@@ -110,6 +111,7 @@ class TokenRouteContoller {
           : undefined,
         name,
         finished,
+        externalId,
         active,
         area: area
           ? area.map((p: any[]) => [p[1], p[0]].join(", "))
@@ -157,8 +159,9 @@ class TokenRouteContoller {
           name: c.name,
           finished: c.finished,
           active: c.active,
+          externalId: c.externalId,
           builders: c.builders
-            ? { connect: c.builders.map((b: any) => ({ name: b })) }
+            ? { connect: c.builders.map((b: any) => ({ id: b })) }
             : undefined,
           area: c.area.map((p: any[]) => [p[1], p[0]].join(", ")),
           center: turf
