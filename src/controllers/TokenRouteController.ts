@@ -138,19 +138,22 @@ class TokenRouteContoller {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let claims = 0;
+    let claims = [];
     for (const c of req.body.data) {
       const owner = await this.core
         .getPrisma()
         .user.findFirst({ where: { name: c.owner } });
-      if (!owner) continue;
-      c.owner = owner.id;
+      if (owner) {
+        c.owner = owner.id;
+      } else {
+        c.owner = undefined;
+      }
 
       const claim = await this.core.getPrisma().claim.create({
         data: {
           id: c.id,
-          ownerId: c.owner,
-          buildTeamId: req.params.team,
+          owner: owner ? { connect: { id: owner.id } } : undefined,
+          buildTeam: { connect: { id: req.params.team } },
           name: c.name,
           finished: c.finished,
           active: c.active,
@@ -169,10 +172,10 @@ class TokenRouteContoller {
             .geometry.coordinates.join(", "),
         },
       });
-      claims++;
+      claims.push(claim);
     }
 
-    res.send({ count: claims });
+    res.send({ data: claims });
   }
 
   public async updateClaim(req: Request, res: Response) {

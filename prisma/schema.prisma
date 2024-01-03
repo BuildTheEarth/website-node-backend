@@ -131,14 +131,14 @@ model Newsletter {
 
 model Claim {
   id          String        @id @default(uuid())
-  ownerId     String
+  ownerId     String?
   area        String[]
   center      String?
   active      Boolean       @default(false)
   finished    Boolean       @default(false)
   name        String        @default("")
   Application Application[]
-  owner       User          @relation("owner", fields: [ownerId], references: [id])
+  owner       User?         @relation("owner", fields: [ownerId], references: [id])
   builders    User[]        @relation("builders")
   buildTeam   BuildTeam     @relation(fields: [buildTeamId], references: [id])
   buildTeamId String
