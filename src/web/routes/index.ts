@@ -150,6 +150,20 @@ class Routes {
       )
     );
     router.addRoute(
+      RequestMethods.DELETE,
+      "/buildteams/:team/socials/:id",
+      async (request: Request, response: Response) => {
+        await buildTeamController.deleteBuildTeamSocial(request, response);
+      },
+      param("team"),
+      param("id"),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "buildteam.socials.edit",
+        "team"
+      )
+    );
+    router.addRoute(
       RequestMethods.GET,
       "/buildteams/:id/members",
       async (request: Request, response: Response) => {
