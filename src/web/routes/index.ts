@@ -37,7 +37,6 @@ class Routes {
   }
 
   private registerRoutes() {
-    const legacyRouter: Router = new Router(this.web, "");
     const router: Router = new Router(this.web, "v1");
 
     const buildTeamController = new BuildTeamController(this.web.getCore());

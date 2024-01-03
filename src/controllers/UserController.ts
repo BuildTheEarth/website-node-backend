@@ -270,7 +270,7 @@ class UserController {
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
           ["permission.add"],
-          req.query.buildTeam as string
+          req.query.buildteam as string
         ))
       ) {
         return res.status(401).send("You don't have permission to do this!");
@@ -280,7 +280,7 @@ class UserController {
         where: {
           slug: req.query.buildteam as string,
         },
-        select:{token:false,id:true}
+        select: { token: false, id: true },
       });
 
       if (!buildteam) {
@@ -336,7 +336,7 @@ class UserController {
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
           ["permission.remove"],
-          req.query.buildTeam as string
+          req.query.buildteam as string
         ))
       ) {
         return res.status(401).send("You don't have permission to do this!");
