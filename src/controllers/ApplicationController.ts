@@ -11,6 +11,7 @@ import { validationResult } from "express-validator";
 import { validate as uuidValidate } from "uuid";
 import yup from "yup";
 import Core from "../Core.js";
+import runFetch from "../util/Fetcher.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
@@ -159,8 +160,10 @@ class ApplicationController {
             acceptionMessage: true,
             rejectionMessage: true,
             trialMessage: true,
+            webhook: true,
           },
         },
+        user: { select: { id: true, discordId: true, name: true } },
       },
     });
 
@@ -233,6 +236,10 @@ class ApplicationController {
     }
 
     await this.core.getDiscord().sendApplicationUpdate(application);
+
+    if (application.buildteam.webhook) {
+      await runFetch(application.buildteam.webhook, application);
+    }
 
     res.send(application);
   }

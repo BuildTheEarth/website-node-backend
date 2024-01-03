@@ -41,7 +41,11 @@ class BuildTeamController {
       let count = await this.core.getPrisma().buildTeam.count();
       res.send({
         pages: Math.ceil(count / 10),
-        data: buildteams.map((b) => ({ ...b, token: undefined })),
+        data: buildteams.map((b) => ({
+          ...b,
+          token: undefined,
+          webhook: undefined,
+        })),
       });
     } else {
       const buildteams = await this.core.getPrisma().buildTeam.findMany({
@@ -83,7 +87,7 @@ class BuildTeamController {
       },
     });
     if (buildteam) {
-      res.send({ ...buildteam, token: undefined });
+      res.send({ ...buildteam, token: undefined, webhook: undefined });
     } else {
       res.status(404).send({
         code: 404,
@@ -306,7 +310,7 @@ class BuildTeamController {
       rejectionMessage,
       trialMessage,
       allowBuilderClaim,
-      instantAccept,
+      instantAccept,webhook,
       ip,
     } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
@@ -325,6 +329,7 @@ class BuildTeamController {
         trialMessage,
         allowBuilderClaim,
         instantAccept,
+        webhook,
         ip,
       },
     });
@@ -457,6 +462,7 @@ class BuildTeamController {
         token: true,
         id: true,
         name: true,
+        webhook: false,
         creator: { select: { id: true, discordId: true } },
       },
     });

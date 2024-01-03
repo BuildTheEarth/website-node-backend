@@ -49,6 +49,7 @@ model BuildTeam {
   claims               Claim[]
   allowBuilderClaim    Boolean?              @default(true)
   instantAccept        Boolean?              @default(false)
+  webhook              String?
 }
 
 model ApplicationQuestion {

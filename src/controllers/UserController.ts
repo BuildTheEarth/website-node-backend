@@ -103,6 +103,7 @@ class UserController {
         name: true,
         creatorId: true,
         token: false,
+        webhook: false,
       },
     });
     user.createdBuildTeams = user.createdBuildTeams.concat(buildTeamManager);
@@ -280,7 +281,7 @@ class UserController {
         where: {
           slug: req.query.buildteam as string,
         },
-        select: { token: false, id: true },
+        select: { token: false, id: true, webhook: false },
       });
 
       if (!buildteam) {
@@ -346,7 +347,7 @@ class UserController {
         where: {
           slug: req.query.buildteam as string,
         },
-        select: { token: false, id: true },
+        select: { token: false, id: true, webhook: false },
       });
 
       if (!buildteam) {
