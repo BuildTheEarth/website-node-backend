@@ -63,7 +63,9 @@ class BuildTeamController {
             : false,
         },
       });
-      res.send(buildteams.map((b) => ({ ...b, token: undefined })));
+      res.send(
+        buildteams.map((b) => ({ ...b, token: undefined, webhook: undefined }))
+      );
     }
   }
 
@@ -351,6 +353,7 @@ class BuildTeamController {
           username: kcMember?.username,
           enabled: kcMember?.enabled,
           emailVerified: kcMember?.emailVerified,
+          avatar: member.avatar
         };
       })
     );
