@@ -2,6 +2,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
 import { minimatch } from "minimatch";
+import { ERROR_NO_PERMISSION } from "../../../util/Errors.js";
 
 export const checkUserPermission = (
   prisma: PrismaClient,
@@ -10,7 +11,7 @@ export const checkUserPermission = (
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
-      res.status(401).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
       return;
     }
 
@@ -25,7 +26,7 @@ export const checkUserPermission = (
       next();
       return;
     } else {
-      res.status(403).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
       return;
     }
   };
@@ -38,7 +39,7 @@ export const checkUserPermissions = (
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
-      res.status(401).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
       return;
     }
 
@@ -53,7 +54,7 @@ export const checkUserPermissions = (
       next();
       return;
     } else {
-      res.status(403).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
       return;
     }
   };

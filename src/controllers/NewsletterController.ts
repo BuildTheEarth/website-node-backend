@@ -1,8 +1,9 @@
-import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
-import Core from "../Core.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
 
 class NewsletterController {
   private core: Core;
@@ -14,7 +15,7 @@ class NewsletterController {
   public async getNewsletters(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -33,7 +34,7 @@ class NewsletterController {
   public async getNewsletter(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const newsletter = await this.core.getPrisma().newsletter.findUnique({
       where: req.query.isIssue
@@ -47,11 +48,7 @@ class NewsletterController {
     if (newsletter) {
       res.send(newsletter);
     } else {
-      res.status(404).send({
-        code: 404,
-        message: "Newsletter does not exist.",
-        translationKey: "404",
-      });
+      ERROR_GENERIC(res, 404, "Newseltter does not exist.");
     }
     return;
   }
@@ -59,7 +56,7 @@ class NewsletterController {
   public async addNewsletter(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const issue = (await this.core.getPrisma().newsletter.count()) + 1;
     const newsletter = await this.core.getPrisma().newsletter.create({

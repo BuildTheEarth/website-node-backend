@@ -2,16 +2,16 @@
   "openapi": "3.0.2",
   "info": {
     "title": "BuildTheEarth.net API",
-    "version": "1.0"
+    "version": "1.1"
   },
   "servers": [
     {
       "url": "https://api.buildtheearth.net/api/v1",
-      "description": "Website instance"
+      "description": "Production instance"
     },
     {
       "url": "http://localhost:8080/api/v1",
-      "description": "Local instance"
+      "description": "Development instance"
     }
   ],
   "tags": [
@@ -55,6 +55,30 @@
               "application/json": {
                 "example": {
                   "status": "ok"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": { "application/json": {} }
+          }
+        },
+        "tags": ["General"]
+      }
+    },
+    "/account": {
+      "get": {
+        "description": "Get your account information",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OwnAccount"
+                  }
                 }
               }
             }
@@ -533,17 +557,6 @@
         "tags": ["Newsletter"]
       }
     },
-    "/account": {
-      "get": {
-        "description": "Get your account information",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": ["General"]
-      }
-    },
     "/applications": {
       "get": {
         "description": "Get a list of applications",
@@ -689,6 +702,93 @@
       }
     },
     "schemas": {
+      "OwnAccount": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "cda8w7d7-34ub-9hw5-a4vj-11jb0dkeqa2a"
+          },
+          "ssoId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "dab80941-7ed8-4a3e-a75f-0969d4cd3fa4"
+          },
+          "discordId": {
+            "type": "number",
+            "example": 635411595253776385
+          },
+          "username": {
+            "type": "string",
+            "example": "Nudlsupp"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "nudelsuppe@buildtheearth.net"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "example": true
+          },
+          "avatar": {
+            "type": "string",
+            "format": "url",
+            "example": "https://i.imgur.com/..."
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "exp": {
+                "type": "object",
+                "properties": {
+                  "unix": {
+                    "type": "number",
+                    "example": 1703265888
+                  },
+                  "readable": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-12-22T17:24:48.000Z"
+                  }
+                }
+              },
+              "iat": {
+                "type": "object",
+                "properties": {
+                  "unix": {
+                    "type": "number",
+                    "example": 1703265888
+                  },
+                  "readable": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-12-22T17:24:48.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "permission": {
+                  "type": "string",
+                  "example": "permission.add"
+                },
+                "buildTeamSlug": {
+                  "type": "string",
+                  "nullable": true,
+                  "example": "de"
+                }
+              }
+            }
+          }
+        }
+      },
       "BuildTeamMinimal": {
         "type": "object",
         "properties": {

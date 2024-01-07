@@ -2,14 +2,15 @@ import {
   Application,
   ApplicationQuestionType,
   ApplicationStatus,
-  BuildTeam,
-  User,
 } from "@prisma/client";
 import { Request, Response } from "express";
+import {
+  ERROR_GENERIC,
+  ERROR_NO_PERMISSION,
+  ERROR_VALIDATION,
+} from "../util/Errors.js";
 
 import { validationResult } from "express-validator";
-import { validate as uuidValidate } from "uuid";
-import yup from "yup";
 import Core from "../Core.js";
 import runFetch from "../util/Fetcher.js";
 import { parseApplicationStatus } from "../util/Parser.js";
@@ -24,11 +25,11 @@ class ApplicationController {
   public async getApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     if (!req.user) {
-      return res.status(401).json("You are not permited to do this!");
+      return ERROR_NO_PERMISSION(res);
     }
 
     let applications = await this.core.getPrisma().application.findMany({
@@ -48,11 +49,11 @@ class ApplicationController {
   public async getUserApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     if (!req.user) {
-      return res.status(401).json("You are not permited to do this!");
+      return ERROR_NO_PERMISSION(res);
     }
 
     let applications = await this.core.getPrisma().application.findMany({
@@ -90,14 +91,14 @@ class ApplicationController {
     ) {
       res.send(applications);
     } else {
-      res.status(401).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
     }
   }
 
   public async getApplication(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const application = await this.core.getPrisma().application.findFirst({
@@ -122,11 +123,7 @@ class ApplicationController {
     if (application) {
       res.send(application);
     } else {
-      res.status(404).send({
-        code: 404,
-        message: "Application does not exit.",
-        translationKey: "404",
-      });
+      ERROR_GENERIC(res, 404, "Application does not exist.");
     }
     return;
   }
@@ -134,7 +131,7 @@ class ApplicationController {
   public async review(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const { status, reason } = req.body;
@@ -247,10 +244,10 @@ class ApplicationController {
   public async apply(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     if (!req.user) {
-      res.status(401).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -281,11 +278,11 @@ class ApplicationController {
       if (
         pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)
       ) {
-        return res.status(400).send({
-          code: 400,
-          message: "You are already a builder of this buildteam.",
-          translationKey: "400",
-        });
+        return ERROR_GENERIC(
+          res,
+          409,
+          "You are already a builder of this BuildTeam."
+        );
 
         // User already applied, waiting for review
       } else if (
@@ -295,30 +292,26 @@ class ApplicationController {
             a.status == ApplicationStatus.SEND
         )
       ) {
-        return res.status(400).send({
-          code: 400,
-          message: "You already have an application pending review.",
-          translationKey: "400",
-        });
+        return ERROR_GENERIC(
+          res,
+          409,
+          "You already have an pending application for this BuildTeam."
+        );
 
         // Double trial application
       } else if (
         pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) &&
         trial
       ) {
-        return res.status(400).send({
-          code: 400,
-          message: "You are already a trial of this buildteam.",
-          translationKey: "400",
-        });
+        return ERROR_GENERIC(
+          res,
+          409,
+          "You are already a trial of this BuildTeam."
+        );
       }
 
       if (!buildteam.allowApplications) {
-        return res.status(400).send({
-          code: 400,
-          message: "Applications are not allowed for this buildteam.",
-          translationKey: "400",
-        });
+        return ERROR_GENERIC(res, 403, "BuildTeam has disabled applications.");
       }
 
       if (buildteam.instantAccept) {
@@ -374,11 +367,7 @@ class ApplicationController {
               req.user = user;
             }
           } else if (question.required && question.sort >= 0) {
-            return res.status(400).send({
-              code: 400,
-              message: "Missing required question.",
-              translationKey: "400",
-            });
+            return ERROR_GENERIC(res, 400, "Required Questions are missing.");
           }
         }
       }
@@ -418,18 +407,10 @@ class ApplicationController {
 
         res.send(application);
       } else {
-        return res.status(400).send({
-          code: 400,
-          message: "No questions provided.",
-          translationKey: "400",
-        });
+        return ERROR_GENERIC(res, 400, "Questions are missing.");
       }
     } else {
-      res.status(404).send({
-        code: 404,
-        message: "Buildteam does not exit.",
-        translationKey: "404",
-      });
+      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
     }
   }
 

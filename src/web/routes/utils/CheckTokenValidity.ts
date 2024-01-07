@@ -2,11 +2,12 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
 import { minimatch } from "minimatch";
+import { ERROR_NO_PERMISSION } from "../../../util/Errors.js";
 
 export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.params[buildteam]) {
-      res.status(401).send("No token provided");
+      ERROR_NO_PERMISSION(res, "No token was provided in Authorization");
       return;
     }
     const tokenTeam = await prisma.buildTeam.findFirst({
@@ -16,7 +17,7 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
     });
 
     if (!tokenTeam) {
-      res.status(401).send("Invalid token");
+      ERROR_NO_PERMISSION(res, "Invalid token was provided in Authorization");
       return;
     }
 
@@ -43,7 +44,7 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
     }
 
     if (tokenTeam.token !== authToken) {
-      res.status(401).send("You don't have permission to do this!");
+      ERROR_NO_PERMISSION(res);
       return;
     }
 

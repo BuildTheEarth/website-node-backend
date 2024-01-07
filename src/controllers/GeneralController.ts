@@ -1,6 +1,7 @@
 import * as blurhash from "blurhash";
 
 import { Request, Response } from "express";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
@@ -19,7 +20,7 @@ class GeneralController {
   public async getAccount(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const { exp, iat, sub, email_verified, preferred_username, email } =
       req.kauth.grant.access_token.content;
@@ -27,12 +28,7 @@ class GeneralController {
       .getPrisma()
       .user.findFirst({ where: { ssoId: sub } });
 
-    if (!user)
-      return res.status(404).json({
-        code: 404,
-        message: "Unidentified User",
-        translationKey: "404",
-      });
+    if (!user) return ERROR_GENERIC(res, 500, "Unidentified User.");
 
     const userPermissions = await this.core
       .getPrisma()
@@ -68,7 +64,7 @@ class GeneralController {
   public async getPermissions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const permissions = await this.core.getPrisma().permisision.findMany();
     res.send(permissions);
@@ -77,7 +73,7 @@ class GeneralController {
   public async uploadImage(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const upload = await this.core.getAWS().uploadFile(req.file);

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 import turf, { toPolygon } from "../util/Turf.js";
 
 import { validationResult } from "express-validator";
@@ -14,7 +15,7 @@ class TokenRouteContoller {
   public async getClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -71,18 +72,14 @@ class TokenRouteContoller {
     if (claim) {
       res.send(claim);
     } else {
-      res.status(404).send({
-        code: 404,
-        message: "Claim does not exist.",
-        translationKey: "404",
-      });
+      ERROR_GENERIC(res, 404, "Claim does not exist.");
     }
   }
 
   public async addClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     let { owner, area, active, finished, name, id, builders, externalId } =
@@ -137,7 +134,7 @@ class TokenRouteContoller {
   public async addClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     let claims = [];
@@ -184,7 +181,7 @@ class TokenRouteContoller {
   public async updateClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     let { owner, area, active, finished, name, id, builders } = req.body;
@@ -228,7 +225,7 @@ class TokenRouteContoller {
   public async removeClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const claim = await this.core.getPrisma().claim.findFirst({
@@ -236,11 +233,7 @@ class TokenRouteContoller {
     });
 
     if (!claim) {
-      return res.status(404).send({
-        code: 404,
-        message: "Claim does not exist.",
-        translationKey: "404",
-      });
+      ERROR_GENERIC(res, 404, "Claim does not exist.");
     }
 
     await this.core.getPrisma().claim.delete({ where: { id: claim.id } });

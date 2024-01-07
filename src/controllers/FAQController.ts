@@ -1,8 +1,9 @@
-import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
-import Core from "../Core.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
+import { ERROR_VALIDATION } from "../util/Errors.js";
 
 class FaqController {
   private core: Core;
@@ -14,7 +15,7 @@ class FaqController {
   public async getFaqQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -33,7 +34,7 @@ class FaqController {
   public async addFaqQuestion(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const question = await this.core.getPrisma().fAQQuestion.create({
       data: { question: req.body.question, answer: req.body.answer },
@@ -46,7 +47,7 @@ class FaqController {
   public async editFaqQuestion(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const question = await this.core.getPrisma().fAQQuestion.update({
@@ -65,7 +66,7 @@ class FaqController {
   public async deleteFaqQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const question = await this.core.getPrisma().fAQQuestion.delete({
       where: { id: req.params.id },

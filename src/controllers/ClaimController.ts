@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 import turf, { toPolygon } from "../util/Turf.js";
 
 import { validationResult } from "express-validator";
@@ -14,7 +15,7 @@ class ClaimController {
   public async getClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const filters = {
@@ -32,7 +33,7 @@ class ClaimController {
   public async getClaimsGeoJson(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const filters = {
@@ -65,7 +66,7 @@ class ClaimController {
   public async getClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const claim = await this.core.getPrisma().claim.findUnique({
       where: {
@@ -89,11 +90,7 @@ class ClaimController {
     if (claim) {
       res.send(claim);
     } else {
-      res.status(404).send({
-        code: 404,
-        message: "Claim does not exit.",
-        translationKey: "404",
-      });
+      ERROR_GENERIC(res, 404, "Claim does not exist.");
     }
     return;
   }
@@ -101,7 +98,7 @@ class ClaimController {
   public async updateClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const { name, finished, active, area } = req.body;
@@ -130,7 +127,7 @@ class ClaimController {
   public async createClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -143,19 +140,11 @@ class ClaimController {
     });
 
     if (buildteam.allowBuilderClaim === false) {
-      return res.status(400).send({
-        code: 400,
-        message: "Buildteam does not allow builder claims.",
-        translationKey: "400",
-      });
+      return ERROR_GENERIC(res, 403, "BuildTeam does not allow Claims.");
     }
 
     if (buildteam.members.length <= 0) {
-      return res.status(400).send({
-        code: 400,
-        message: "You are not a member of this buildteam.",
-        translationKey: "400",
-      });
+      return ERROR_GENERIC(res, 403, "You are not a member of this BuildTeam.");
     }
 
     const area = req.body.area?.map((p: [number, number]) => p.join(", "));

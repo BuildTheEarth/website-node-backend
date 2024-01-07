@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 
-import Core from "../Core.js";
-import { rerenderFrontend } from "../util/Frontend.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
+import { ERROR_VALIDATION } from "../util/Errors.js";
+import { rerenderFrontend } from "../util/Frontend.js";
 
 class ContactController {
   private core: Core;
@@ -14,7 +15,7 @@ class ContactController {
   public async getContacts(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const contacts = await this.core.getPrisma().contact.findMany({});
@@ -24,7 +25,7 @@ class ContactController {
   public async addContact(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
     const { name, role, discord, email, avatar } = req.body;
     const contact = await this.core.getPrisma().contact.create({
@@ -38,7 +39,7 @@ class ContactController {
   public async editContact(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const { name, role, discord, email, avatar } = req.body;

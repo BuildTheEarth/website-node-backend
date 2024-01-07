@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
-import Core from "../Core.js";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
 
 class ShowcaseController {
   private core: Core;
@@ -14,7 +15,7 @@ class ShowcaseController {
   public async getShowcases(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
@@ -33,7 +34,7 @@ class ShowcaseController {
   public async getAllShowcases(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
@@ -56,7 +57,7 @@ class ShowcaseController {
   public async getRandomShowcases(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
@@ -86,7 +87,7 @@ class ShowcaseController {
   public async deleteShowcase(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const showcase = await this.core.getPrisma().showcase.findFirst({
@@ -97,7 +98,7 @@ class ShowcaseController {
     });
 
     if (!showcase) {
-      return res.status(404).send("Showcase not found");
+      ERROR_GENERIC(res, 404, "Showcase does not exist.");
     }
 
     const fileKey = showcase.image.name;
@@ -125,7 +126,7 @@ class ShowcaseController {
   public async createShowcase(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return ERROR_VALIDATION(res, errors.array());
     }
 
     const upload = await this.core.getAWS().uploadFile(req.file);
