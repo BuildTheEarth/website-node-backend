@@ -30,7 +30,7 @@ export const ERROR_GENERIC = (
 ) => {
   return res.status(code).send({
     error: true,
-    errors: errors,
+    errors: errors || [],
     message: msg,
     code: code,
   });
