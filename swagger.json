@@ -24,6 +24,10 @@
       "description": "Anything regarding the BuildTeams"
     },
     {
+      "name": "Claim",
+      "description": "Anything regarding Claims"
+    },
+    {
       "name": "Application",
       "description": "Anything regarding Applications"
     },
@@ -927,17 +931,26 @@
         "tags": ["BuildTeam"]
       }
     },
-    "/faq": {
+    "/claims": {
       "get": {
-        "description": "Get a list of all FAQ Questions",
+        "summary": "Get a list of all claims",
         "parameters": [
           {
-            "description": "The page of results to return, **starting at 0**",
+            "description": "Only include finished claims",
             "in": "query",
-            "name": "page",
+            "name": "finished",
             "required": false,
             "schema": {
-              "type": "integer"
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Only include active claims",
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -948,113 +961,54 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/FAQ"
+                    "$ref": "#/components/schemas/Claim"
                   }
                 }
               }
             }
-          }
-        },
-        "tags": ["FAQ"]
-      },
-      "post": {
-        "description": "Create a new FAQ Question. Required Permission: faq.add",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FAQ"
-                }
-              }
-            }
-          }
-        },
-        "tags": ["FAQ"]
-      }
-    },
-    "/users": {
-      "get": {
-        "description": "Get a list of all Users. Required Permission: users.list",
-        "parameters": [
-          {
-            "description": "The page of results to return, **starting at 0**",
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": ["Users"]
-      }
-    },
-    "/users/{id}/permissions": {
-      "get": {
-        "description": "Get a list of all Permissions of a User. Required Permission: users.list",
-        "parameters": [
-          {
-            "description": "The page of results to return, **starting at 0**",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": ["Users"]
-      }
-    },
-    "/contacts": {
-      "get": {
-        "description": "Get a list of contacts",
-        "responses": {
-          "200": {
-            "description": "OK",
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/Contact"
+                    "$ref": "#/components/schemas/Error"
                   }
                 }
               }
             }
           }
         },
-        "tags": ["Contacts"]
+        "tags": ["Claim"]
       }
     },
-    "/newsletter/{id}": {
+    "/public/buildteams/{team}/claims/{id}": {
       "get": {
-        "description": "Get a newsletter",
+        "summary": "Get one claim",
         "parameters": [
           {
-            "description": "The uuid/issue of the newsletter",
+            "description": "BuildTeam ID",
+            "in": "path",
+            "name": "team",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "Claim ID",
             "in": "path",
             "name": "id",
             "required": true,
             "schema": {
-              "type": "string"
+              "format": "uuid"
             }
           },
           {
-            "description": "If the database should look for issues with the id and not uuids",
+            "description": "Only include active claims",
             "in": "query",
-            "name": "isIssue",
+            "name": "withBuilders",
             "required": false,
             "schema": {
               "type": "boolean"
@@ -1063,168 +1017,128 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Claim"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
           }
         },
-        "tags": ["Newsletter"]
+        "tags": ["Claim"]
       }
     },
-    "/newsletter": {
-      "get": {
-        "description": "Get a list of newsletters",
-        "parameters": [
-          {
-            "description": "The page of results to return, **starting at 0**",
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": ["Newsletter"]
-      }
-    },
-    "/applications": {
-      "get": {
-        "description": "Get a list of applications",
-        "parameters": [
-          {
-            "description": "The page of results to return, **starting at 0**",
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "The buildteam to filter for",
-            "in": "query",
-            "name": "buildteam",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Extend BuildTeam Information",
-            "in": "query",
-            "name": "includeBuildteam",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Extend Reviewer Information",
-            "in": "query",
-            "name": "includeReviewer",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Extend Answer Information",
-            "in": "query",
-            "name": "includeAnswers",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": ["Applications"]
-      }
-    },
-    "/applications/{id}": {
-      "get": {
-        "description": "Get one application",
-        "parameters": [
-          {
-            "description": "The id of the application",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Extend BuildTeam Information",
-            "in": "query",
-            "name": "includeBuildteam",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Extend Reviewer Information",
-            "in": "query",
-            "name": "includeReviewer",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Extend Answer Information",
-            "in": "query",
-            "name": "includeAnswers",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": ["Applications"]
-      },
+    "/public/buildteams/{team}/claimsbatch": {
       "post": {
-        "description": "Review one application",
+        "summary": "Create multiple Claims",
         "parameters": [
           {
-            "description": "The id of the application",
+            "description": "BuildTeam ID",
             "in": "path",
-            "name": "id",
+            "name": "team",
             "required": true,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Should the application be handeled as a trial application",
-            "in": "query",
-            "name": "isTrial",
-            "required": false,
-            "schema": {
-              "type": "boolean"
+              "format": "uuid"
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "owner": {
+                          "type": "string",
+                          "description": "The Minecraft Name of the Owner",
+                          "example": "Nudlsupp"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Elphilharmonie"
+                        },
+                        "finished": {
+                          "type": "boolean",
+                          "example": false
+                        },
+                        "active": {
+                          "type": "boolean",
+                          "example": true,
+                          "description": "If this is false, the claim will be hidden on the map"
+                        },
+                        "externalId": {
+                          "type": "string",
+                          "description": "A field for you to keep track of the IDs of your own regions"
+                        },
+                        "builders": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "The ID of all Builders. **Not the Minecraft Name**",
+                            "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
+                          }
+                        },
+                        "area": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "description": "An array of lat, lng",
+                            "example": [
+                              "48.82172221980192",
+                              "8.741082435175388"
+                            ],
+                            "items": {
+                              "type": "string",
+                              "example": "8.741082435175388"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
           }
         },
-        "tags": ["Applications"]
+        "tags": ["Claim"]
       }
     }
   },
@@ -1535,27 +1449,58 @@
           }
         }
       },
-      "Build": {
+      "Claim": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
-            "example": "cda8eee7-32eb-4abc-bfa0-15d550e15a2a"
+            "example": "f9dd9244-e777-4d6e-83ec-d36b9effa6e6"
+          },
+          "externalId": {
+            "type": "string",
+            "example": ""
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "f9dd9244-e777-4d6e-83ec-d36b9effa6e6"
+          },
+          "area": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "13.384515254873506, 52.45866944694083",
+              "description": "In the format of lng, lat"
+            }
+          },
+          "center": {
+            "type": "string",
+            "example": "13.384515254873506, 52.45866944694083",
+            "description": "In the format of lng, lat",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "finished": {
+            "type": "boolean",
+            "example": true
           },
           "name": {
             "type": "string",
-            "example": "Empire State Building"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "timestamp",
-            "example": "2023-08-15T12:43:57.586Z"
+            "example": "Drossener Straße, Alt-Hohenschönhause"
           },
           "buildTeamId": {
             "type": "string",
             "format": "uuid",
-            "example": "b3b8c684-becd-4779-a3b3-ca81fef7b954"
+            "example": "f9dd9244-e777-4d6e-83ec-d36b9effa6e6"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-03T13:51:00.539Z"
           }
         }
       },

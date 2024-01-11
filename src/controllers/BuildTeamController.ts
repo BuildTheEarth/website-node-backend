@@ -353,7 +353,7 @@ class BuildTeamController {
           username: kcMember?.username,
           enabled: kcMember?.enabled,
           emailVerified: kcMember?.emailVerified,
-          avatar: member.avatar
+          avatar: member.avatar,
         };
       })
     );
