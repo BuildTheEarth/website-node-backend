@@ -26,26 +26,6 @@
     {
       "name": "Claim",
       "description": "Anything regarding Claims"
-    },
-    {
-      "name": "Application",
-      "description": "Anything regarding Applications"
-    },
-    {
-      "name": "FAQ",
-      "description": "Anything regarding FAQ Questions"
-    },
-    {
-      "name": "User",
-      "description": "Anything regarding Users"
-    },
-    {
-      "name": "Contact",
-      "description": "Anything regarding Contacts"
-    },
-    {
-      "name": "Newsletter",
-      "description": "Anything regarding the Newsletter"
     }
   ],
   "paths": {
@@ -1040,6 +1020,159 @@
           }
         },
         "tags": ["Claim"]
+      },
+      "post": {
+        "summary": "Update one claim",
+        "parameters": [
+          {
+            "description": "BuildTeam ID",
+            "in": "path",
+            "name": "team",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "Claim ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "9fcef3c2-0353-425f-a64d-46539b421bb8"
+                  },
+                  "area": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "description": "Coordinate pair in form of lng, lat",
+                          "example": "8.741082435175388, 48.82172221980192"
+                        },
+                        {
+                          "type": "array",
+                          "description": "Coordinate pair in form of lng, lat",
+                          "example": ["8.741082435175388", "48.82172221980192"],
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "finished": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Elphilharmonie Hamburg"
+                  },
+                  "builders": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The ID of all Builders. **Not the Minecraft Name**",
+                      "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Claim"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Claim"]
+      },
+      "delete": {
+        "summary": "Delete one claim",
+        "parameters": [
+          {
+            "description": "BuildTeam ID",
+            "in": "path",
+            "name": "team",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "Claim ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Claim"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Claim"]
       }
     },
     "/public/buildteams/{team}/claimsbatch": {
@@ -1124,6 +1257,114 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Claim"]
+      }
+    },
+    "/public/buildteams/{team}/claims": {
+      "post": {
+        "summary": "Create a claim",
+        "parameters": [
+          {
+            "description": "BuildTeam ID",
+            "in": "path",
+            "name": "team",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["owner", "area", "active", "finished", "name"],
+                "properties": {
+                  "owner": {
+                    "type": "string",
+                    "description": "The Minecraft name of the User",
+                    "example": "Nudlsupp"
+                  },
+                  "area": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "description": "Coordinate pair in form of lng, lat",
+                          "example": "8.741082435175388, 48.82172221980192"
+                        },
+                        {
+                          "type": "array",
+                          "description": "Coordinate pair in form of lng, lat",
+                          "example": ["8.741082435175388", "48.82172221980192"],
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "finished": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Elphilharmonie Hamburg"
+                  },
+                  "builders": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The ID of all Builders. **Not the Minecraft Name**",
+                      "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "b2b1dd2e-5a10-4d58-bcd1-a3ea936f6685"
+                  },
+                  "externalId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Claim"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",

@@ -5,21 +5,21 @@ import {
   checkUserPermissions,
 } from "./utils/CheckUserPermissionMiddleware.js";
 
+import { Keycloak } from "keycloak-connect";
 import ApplicationController from "../../controllers/ApplicationController.js";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
 import ClaimController from "../../controllers/ClaimController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
-import { Keycloak } from "keycloak-connect";
 import NewsletterController from "../../controllers/NewsletterController.js";
-import { RequestMethods } from "./utils/RequestMethods.js";
-import Router from "./utils/Router.js";
 import ShowcaseController from "../../controllers/ShowcaseController.js";
 import TokenRouteContoller from "../../controllers/TokenRouteController.js";
 import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
+import { RequestMethods } from "./utils/RequestMethods.js";
+import Router from "./utils/Router.js";
 
 class Routes {
   app;
@@ -728,7 +728,6 @@ class Routes {
       async (request, response) => {
         await tokenRouteContoller.removeClaim(request, response);
       },
-      body("data").isArray({ min: 1, max: 100 }),
       param("team"),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
