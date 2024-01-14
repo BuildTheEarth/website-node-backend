@@ -49,26 +49,48 @@ class DiscordIntegration {
     });
   }
 
-  public async sendBotMessage(content: any, users: string[]) {
-    return fetch(this.botUrl + "/api/v1/website/message/blank", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-        Authorization: `Bearer ${this.botSecret}`,
-      },
-      body: JSON.stringify({ params: { text: content }, ids: users }),
-    }).then((res) => res.json());
+  public async sendBotMessage(
+    content: any,
+    users: string[],
+    errorCallback?: (error: any) => void
+  ) {
+    try {
+      await fetch(this.botUrl + "/api/v1/website/message/blank", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${this.botSecret}`,
+        },
+        body: JSON.stringify({ params: { text: content }, ids: users }),
+      });
+      return true;
+    } catch (e) {
+      this.core.getLogger().error(e);
+      errorCallback(e);
+      return false;
+    }
   }
 
-  public async updateBuilderRole(user: string, isBuilder: boolean) {
-    return fetch(this.botUrl + `/api/v1/builder/${user}`, {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-        Authorization: `Bearer ${this.botSecret}`,
-      },
-      body: JSON.stringify({ add: isBuilder }),
-    }).then((res) => res.json());
+  public async updateBuilderRole(
+    user: string,
+    isBuilder: boolean,
+    errorCallback?: (error: any) => void
+  ) {
+    try {
+      await fetch(this.botUrl + `/api/v1/builder/${user}`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${this.botSecret}`,
+        },
+        body: JSON.stringify({ add: isBuilder }),
+      });
+      return true;
+    } catch (e) {
+      this.core.getLogger().error(e);
+      errorCallback(e);
+      return false;
+    }
   }
 
   public async getBuilderRole(user: string) {

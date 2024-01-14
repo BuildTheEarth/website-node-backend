@@ -182,7 +182,8 @@ class ApplicationController {
             user,
             application.buildteam
           ),
-          [user.discordId]
+          [user.discordId],
+          (e) => ERROR_GENERIC(res, 500, e)
         );
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
@@ -199,7 +200,8 @@ class ApplicationController {
             user,
             application.buildteam
           ),
-          [user.discordId]
+          [user.discordId],
+          (e) => ERROR_GENERIC(res, 500, e)
         );
     } else {
       const user = await this.core.getPrisma().user.update({
@@ -224,11 +226,16 @@ class ApplicationController {
             user,
             application.buildteam
           ),
-          [user.discordId]
+          [user.discordId],
+          (e) => ERROR_GENERIC(res, 500, e)
         );
 
       if (user._count.joinedBuildTeams < 1) {
-        await this.core.getDiscord().updateBuilderRole(user.discordId, false);
+        await this.core
+          .getDiscord()
+          .updateBuilderRole(user.discordId, false, (e) =>
+            ERROR_GENERIC(res, 500, e)
+          );
       }
     }
 
@@ -335,7 +342,8 @@ class ApplicationController {
               req.user,
               buildteam
             ),
-            [req.user.discordId]
+            [req.user.discordId],
+            (e) => ERROR_GENERIC(res, 500, e)
           );
       }
 
@@ -402,7 +410,8 @@ class ApplicationController {
 
         await this.core.getDiscord().sendBotMessage(
           `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}>. Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
-          reviewers.map((r) => r.user.discordId)
+          reviewers.map((r) => r.user.discordId),
+          (e) => ERROR_GENERIC(res, 500, e)
         );
 
         res.send(application);
