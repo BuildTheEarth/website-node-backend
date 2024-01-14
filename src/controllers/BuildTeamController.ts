@@ -325,16 +325,41 @@ class BuildTeamController {
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(res, errors.array());
     }
-
-    const members = await this.core.getPrisma().user.findMany({
-      where: {
-        joinedBuildTeams: {
-          some: req.query.slug
-            ? { slug: req.params.id }
-            : { id: req.params.id },
+    let members;
+    let count = 0;
+    if (req.query && req.query.page) {
+      let page = parseInt(req.query.page as string);
+      members = await this.core.getPrisma().user.findMany({
+        skip: page * 100,
+        take: 100,
+        where: {
+          joinedBuildTeams: {
+            some: req.query.slug
+              ? { slug: req.params.id }
+              : { id: req.params.id },
+          },
         },
-      },
-    });
+      });
+      count = await this.core.getPrisma().user.count({
+        where: {
+          joinedBuildTeams: {
+            some: req.query.slug
+              ? { slug: req.params.id }
+              : { id: req.params.id },
+          },
+        },
+      });
+    } else {
+      members = await this.core.getPrisma().user.findMany({
+        where: {
+          joinedBuildTeams: {
+            some: req.query.slug
+              ? { slug: req.params.id }
+              : { id: req.params.id },
+          },
+        },
+      });
+    }
 
     const kcMembers = await Promise.all(
       members.map(async (member) => {
@@ -357,7 +382,11 @@ class BuildTeamController {
         };
       })
     );
-    res.send(kcMembers);
+    res.send(
+      req.query.page
+        ? { pages: Math.ceil(count / 100), data: kcMembers }
+        : kcMembers
+    );
   }
 
   public async removeBuildTeamMember(req: Request, res: Response) {
