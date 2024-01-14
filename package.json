@@ -1,6 +1,6 @@
 {
   "name": "website-node-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The backend for the BuildTheEarth.net website",
   "main": "index.js",
   "type": "module",
