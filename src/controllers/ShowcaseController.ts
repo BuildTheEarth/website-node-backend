@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { validationResult } from "express-validator";
@@ -143,6 +144,8 @@ class ShowcaseController {
       },
       select: { image: true },
     });
+
+    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
 
     res.send(showcase);
   }
