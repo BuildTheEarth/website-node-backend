@@ -288,6 +288,14 @@ class Routes {
       body("active").isBoolean().optional(),
       body("area").isArray().optional()
     );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/claims/:id",
+      async (request, response) => {
+        await claimController.deleteClaim(request, response);
+      },
+      param("id").isUUID()
+    );
 
     /*
      *

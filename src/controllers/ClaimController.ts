@@ -177,6 +177,30 @@ class ClaimController {
 
     res.send(claim);
   }
+
+  public async deleteClaim(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(res, errors.array());
+    }
+    const claim = await this.core.getPrisma().claim.findFirst({
+      where: {
+        id: req.params.id,
+        ownerId: req.user.id,
+      },
+    });
+
+    if (claim) {
+      await this.core.getPrisma().claim.delete({
+        where: {
+          id: req.params.id,
+        },
+      });
+      res.send(claim);
+    } else {
+      ERROR_GENERIC(res, 404, "Claim does not exist.");
+    }
+  }
 }
 
 export default ClaimController;
