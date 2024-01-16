@@ -293,6 +293,7 @@ class BuildTeamController {
       instantAccept,
       webhook,
       ip,
+      color,
     } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
       where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
@@ -313,6 +314,7 @@ class BuildTeamController {
         allowApplications,
         webhook,
         ip,
+        color,
       },
     });
 
