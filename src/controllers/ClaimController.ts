@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
+import {
+  ERROR_GENERIC,
+  ERROR_NO_PERMISSION,
+  ERROR_VALIDATION,
+} from "../util/Errors.js";
 import turf, { toPolygon } from "../util/Turf.js";
 
 import { validationResult } from "express-validator";
@@ -21,10 +25,17 @@ class ClaimController {
     const filters = {
       finished: req.query.finished ? req.query.finished === "true" : undefined,
       active: req.query.active ? req.query.active === "true" : undefined,
+      team: req.query.team ? (req.query.team as string) : undefined,
     };
 
     const claims = await this.core.getPrisma().claim.findMany({
-      where: { finished: filters.finished, active: filters.active },
+      where: {
+        finished: filters.finished,
+        active: filters.active,
+        buildTeam: req.query.slug
+          ? { slug: filters.team }
+          : { id: filters.team },
+      },
     });
 
     res.send(claims);
@@ -182,6 +193,10 @@ class ClaimController {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(res, errors.array());
+    }
+
+    if (!req.user) {
+      return ERROR_NO_PERMISSION(res);
     }
     const claim = await this.core.getPrisma().claim.findFirst({
       where: {
