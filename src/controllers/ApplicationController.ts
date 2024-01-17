@@ -115,13 +115,29 @@ class ApplicationController {
             : undefined,
         user:
           req.query.includeUser === "true"
-            ? { select: { id: true, discordId: true, name: true } }
+            ? { select: { id: true, discordId: true, name: true, ssoId: true } }
             : undefined,
+        reviewer: {
+          select: { id: true, discordId: true, ssoId: true },
+        },
       },
     });
 
+    const kcReviewer = await this.core
+      .getKeycloakAdmin()
+      .getKeycloakAdminClient()
+      .users.findOne({ id: application.reviewer.ssoId });
+    const kcUser = await this.core
+      .getKeycloakAdmin()
+      .getKeycloakAdminClient()
+      .users.findOne({ id: application.user.ssoId });
+
     if (application) {
-      res.send(application);
+      res.send({
+        ...application,
+        reviewer: { ...application.reviewer, discordName: kcReviewer.username },
+        user: { ...application.user, discordName: kcUser.username },
+      });
     } else {
       ERROR_GENERIC(res, 404, "Application does not exist.");
     }
