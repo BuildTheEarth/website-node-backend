@@ -475,6 +475,13 @@ class Routes {
       checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
     );
     router.addRoute(
+      RequestMethods.GET,
+      "/faq/:id",
+      async (request, response) => {
+        await faqController.getFaqQuestion(request, response);
+      }
+    );
+    router.addRoute(
       RequestMethods.POST,
       "/faq/:id",
       async (request, response) => {

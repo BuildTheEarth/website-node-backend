@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
 import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
+import { Request, Response } from "express";
 
-import { validationResult } from "express-validator";
 import Core from "../Core.js";
 import { ERROR_VALIDATION } from "../util/Errors.js";
+import { validationResult } from "express-validator";
 
 class FaqController {
   private core: Core;
@@ -29,6 +29,17 @@ class FaqController {
       const questions = await this.core.getPrisma().fAQQuestion.findMany({});
       res.send(questions);
     }
+  }
+  public async getFaqQuestion(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(res, errors.array());
+    }
+
+    const questions = await this.core
+      .getPrisma()
+      .fAQQuestion.findFirst({ where: { id: req.params.id } });
+    res.send(questions);
   }
 
   public async addFaqQuestion(req: Request, res: Response) {
