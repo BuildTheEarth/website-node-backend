@@ -123,10 +123,12 @@ class ApplicationController {
       },
     });
 
-    const kcReviewer = await this.core
-      .getKeycloakAdmin()
-      .getKeycloakAdminClient()
-      .users.findOne({ id: application.reviewer.ssoId });
+    const kcReviewer = application.reviewer?.ssoId
+      ? await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({ id: application.reviewer.ssoId })
+      : undefined;
     const kcUser = await this.core
       .getKeycloakAdmin()
       .getKeycloakAdminClient()
@@ -135,7 +137,10 @@ class ApplicationController {
     if (application) {
       res.send({
         ...application,
-        reviewer: { ...application.reviewer, discordName: kcReviewer.username },
+        reviewer: {
+          ...application.reviewer,
+          discordName: kcReviewer?.username,
+        },
         user: { ...application.user, discordName: kcUser.username },
       });
     } else {
