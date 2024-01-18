@@ -388,7 +388,6 @@ class ApplicationController {
             validatedAnswers.push({ id: question.id, answer: answer });
 
             if (type == ApplicationQuestionType.MINECRAFT) {
-              console.log("Hi");
               const user = await this.core.getPrisma().user.update({
                 where: { id: req.user.id },
                 data: { name: answer },
@@ -430,7 +429,7 @@ class ApplicationController {
         });
 
         await this.core.getDiscord().sendBotMessage(
-          `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}>. Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
+          `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}> (${req.user.name}). Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
           reviewers.map((r) => r.user.discordId),
           (e) => ERROR_GENERIC(res, 500, e)
         );
