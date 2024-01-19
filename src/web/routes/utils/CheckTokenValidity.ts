@@ -10,17 +10,6 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
       ERROR_NO_PERMISSION(res, "No token was provided in Authorization");
       return;
     }
-    const tokenTeam = await prisma.buildTeam.findFirst({
-      where: req.query.slug
-        ? { slug: req.params[buildteam] }
-        : { id: req.params[buildteam] },
-    });
-
-    if (!tokenTeam) {
-      ERROR_NO_PERMISSION(res, "Invalid token was provided in Authorization");
-      return;
-    }
-
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -40,6 +29,17 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
         .send(
           "Invalid authorization header, please use api keys for public routes."
         );
+      return;
+    }
+
+    const tokenTeam = await prisma.buildTeam.findFirst({
+      where: req.query.slug
+        ? { slug: req.params[buildteam] }
+        : { id: req.params[buildteam] },
+    });
+
+    if (!tokenTeam) {
+      ERROR_NO_PERMISSION(res, "Invalid token was provided in Authorization");
       return;
     }
 

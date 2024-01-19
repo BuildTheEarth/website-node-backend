@@ -746,6 +746,17 @@ class Routes {
       param("team"),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
+
+    router.addRoute(
+      RequestMethods.GET,
+      "/public/buildteams/:id/members",
+      async (request, response) => {
+        await buildTeamController.getBuildTeamMembers(request, response);
+      },
+      param("id"),
+      query("page").isNumeric().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "id")
+    );
   }
 }
 

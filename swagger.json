@@ -1019,7 +1019,7 @@
             }
           }
         },
-        "tags": ["Claim"]
+        "tags": ["Claim", "Token based"]
       },
       "post": {
         "summary": "Update one claim",
@@ -1124,7 +1124,7 @@
             }
           }
         },
-        "tags": ["Claim"]
+        "tags": ["Claim", "Token based"]
       },
       "delete": {
         "summary": "Delete one claim",
@@ -1172,7 +1172,7 @@
             }
           }
         },
-        "tags": ["Claim"]
+        "tags": ["Claim", "Token based"]
       }
     },
     "/public/buildteams/{team}/claimsbatch": {
@@ -1271,7 +1271,7 @@
             }
           }
         },
-        "tags": ["Claim"]
+        "tags": ["Claim", "Token based"]
       }
     },
     "/public/buildteams/{team}/claims": {
@@ -1379,7 +1379,68 @@
             }
           }
         },
-        "tags": ["Claim"]
+        "tags": ["Claim", "Token based"]
+      }
+    },
+    "/public/buildteams/{id}/members": {
+      "get": {
+        "summary": "Get all build team members",
+        "parameters": [
+          {
+            "description": "The uuid of the buildteam",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Use Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Page",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OwnAccount"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["BuildTeam", "Token based"]
       }
     }
   },
