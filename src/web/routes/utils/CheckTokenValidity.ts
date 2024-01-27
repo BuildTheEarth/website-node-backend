@@ -13,22 +13,20 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      res
-        .status(401)
-        .send(
-          "No authorization header, please use api keys for public routes."
-        );
+      ERROR_NO_PERMISSION(
+        res,
+        "No authorization header, please use api keys for public routes."
+      );
       return;
     }
 
     const authToken = authHeader.toString().split(" ")[1];
 
     if (!authToken) {
-      res
-        .status(401)
-        .send(
-          "Invalid authorization header, please use api keys for public routes."
-        );
+      ERROR_NO_PERMISSION(
+        res,
+        "Invalid authorization header, please use api keys for public routes."
+      );
       return;
     }
 
