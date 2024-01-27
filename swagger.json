@@ -1666,12 +1666,12 @@
           "icon": {
             "type": "string",
             "format": "url",
-            "example": "https://cdn.buildtheearth.net/upload/7908179b923215fda90b5b1b5ace218eeb2c9775d0a13ca7f86fc2f194486975"
+            "example": "https://cdn.buildtheearth.net/uploads/7908179b923215fda90b5b1b5ace218eeb2c9775d0a13ca7f86fc2f194486975"
           },
           "backgroundImage": {
             "type": "string",
             "format": "url",
-            "example": "https://cdn.buildtheearth.net/upload/879c4af49ee880f348c95e9fd7bdb11dd526fda08ce6dd9c1bfaee3b91a7368e"
+            "example": "https://cdn.buildtheearth.net/uploads/879c4af49ee880f348c95e9fd7bdb11dd526fda08ce6dd9c1bfaee3b91a7368e"
           },
           "invite": {
             "type": "string",

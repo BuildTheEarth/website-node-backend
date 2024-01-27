@@ -1,6 +1,8 @@
-import * as blurhash from "blurhash";
-
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 import crypto from "crypto";
 import sharp from "sharp";
@@ -15,6 +17,8 @@ class AmazonAWS {
     this.s3Client = new S3Client({
       credentials: this.getCredentials(),
       region: this.getRegion(),
+      endpoint: "https://cdn2.buildtheearth.net",
+      forcePathStyle: true,
     });
     this.core.getLogger().debug("AWS S3 Client is connected.");
   }
@@ -34,8 +38,11 @@ class AmazonAWS {
     return process.env.AWS_REGION;
   }
 
-  public getS3Bucket() {
-    return process.env.AWS_BUCKET_NAME;
+  public getS3Bucket(_static: boolean) {
+    if (_static) {
+      return process.env.AWS_STATIC_BUCKET_NAME;
+    }
+    return process.env.AWS_UPLOAD_BUCKET_NAME;
   }
 
   public async uploadFile(file: any) {
@@ -48,8 +55,8 @@ class AmazonAWS {
       .toBuffer({ resolveWithObject: true });
 
     const command = new PutObjectCommand({
-      Bucket: this.core.getAWS().getS3Bucket(),
-      Key: "upload/" + fileKey,
+      Bucket: this.core.getAWS().getS3Bucket(false),
+      Key: fileKey,
       Body: file.buffer,
       ContentType: file.mimetype,
     });
@@ -70,6 +77,14 @@ class AmazonAWS {
       },
     });
     return upload;
+  }
+
+  public async getFile(bucket: string, fileKey: string) {
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: fileKey,
+    });
+    return await this.core.getAWS().getS3Client().send(command);
   }
 }
 export default AmazonAWS;
