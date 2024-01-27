@@ -993,6 +993,15 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "description": "Use Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -1060,12 +1069,12 @@
                       "oneOf": [
                         {
                           "type": "string",
-                          "description": "Coordinate pair in form of lng, lat",
+                          "description": "Coordinate pair in form of lat, lng",
                           "example": "8.741082435175388, 48.82172221980192"
                         },
                         {
                           "type": "array",
-                          "description": "Coordinate pair in form of lng, lat",
+                          "description": "Coordinate pair in form of lat, lng",
                           "example": ["8.741082435175388", "48.82172221980192"],
                           "items": {
                             "type": "string"
@@ -1187,6 +1196,15 @@
             "schema": {
               "format": "uuid"
             }
+          },
+          {
+            "description": "Use Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1286,6 +1304,15 @@
             "schema": {
               "format": "uuid"
             }
+          },
+          {
+            "description": "Use Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1307,12 +1334,12 @@
                       "oneOf": [
                         {
                           "type": "string",
-                          "description": "Coordinate pair in form of lng, lat",
+                          "description": "Coordinate pair in form of lat, lng",
                           "example": "8.741082435175388, 48.82172221980192"
                         },
                         {
                           "type": "array",
-                          "description": "Coordinate pair in form of lng, lat",
+                          "description": "Coordinate pair in form of lat, lng",
                           "example": ["8.741082435175388", "48.82172221980192"],
                           "items": {
                             "type": "string"
