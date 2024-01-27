@@ -98,6 +98,10 @@ class TokenRouteContoller {
       .getPrisma()
       .user.findFirst({ where: { name: owner } });
 
+    if (!o) {
+      return ERROR_GENERIC(res, 404, "Owner does not exist.");
+    }
+
     const claim = await this.core.getPrisma().claim.create({
       data: {
         id,
