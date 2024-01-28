@@ -17,7 +17,7 @@ class AmazonAWS {
     this.s3Client = new S3Client({
       credentials: this.getCredentials(),
       region: this.getRegion(),
-      endpoint: "https://cdn2.buildtheearth.net",
+      endpoint: "https://cdn.buildtheearth.net",
       forcePathStyle: true,
     });
     this.core.getLogger().debug("AWS S3 Client is connected.");
