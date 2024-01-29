@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
+import turf, { toPolygon } from "../util/Coordinates.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
   ERROR_VALIDATION,
 } from "../util/Errors.js";
-import turf, { toPolygon } from "../util/Turf.js";
 
 import { validationResult } from "express-validator";
 import Core from "../Core.js";

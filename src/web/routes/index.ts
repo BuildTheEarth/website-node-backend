@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { body, check, param, query } from "express-validator";
+import { CoordinateType, useCoordinateInput } from "../../util/Coordinates.js";
 import {
   checkUserPermission,
   checkUserPermissions,
@@ -75,6 +76,20 @@ class Routes {
         await generalController.uploadImage(request, response);
       },
       this.web.getFileUpload().single("image")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/coords",
+      (request, response) => {
+        response.send({
+          input: request.body.coords__old,
+          parsed: request.body.coords,
+          coordTypes: Object.values(CoordinateType),
+        });
+      },
+      query("coordType").isString().optional(),
+      body("coords"),
+      useCoordinateInput("coords", false)
     );
 
     /*
@@ -274,7 +289,8 @@ class Routes {
       body("name").isString().optional(),
       body("finished").isBoolean().optional(),
       body("active").isBoolean().optional(),
-      body("builders").isArray().optional()
+      body("builders").isArray().optional(),
+      useCoordinateInput("area", false)
     );
     router.addRoute(
       RequestMethods.POST,
@@ -286,7 +302,8 @@ class Routes {
       body("name").isString().optional(),
       body("finished").isBoolean().optional(),
       body("active").isBoolean().optional(),
-      body("area").isArray().optional()
+      body("area").isArray().optional(),
+      useCoordinateInput("area", false)
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -719,6 +736,7 @@ class Routes {
       body("active").isBoolean().optional(),
       body("finished").isBoolean().optional(),
       body("name").isString().optional(),
+      useCoordinateInput("area", false),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
@@ -735,6 +753,7 @@ class Routes {
       body("finished").isBoolean(),
       body("name").isString(),
       body("id").isUUID().optional(),
+      useCoordinateInput("area", true),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
