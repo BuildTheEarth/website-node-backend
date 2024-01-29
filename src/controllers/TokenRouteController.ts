@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import turf, { toPolygon } from "../util/Coordinates.js";
+import turf, { parseCoordinates, toPolygon } from "../util/Coordinates.js";
 import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
 import { validationResult } from "express-validator";
@@ -114,19 +114,9 @@ class TokenRouteContoller {
         finished,
         externalId,
         active,
-        area: area
-          ? area.map((p: any[]) => [p[1], p[0]].join(", "))
-          : undefined,
+        area: area,
         center: area
-          ? turf
-              .center({
-                type: "Feature",
-                geometry: {
-                  coordinates: [area.map((p: any[]) => [p[1], p[0]])],
-                  type: "Polygon",
-                },
-              })
-              .geometry.coordinates.join(", ")
+          ? turf.center(toPolygon(area)).geometry.coordinates.join(", ")
           : undefined,
       },
     });
@@ -164,15 +154,19 @@ class TokenRouteContoller {
           builders: c.builders
             ? { connect: c.builders.map((b: any) => ({ id: b })) }
             : undefined,
-          area: c.area.map((p: any[]) => [p[1], p[0]].join(", ")),
+          area: parseCoordinates(
+            c.area,
+            (req.query.coordType as string) || "stringarray"
+          ),
           center: turf
-            .center({
-              type: "Feature",
-              geometry: {
-                coordinates: [c.area.map((p: any[]) => [p[1], p[0]])],
-                type: "Polygon",
-              },
-            })
+            .center(
+              toPolygon(
+                parseCoordinates(
+                  c.area,
+                  (req.query.coordType as string) || "stringarray"
+                )
+              )
+            )
             .geometry.coordinates.join(", "),
         },
       });
@@ -211,14 +205,9 @@ class TokenRouteContoller {
         name,
         finished,
         active,
-        area: area ? area.map((p: any[]) => p.join(", ")) : undefined,
+        area: area,
         center: area
-          ? turf
-              .center({
-                type: "Feature",
-                geometry: { coordinates: [area], type: "Polygon" },
-              })
-              .geometry.coordinates.join(", ")
+          ? turf.center(toPolygon(area)).geometry.coordinates.join(", ")
           : undefined,
       },
     });

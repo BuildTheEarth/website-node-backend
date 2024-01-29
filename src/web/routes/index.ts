@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { body, check, param, query } from "express-validator";
-import { CoordinateType, useCoordinateInput } from "../../util/Coordinates.js";
+import turf, {
+  CoordinateType,
+  toPolygon,
+  useCoordinateInput,
+} from "../../util/Coordinates.js";
 import {
   checkUserPermission,
   checkUserPermissions,
@@ -84,6 +88,9 @@ class Routes {
         response.send({
           input: request.body.coords__old,
           parsed: request.body.coords,
+          polygon: toPolygon(request.body.coords),
+          center: turf.center(toPolygon(request.body.coords)).geometry
+            .coordinates,
           coordTypes: Object.values(CoordinateType),
         });
       },

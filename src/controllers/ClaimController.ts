@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import turf, { toPolygon } from "../util/Coordinates.js";
+import turf, {
+  CoordinateType,
+  parseCoordinates,
+  toPolygon,
+} from "../util/Coordinates.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
@@ -121,13 +125,8 @@ class ClaimController {
         name,
         finished,
         active,
-        area: area.map((p: [number, number]) => p.join(", ")),
-        center: turf
-          .center({
-            type: "Feature",
-            geometry: { coordinates: [area], type: "Polygon" },
-          })
-          .geometry.coordinates.join(", "),
+        area: area,
+        center: turf.center(toPolygon(area)).geometry.coordinates.join(", "),
       },
     });
 
@@ -169,13 +168,7 @@ class ClaimController {
         },
         area: area,
         center:
-          area &&
-          turf
-            .center({
-              type: "Feature",
-              geometry: { coordinates: area, type: "Polygon" },
-            })
-            .geometry.coordinates.join(", "),
+          area && turf.center(toPolygon(area)).geometry.coordinates.join(", "),
         owner: { connect: { id: req.user.id } },
         builders: req.body.builders
           ? { connect: req.body.builders.map((b: any) => ({ id: b })) }

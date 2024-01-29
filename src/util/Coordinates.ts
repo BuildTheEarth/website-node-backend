@@ -1,9 +1,9 @@
 import * as turf from "@turf/turf";
 
-import { ERROR_GENERIC, ERROR_VALIDATION } from "./Errors.js";
+import { point, polygon } from "@turf/helpers";
 import { NextFunction, Request, Response } from "express";
 import { Point, Polygon } from "geojson";
-import { point, polygon } from "@turf/helpers";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "./Errors.js";
 
 // lat, lng
 export function toPoint(coords: string, splitter?: string): Point {
@@ -11,11 +11,15 @@ export function toPoint(coords: string, splitter?: string): Point {
 }
 
 // ["lat, lng","lat, lng","lat, lng","lat, lng"]
-export function toPolygon(coords: string[], splitter?: string): Polygon {
+export function toPolygon(
+  coords: string[],
+  splitter?: string,
+  reverse?: boolean
+): Polygon {
   return polygon([
     coords.map((c) => {
       const s = c.split(splitter || ", ");
-      return [parseFloat(s[0]), parseFloat(s[1])];
+      return [parseFloat(s[reverse ? 1 : 0]), parseFloat(s[reverse ? 0 : 1])];
     }),
   ]);
 }
@@ -31,6 +35,7 @@ export function toLngLat(
     lng: parseFloat(s[latFirst ? 1 : 0]),
   };
 }
+
 // Parses any acceptable coordinate input into an uniform type (["lng, lat","lng, lat"])
 export function useCoordinateInput(coordinates: string, required?: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {
