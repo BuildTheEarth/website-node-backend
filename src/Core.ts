@@ -1,6 +1,8 @@
 import * as session from "express-session";
 import * as winston from "winston";
 
+import { middlewareUploadSrc, purgeClaims } from "./util/Prisma.js";
+
 import { PrismaClient } from "@prisma/client";
 import Keycloak from "keycloak-connect";
 import AmazonAWS from "./util/AmazonAWS.js";
@@ -8,7 +10,6 @@ import CronHandler from "./util/CronHandler.js";
 import DiscordIntegration from "./util/DiscordIntegration.js";
 import { rerenderFrontend } from "./util/Frontend.js";
 import KeycloakAdmin from "./util/KeycloakAdmin.js";
-import { middlewareUploadSrc } from "./util/Prisma.js";
 import Web from "./web/Web.js";
 
 class Core {
@@ -52,7 +53,16 @@ class Core {
       this.prisma.$use(middlewareUploadSrc);
       this.web = new Web(this);
       this.web.startWebserver();
-      this.cron = new CronHandler(this);
+      this.cron = new CronHandler(this, [
+        {
+          id: "purge_claims",
+          params: {
+            cronTime: "1 */24 * * *",
+            start: true,
+            onTick: () => purgeClaims(this),
+          },
+        },
+      ]);
     });
   }
 

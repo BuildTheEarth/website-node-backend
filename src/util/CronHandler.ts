@@ -4,11 +4,13 @@ import Core from "../Core.js";
 
 class CronHandler {
   private core: Core;
-  private jobs;
+  private jobs: { [id: string]: CronJob };
 
-  constructor(core: Core) {
+  constructor(core: Core, jobs?: { params: CronJobParams; id: string }[]) {
     this.core = core;
     this.jobs = {};
+    if (jobs) this.addMany(jobs);
+    this.printList();
   }
 
   public addMany(jobs: { params: CronJobParams; id: string }[]) {
@@ -33,6 +35,27 @@ class CronHandler {
 
   public getAll() {
     return this.jobs;
+  }
+
+  public nextRun(id: string) {
+    return this.jobs[id].nextDate();
+  }
+
+  public printList() {
+    this.core.getLogger().info("---------------------------------");
+    this.core.getLogger().info("Next Cron Job Runs:");
+    this.core.getLogger().info("");
+    Object.keys(this.jobs).forEach((id) => {
+      const job = this.jobs[id];
+      this.core
+        .getLogger()
+        .info(
+          `${id} - ${job.nextDate().toRelative({ locale: "en" })} (${job
+            .nextDate()
+            .toISOTime()})`
+        );
+    });
+    this.core.getLogger().info("---------------------------------");
   }
 }
 
