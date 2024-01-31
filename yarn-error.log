@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\theof\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add cron
+  C:\Program Files\nodejs\node.exe C:\Users\theof\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js
 
 PATH: 
   C:\Users\theof\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\theof\bin;C:\Program Files\Microsoft\jdk-11.0.16.101-hotspot\bin;C:\Python311\Scripts;C:\Python311;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Python39\Scripts;C:\Python39;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft SQL Server\130\Tools\Binn;C:\Program Files\WorldPainter;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\PuTTY;C:\ProgramData\ComposerSetup\bin;C:\Program Files\dotnet;C:\Program Files (x86)\dotnet;C:\FFmpeg\bin ;C:\Program Files\Docker\Docker\resources\bin;C:\ProgramData\DockerDesktop\version-bin;C:\Program Files\WireGuard;C:\Program Files\GitHub CLI;C:\Program Files (x86)\gnupg\bin;C:\Users\theof\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\theof\.cargo\bin;C:\Program Files\MySQL\MySQL Shell 8.0\bin;C:\Users\theof\scoop\shims;C:\Users\theof\AppData\Local\Microsoft\WindowsApps;C:\xampp\php;C:\Users\theof\AppData\Roaming\Composer\vendor\bin;C:\gstreamer-ivao\bin;C:\Users\theof\AppData\Local\GitHubDesktop\bin;C:\Program Files\heroku\bin;C:\FFmpeg\bin;C:\Users\theof\AppData\Local\Microsoft\WindowsApps;C:\Users\theof\AppData\Roaming\npm;C:\Users\theof\.deno\bin;C:\flutter\bin;C:\Users\theof\.dotnet\tools;C:\Users\theof\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2023.2\bin;C:\Users\theof\AppData\Local\Programs\oh-my-posh\bin;C:\Users\theof\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
@@ -14,12 +14,12 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: EPERM: operation not permitted, unlink 'T:\Dev\bte\website\website-node-backend\node_modules\prisma\engines\272861e07ab64f234d3ffc4094e32bd61775599c\query_engine-windows.dll.node'
+  Error: EPERM: operation not permitted, unlink 'T:\Dev\bte\website\website-node-backend\node_modules\sharp\build\Release\libglib-2.0-0.dll'
 
 npm manifest: 
   {
     "name": "website-node-backend",
-    "version": "0.1.0",
+    "version": "1.0.1",
     "description": "The backend for the BuildTheEarth.net website",
     "main": "index.js",
     "type": "module",
@@ -31,7 +31,7 @@ npm manifest:
       "build": "yarn install --pure-lockfile && tsc",
       "studio": "prisma studio",
       "prettier": "prettier --write ./src",
-      "seed":"esbuild prisma/seed.ts --outfile=node_modules/tmp-seed.cjs --platform=node --bundle --format=cjs --external:prisma --external:@prisma/client && node node_modules/tmp-seed.cjs --preview-feature"
+      "seed": "esbuild prisma/seed.ts --outfile=node_modules/tmp-seed.cjs --platform=node --bundle --format=cjs --external:prisma --external:@prisma/client && node node_modules/tmp-seed.cjs --preview-feature"
     },
     "repository": {
       "type": "git",
@@ -71,6 +71,7 @@ npm manifest:
       "blurhash": "^2.0.5",
       "body-parser": "^1.20.1",
       "cors": "^2.8.5",
+      "cron": "^3.1.6",
       "dotenv": "^16.0.3",
       "express": "^4.18.2",
       "express-prom-bundle": "^6.6.0",
@@ -2463,6 +2464,11 @@ Lockfile:
     dependencies:
       "@types/node" "*"
   
+  "@types/luxon@~3.3.0":
+    version "3.3.7"
+    resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-3.3.7.tgz#043d413b6492a012de47503907bdf3ec4f827933"
+    integrity sha512-gKc9P2d4g5uYwmy4s/MO/yOVPmvHyvzka1YH6i5dM03UrFofHSmgc0D0ymbDRStFWHusk6cwwF6nhLm/ckBbbQ==
+  
   "@types/mime@*":
     version "3.0.1"
     resolved "https://registry.npmjs.org/@types/mime/-/mime-3.0.1.tgz"
@@ -3090,6 +3096,14 @@ Lockfile:
     version "1.1.1"
     resolved "https://registry.npmjs.org/create-require/-/create-require-1.1.1.tgz"
     integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
+  
+  cron@^3.1.6:
+    version "3.1.6"
+    resolved "https://registry.yarnpkg.com/cron/-/cron-3.1.6.tgz#e7e1798a468e017c8d31459ecd7c2d088f97346c"
+    integrity sha512-cvFiQCeVzsA+QPM6fhjBtlKGij7tLLISnTSvFxVdnFGLdz+ZdXN37kNe0i2gefmdD17XuZA6n2uPVwzl4FxW/w==
+    dependencies:
+      "@types/luxon" "~3.3.0"
+      luxon "~3.4.0"
   
   cross-spawn@^7.0.2:
     version "7.0.3"
@@ -4322,6 +4336,11 @@ Lockfile:
     version "7.14.1"
     resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-7.14.1.tgz"
     integrity sha512-ysxwsnTKdAx96aTRdhDOCQfDgbHnt8SK0KY8SEjO0wHinhWOFTESbjVCMPbU1uGXg/ch4lifqx0wfjOawU2+WA==
+  
+  luxon@~3.4.0:
+    version "3.4.4"
+    resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.4.4.tgz#cf20dc27dc532ba41a169c43fdcc0063601577af"
+    integrity sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==
   
   make-error@^1.1.1:
     version "1.3.6"

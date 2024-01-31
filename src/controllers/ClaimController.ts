@@ -99,11 +99,40 @@ class ClaimController {
             allowBuilderClaim: true,
           },
         },
-        builders: true,
+        builders: req.query.builders
+          ? {
+              select: {
+                ssoId: true,
+                id: true,
+                discordId: true,
+                name: true,
+                avatar: true,
+              },
+              take: 10,
+            }
+          : undefined,
       },
     });
     if (claim) {
-      res.send(claim);
+      const kcBuilders = await Promise.all(
+        claim.builders?.map(async (member) => {
+          const kcMember = await this.core
+            .getKeycloakAdmin()
+            .getKeycloakAdminClient()
+            .users.findOne({
+              id: member.ssoId,
+            });
+          return {
+            discordId: member.discordId,
+            id: member.id,
+            username: kcMember?.username,
+            avatar: member.avatar,
+            name: member.name,
+          };
+        })
+      );
+
+      res.send({ ...claim, builders: kcBuilders });
     } else {
       ERROR_GENERIC(res, 404, "Claim does not exist.");
     }
@@ -127,11 +156,17 @@ class ClaimController {
         active,
         area: area,
         center: turf.center(toPolygon(area)).geometry.coordinates.join(", "),
+        builders: req.body.builders
+          ? { set: req.body.builders.map((b: any) => ({ id: b.id })) }
+          : undefined,
       },
     });
 
     this.core.getDiscord().sendClaimUpdate(claim);
-    res.send(claim);
+    res.send({
+      ...claim,
+      builders: req.body.builders.map((b: any) => ({ ...b, new: false })),
+    });
   }
 
   public async createClaim(req: Request, res: Response) {

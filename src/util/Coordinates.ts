@@ -56,6 +56,10 @@ export function useCoordinateInput(coordinates: string, required?: boolean) {
       try {
         const coordsParsed = parseCoordinates(coords, coordType);
 
+        if (coordsParsed.at(0) != coordsParsed.at(-1)) {
+          coordsParsed.push(coordsParsed.at(0));
+        }
+
         req.body[coordinates + "__old"] = req.body[coordinates];
         req.body[coordinates] = coordsParsed;
         next();

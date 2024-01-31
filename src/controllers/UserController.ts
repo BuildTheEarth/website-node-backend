@@ -35,6 +35,62 @@ class UserController {
       res.send(users);
     }
   }
+  public async searchBuilders(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(res, errors.array());
+    }
+
+    // const builders = await this.core
+    //   .getPrisma()
+    //   .user.findMany({
+    //     take: req.query.take ? parseInt(req.query.take as string) : 10,
+    //     where:{us}
+    //   });
+    const kcBuilders = (
+      await this.core
+        .getKeycloakAdmin()
+        .getKeycloakAdminClient()
+        .users.find({
+          max: req.query.take ? parseInt(req.query.take as string) : 10,
+          username: (req.query.search as string) || "",
+          enabled: true,
+          exact: req.query.exact == "true",
+        })
+    ).map((b) => ({ username: b.username, ssoId: b.id }));
+
+    // const builders = await Promise.all(
+    //   claim.builders?.map(async (member) => {
+    //     const kcMember = await this.core
+    //       .getKeycloakAdmin()
+    //       .getKeycloakAdminClient()
+    //       .users.findOne({
+    //         id: member.ssoId,
+    //       });
+    //     return {
+    //       discordId: member.discordId,
+    //       id: member.id,
+    //       username: kcMember?.username,
+    //       avatar: member.avatar,
+    //       name: member.name,
+    //     };
+    //   })
+    // );
+    const builders = (
+      await this.core.getPrisma().user.findMany({
+        where: { ssoId: { in: kcBuilders.map((b) => b.ssoId) } },
+        select: {
+          name: true,
+          id: true,
+          avatar: true,
+          discordId: true,
+          ssoId: true,
+        },
+      })
+    ).map((b) => ({ ...b, ...kcBuilders.find((c) => c.ssoId == b.ssoId) }));
+
+    res.send(builders);
+  }
 
   public async getUser(req: Request, res: Response) {
     const errors = validationResult(req);

@@ -535,6 +535,16 @@ class Routes {
 
     router.addRoute(
       RequestMethods.GET,
+      "/builders/search",
+      async (request, response) => {
+        await userController.searchBuilders(request, response);
+      },
+      query("search").isString().optional(),
+      query("take").isNumeric().optional(),
+      query("exact").isBoolean().optional()
+    );
+    router.addRoute(
+      RequestMethods.GET,
       "/users",
       async (request, response) => {
         await userController.getUsers(request, response);
