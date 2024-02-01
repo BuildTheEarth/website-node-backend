@@ -4,6 +4,7 @@ import {
   ApplicationStatus,
 } from "@prisma/client";
 import { Request, Response } from "express";
+import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
@@ -264,7 +265,11 @@ class ApplicationController {
     await this.core.getDiscord().sendApplicationUpdate(application);
 
     if (application.buildteam.webhook) {
-      await runFetch(application.buildteam.webhook, application);
+      sendBtWebhook(
+        application.buildteam.webhook,
+        WebhookType.APPLICATION,
+        application
+      );
     }
 
     res.send(application);
