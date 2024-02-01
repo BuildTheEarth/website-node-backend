@@ -1,7 +1,11 @@
 import * as session from "express-session";
 import * as winston from "winston";
 
-import { middlewareUploadSrc, purgeClaims } from "./util/Prisma.js";
+import {
+  applicationReminder,
+  middlewareUploadSrc,
+  purgeClaims,
+} from "./util/Prisma.js";
 
 import { PrismaClient } from "@prisma/client";
 import Keycloak from "keycloak-connect";
@@ -62,6 +66,14 @@ class Core {
             onTick: () => purgeClaims(this),
           },
         },
+        {
+          id: "remind_application",
+          params: {
+            cronTime: "1 1 */14 * *",
+            start: true,
+            onTick: () => applicationReminder(this),
+          },
+        },
       ]);
     });
   }
@@ -77,6 +89,8 @@ class Core {
   public getAWS = (): AmazonAWS => this.aws;
 
   public getDiscord = (): DiscordIntegration => this.discord;
+
+  public getCron = (): CronHandler => this.cron;
 
   private setUpLogger(): void {
     // const logger = this.getLogger();
