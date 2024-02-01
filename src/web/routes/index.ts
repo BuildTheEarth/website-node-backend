@@ -1,30 +1,31 @@
 import { Request, Response } from "express";
 import { body, check, param, query } from "express-validator";
+import {
+  checkUserPermission,
+  checkUserPermissions,
+} from "./utils/CheckUserPermissionMiddleware.js";
 import turf, {
   CoordinateType,
   toPolygon,
   useCoordinateInput,
 } from "../../util/Coordinates.js";
-import {
-  checkUserPermission,
-  checkUserPermissions,
-} from "./utils/CheckUserPermissionMiddleware.js";
 
-import { Keycloak } from "keycloak-connect";
+import AdminController from "../../controllers/AdminController.js";
 import ApplicationController from "../../controllers/ApplicationController.js";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
 import ClaimController from "../../controllers/ClaimController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
+import { Keycloak } from "keycloak-connect";
 import NewsletterController from "../../controllers/NewsletterController.js";
+import { RequestMethods } from "./utils/RequestMethods.js";
+import Router from "./utils/Router.js";
 import ShowcaseController from "../../controllers/ShowcaseController.js";
 import TokenRouteContoller from "../../controllers/TokenRouteController.js";
 import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
-import { RequestMethods } from "./utils/RequestMethods.js";
-import Router from "./utils/Router.js";
 
 class Routes {
   app;
@@ -54,6 +55,7 @@ class Routes {
     const newsletterController = new NewsletterController(this.web.getCore());
     const generalController = new GeneralController(this.web.getCore());
     const tokenRouteContoller = new TokenRouteContoller(this.web.getCore());
+    const adminController = new AdminController(this.web.getCore());
 
     router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
       response.send({ status: "up" });
@@ -782,7 +784,6 @@ class Routes {
       param("team"),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
-
     router.addRoute(
       RequestMethods.GET,
       "/public/buildteams/:id/members",
@@ -792,6 +793,20 @@ class Routes {
       param("id"),
       query("page").isNumeric().optional(),
       checkTokenValidity(this.web.getCore().getPrisma(), "id")
+    );
+
+    /*
+     *
+     * Admin Routes
+     *
+     */
+    router.addRoute(
+      RequestMethods.GET,
+      "/admin/cron",
+      async (request, response) => {
+        await adminController.getCronJobs(request, response);
+      },
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
   }
 }

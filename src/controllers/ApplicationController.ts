@@ -182,6 +182,7 @@ class ApplicationController {
           },
         },
         user: { select: { id: true, discordId: true, name: true } },
+        reviewer: { select: { id: true, discordId: true, name: true } },
       },
     });
 
