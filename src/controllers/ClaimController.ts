@@ -226,12 +226,26 @@ class ClaimController {
     if (!req.user) {
       return ERROR_NO_PERMISSION(res);
     }
-    const claim = await this.core.getPrisma().claim.findFirst({
-      where: {
-        id: req.params.id,
-        ownerId: req.user.id,
-      },
-    });
+    let claim = null;
+
+    if (req.params.team) {
+      claim = await this.core.getPrisma().claim.findFirst({
+        where: {
+          id: req.params.id,
+          buildTeam: req.query.slug
+            ? { slug: req.params.team }
+            : { id: req.params.team },
+        },
+      });
+    } else {
+      claim = await this.core.getPrisma().claim.findFirst({
+        where: {
+          id: req.params.id,
+          ownerId: req.user.id,
+        },
+      });
+    }
+    console.log(claim);
 
     if (claim) {
       await this.core.getPrisma().claim.delete({

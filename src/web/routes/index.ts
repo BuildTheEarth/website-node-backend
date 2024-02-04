@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
 import { body, check, param, query } from "express-validator";
-import {
-  checkUserPermission,
-  checkUserPermissions,
-} from "./utils/CheckUserPermissionMiddleware.js";
 import turf, {
   CoordinateType,
   toPolygon,
   useCoordinateInput,
 } from "../../util/Coordinates.js";
+import {
+  checkUserPermission,
+  checkUserPermissions,
+} from "./utils/CheckUserPermissionMiddleware.js";
 
+import { Keycloak } from "keycloak-connect";
 import AdminController from "../../controllers/AdminController.js";
 import ApplicationController from "../../controllers/ApplicationController.js";
 import BuildTeamController from "../../controllers/BuildTeamController.js";
@@ -17,15 +18,14 @@ import ClaimController from "../../controllers/ClaimController.js";
 import ContactController from "../../controllers/ContactController.js";
 import FaqController from "../../controllers/FAQController.js";
 import GeneralController from "../../controllers/GeneralController.js";
-import { Keycloak } from "keycloak-connect";
 import NewsletterController from "../../controllers/NewsletterController.js";
-import { RequestMethods } from "./utils/RequestMethods.js";
-import Router from "./utils/Router.js";
 import ShowcaseController from "../../controllers/ShowcaseController.js";
 import TokenRouteContoller from "../../controllers/TokenRouteController.js";
 import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
+import { RequestMethods } from "./utils/RequestMethods.js";
+import Router from "./utils/Router.js";
 
 class Routes {
   app;
@@ -257,6 +257,20 @@ class Routes {
       param("id"),
       query("slug").optional()
       // Permission check later: Creator
+    );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/buildteams/:team/claims/:id",
+      async (request, response) => {
+        await claimController.deleteClaim(request, response);
+      },
+      param("id").isUUID(),
+      param("team"),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "team.claim.list",
+        "team"
+      )
     );
 
     /*
