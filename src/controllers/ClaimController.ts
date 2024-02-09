@@ -111,6 +111,7 @@ class ClaimController {
               take: 10,
             }
           : undefined,
+        _count: { select: { builders: true } },
       },
     });
     if (claim) {
@@ -131,8 +132,18 @@ class ClaimController {
           };
         })
       );
+      const kcOwner = await this.core
+        .getKeycloakAdmin()
+        .getKeycloakAdminClient()
+        .users.findOne({
+          id: claim.owner.ssoId,
+        });
 
-      res.send({ ...claim, builders: kcBuilders });
+      res.send({
+        ...claim,
+        builders: kcBuilders,
+        owner: { ...claim.owner, username: kcOwner?.username },
+      });
     } else {
       ERROR_GENERIC(res, 404, "Claim does not exist.");
     }
