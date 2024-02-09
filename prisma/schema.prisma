@@ -141,6 +141,7 @@ model Claim {
   active      Boolean       @default(false)
   finished    Boolean       @default(false)
   name        String        @default("")
+  description String?
   Application Application[]
   owner       User?         @relation("owner", fields: [ownerId], references: [id])
   builders    User[]        @relation("builders")

@@ -156,13 +156,14 @@ class ClaimController {
       return ERROR_VALIDATION(res, errors.array());
     }
 
-    const { name, finished, active, area } = req.body;
+    const { name, finished, active, area, description } = req.body;
     const claim = await this.core.getPrisma().claim.update({
       where: {
         id: req.params.id,
       },
       data: {
         name,
+        description,
         finished,
         active,
         area: area,
@@ -220,6 +221,7 @@ class ClaimController {
           ? { connect: req.body.builders.map((b: any) => ({ id: b })) }
           : undefined,
         name: req.body.name,
+        description: req.body.description,
         finished: req.body.finished,
         active: req.body.active,
       },
