@@ -36,6 +36,10 @@ export function toLngLat(
   };
 }
 
+export function toOverpassPolygon(coords: string[]): string {
+  return coords.map((c) => `${c.split(", ")[1]} ${c.split(", ")[0]}`).join(" ");
+}
+
 // Parses any acceptable coordinate input into an uniform type (["lng, lat","lng, lat"])
 export function useCoordinateInput(coordinates: string, required?: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {

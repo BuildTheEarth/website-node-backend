@@ -12,7 +12,6 @@ import Keycloak from "keycloak-connect";
 import AmazonAWS from "./util/AmazonAWS.js";
 import CronHandler from "./util/CronHandler.js";
 import DiscordIntegration from "./util/DiscordIntegration.js";
-import { rerenderFrontend } from "./util/Frontend.js";
 import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import Web from "./web/Web.js";
 

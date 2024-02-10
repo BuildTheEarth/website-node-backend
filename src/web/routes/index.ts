@@ -824,6 +824,26 @@ class Routes {
       },
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
+    router.addRoute(
+      RequestMethods.GET,
+      "/admin/progress",
+      async (request, response) => {
+        await adminController.getProgress(request, response);
+      },
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/admin/claims/buildings",
+      async (request, response) => {
+        await adminController.getClaimBuildingCounts(request, response);
+      },
+      query("skipExisting").isBoolean().optional(),
+      query("take").isNumeric().optional(),
+      query("skip").isNumeric().optional(),
+      query("gte").isNumeric().optional(),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
+    );
   }
 }
 

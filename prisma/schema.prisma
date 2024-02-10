@@ -142,6 +142,9 @@ model Claim {
   finished    Boolean       @default(false)
   name        String        @default("")
   description String?
+  osmName     String?
+  city        String?
+  buildings   Int           @default(0)
   Application Application[]
   owner       User?         @relation("owner", fields: [ownerId], references: [id])
   builders    User[]        @relation("builders")
