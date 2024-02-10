@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
-import Core from "../Core.js";
-import { ERROR_GENERIC } from "../util/Errors.js";
 import axios from "axios";
+import Core from "../Core.js";
 import { toOverpassPolygon } from "../util/Coordinates.js";
+import { ERROR_GENERIC } from "../util/Errors.js";
 
 class AdminController {
   private core: Core;
@@ -48,7 +48,7 @@ class AdminController {
         center: { not: null },
         buildings:
           req.query.skipExisting === "true"
-            ? 1
+            ? 0
             : {
                 gte: req.query.take ? parseInt(req.query.gte as string) : 0,
               },
