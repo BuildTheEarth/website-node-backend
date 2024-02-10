@@ -132,12 +132,16 @@ class ClaimController {
           };
         })
       );
-      const kcOwner = await this.core
-        .getKeycloakAdmin()
-        .getKeycloakAdminClient()
-        .users.findOne({
-          id: claim.owner.ssoId,
-        });
+
+      let kcOwner;
+      if (claim.owner) {
+        kcOwner = await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({
+            id: claim.owner.ssoId,
+          });
+      }
 
       res.send({
         ...claim,
