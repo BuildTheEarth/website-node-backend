@@ -72,26 +72,30 @@ class AdminController {
         );
       out count;`;
 
-      const { data } = await axios.get(
-        `https://overpass.kumi.systems/api/interpreter?data=${overpassQuery.replace(
-          "\n",
-          ""
-        )}`
-      );
-      this.core
-        .getLogger()
-        .debug(
-          "Getting buildings for claim " +
-            claim.id +
-            ` (${i + 1}/${claims.length})`
+      try {
+        const { data } = await axios.get(
+          `https://overpass.kumi.systems/api/interpreter?data=${overpassQuery.replace(
+            "\n",
+            ""
+          )}`
         );
+        this.core
+          .getLogger()
+          .debug(
+            "Getting buildings for claim " +
+              claim.id +
+              ` (${i + 1}/${claims.length})`
+          );
 
-      const updatedClaim = await this.core.getPrisma().claim.update({
-        where: { id: claim.id },
-        data: { buildings: parseInt(data?.elements[0]?.tags?.total) || 0 },
-      });
+        const updatedClaim = await this.core.getPrisma().claim.update({
+          where: { id: claim.id },
+          data: { buildings: parseInt(data?.elements[0]?.tags?.total) || 0 },
+        });
 
-      this.progress.buildings.done = i + 1;
+        this.progress.buildings.done = i + 1;
+      } catch (e) {
+        this.core.getLogger().error(e.message);
+      }
     }
     this.progress.buildings = { done: 0, total: 0 };
   }
