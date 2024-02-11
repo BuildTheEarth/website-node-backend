@@ -11,17 +11,6 @@ import {
 } from "./utils/CheckUserPermissionMiddleware.js";
 
 import { Keycloak } from "keycloak-connect";
-import AdminController from "../../controllers/AdminController.js";
-import ApplicationController from "../../controllers/ApplicationController.js";
-import BuildTeamController from "../../controllers/BuildTeamController.js";
-import ClaimController from "../../controllers/ClaimController.js";
-import ContactController from "../../controllers/ContactController.js";
-import FaqController from "../../controllers/FAQController.js";
-import GeneralController from "../../controllers/GeneralController.js";
-import NewsletterController from "../../controllers/NewsletterController.js";
-import ShowcaseController from "../../controllers/ShowcaseController.js";
-import TokenRouteContoller from "../../controllers/TokenRouteController.js";
-import UserController from "../../controllers/UserController.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
 import { RequestMethods } from "./utils/RequestMethods.js";
@@ -44,18 +33,19 @@ class Routes {
 
   private registerRoutes() {
     const router: Router = new Router(this.web, "v1");
+    const controllers = this.web.getControllers();
 
-    const buildTeamController = new BuildTeamController(this.web.getCore());
-    const showcaseController = new ShowcaseController(this.web.getCore());
-    const applicationController = new ApplicationController(this.web.getCore());
-    const claimController = new ClaimController(this.web.getCore());
-    const faqController = new FaqController(this.web.getCore());
-    const userController = new UserController(this.web.getCore());
-    const contactController = new ContactController(this.web.getCore());
-    const newsletterController = new NewsletterController(this.web.getCore());
-    const generalController = new GeneralController(this.web.getCore());
-    const tokenRouteContoller = new TokenRouteContoller(this.web.getCore());
-    const adminController = new AdminController(this.web.getCore());
+    // const controllers.buildTeam = new controllers.buildTeam(this.web.getCore());
+    // const controllers.showcase = new controllers.showcase(this.web.getCore());
+    // const controllers.application = new controllers.application(this.web.getCore());
+    // const controllers.claim = new controllers.claim(this.web.getCore());
+    // const controllers.faq = new controllers.faq(this.web.getCore());
+    // const controllers.user = new controllers.user(this.web.getCore());
+    // const controllers.contact = new controllers.contact(this.web.getCore());
+    // const controllers.newsletter = new controllers.newsletter(this.web.getCore());
+    // const controllers.general = new controllers.general(this.web.getCore());
+    // const controllers.tokenRoute = new controllers.tokenRoute(this.web.getCore());
+    // const controllers.admin = new controllers.admin(this.web.getCore());
 
     router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
       response.send({ status: "up" });
@@ -64,7 +54,7 @@ class Routes {
       RequestMethods.GET,
       "/account",
       async (request, response) => {
-        await generalController.getAccount(request, response);
+        await controllers.general.getAccount(request, response);
       },
       checkUserPermission(this.web.getCore().getPrisma(), "account.info")
     );
@@ -72,14 +62,14 @@ class Routes {
       RequestMethods.GET,
       "/permissions",
       async (request, response) => {
-        await generalController.getPermissions(request, response);
+        await controllers.general.getPermissions(request, response);
       }
     );
     router.addRoute(
       RequestMethods.POST,
       "/upload",
       async (request, response) => {
-        await generalController.uploadImage(request, response);
+        await controllers.general.uploadImage(request, response);
       },
       this.web.getFileUpload().single("image")
     );
@@ -111,7 +101,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams",
       async (request, response) => {
-        await buildTeamController.getBuildTeams(request, response);
+        await controllers.buildTeam.getBuildTeams(request, response);
       },
       query("page").isNumeric().optional()
     );
@@ -119,7 +109,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id",
       async (request, response) => {
-        await buildTeamController.getBuildTeam(request, response);
+        await controllers.buildTeam.getBuildTeam(request, response);
       },
       param("id")
     );
@@ -127,7 +117,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/application/questions",
       async (request: Request, response: Response) => {
-        await buildTeamController.getBuildTeamApplicationQuestions(
+        await controllers.buildTeam.getBuildTeamApplicationQuestions(
           request,
           response
         );
@@ -138,7 +128,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id/application/questions",
       async (request: Request, response: Response) => {
-        await buildTeamController.updateBuildTeamApplicationQuestions(
+        await controllers.buildTeam.updateBuildTeamApplicationQuestions(
           request,
           response
         );
@@ -155,7 +145,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/socials",
       async (request: Request, response: Response) => {
-        await buildTeamController.getBuildTeamSocials(request, response);
+        await controllers.buildTeam.getBuildTeamSocials(request, response);
       },
       param("id")
     );
@@ -163,7 +153,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id/socials",
       async (request: Request, response: Response) => {
-        await buildTeamController.updateBuildTeamSocials(request, response);
+        await controllers.buildTeam.updateBuildTeamSocials(request, response);
       },
       param("id"),
       body("socials"),
@@ -177,7 +167,7 @@ class Routes {
       RequestMethods.DELETE,
       "/buildteams/:team/socials/:id",
       async (request: Request, response: Response) => {
-        await buildTeamController.deleteBuildTeamSocial(request, response);
+        await controllers.buildTeam.deleteBuildTeamSocial(request, response);
       },
       param("team"),
       param("id"),
@@ -191,7 +181,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/members",
       async (request: Request, response: Response) => {
-        await buildTeamController.getBuildTeamMembers(request, response);
+        await controllers.buildTeam.getBuildTeamMembers(request, response);
       },
       param("id"),
       checkUserPermissions(
@@ -204,7 +194,7 @@ class Routes {
       RequestMethods.DELETE,
       "/buildteams/:id/members",
       async (request: Request, response: Response) => {
-        await buildTeamController.removeBuildTeamMember(request, response);
+        await controllers.buildTeam.removeBuildTeamMember(request, response);
       },
       param("id"),
       body("user"),
@@ -218,7 +208,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/managers",
       async (request: Request, response: Response) => {
-        await buildTeamController.getBuildTeamManagers(request, response);
+        await controllers.buildTeam.getBuildTeamManagers(request, response);
       },
       param("id"),
       checkUserPermissions(
@@ -231,7 +221,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id",
       async (request: Request, response: Response) => {
-        await buildTeamController.updateBuildTeam(request, response);
+        await controllers.buildTeam.updateBuildTeam(request, response);
       },
       param("id"),
       body("name").isString().optional(),
@@ -252,7 +242,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id/token",
       async (request: Request, response: Response) => {
-        await buildTeamController.generateBuildTeamToken(request, response);
+        await controllers.buildTeam.generateBuildTeamToken(request, response);
       },
       param("id"),
       query("slug").optional()
@@ -262,7 +252,7 @@ class Routes {
       RequestMethods.DELETE,
       "/buildteams/:team/claims/:id",
       async (request, response) => {
-        await claimController.deleteClaim(request, response);
+        await controllers.claim.deleteClaim(request, response);
       },
       param("id").isUUID(),
       param("team"),
@@ -283,21 +273,21 @@ class Routes {
       RequestMethods.GET,
       "/claims",
       async (request, response) => {
-        await claimController.getClaims(request, response);
+        await controllers.claim.getClaims(request, response);
       }
     );
     router.addRoute(
       RequestMethods.GET,
       "/claims/geojson",
       async (request, response) => {
-        await claimController.getClaimsGeoJson(request, response);
+        await controllers.claim.getClaimsGeoJson(request, response);
       }
     );
     router.addRoute(
       RequestMethods.GET,
       "/claims/:id",
       async (request, response) => {
-        await claimController.getClaim(request, response);
+        await controllers.claim.getClaim(request, response);
       },
       param("id").isUUID()
     );
@@ -305,7 +295,7 @@ class Routes {
       RequestMethods.POST,
       "/claims",
       async (request, response) => {
-        await claimController.createClaim(request, response);
+        await controllers.claim.createClaim(request, response);
       },
       body("team").isString(),
       body("area").isArray().optional(),
@@ -320,7 +310,7 @@ class Routes {
       RequestMethods.POST,
       "/claims/:id",
       async (request, response) => {
-        await claimController.updateClaim(request, response);
+        await controllers.claim.updateClaim(request, response);
       },
       param("id").isUUID(),
       body("name").isString().optional(),
@@ -334,7 +324,7 @@ class Routes {
       RequestMethods.DELETE,
       "/claims/:id",
       async (request, response) => {
-        await claimController.deleteClaim(request, response);
+        await controllers.claim.deleteClaim(request, response);
       },
       param("id").isUUID()
     );
@@ -349,7 +339,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/showcases",
       async (request, response) => {
-        await showcaseController.getShowcases(request, response);
+        await controllers.showcase.getShowcases(request, response);
       },
       param("id")
     );
@@ -357,14 +347,14 @@ class Routes {
       RequestMethods.GET,
       "/showcases",
       async (request, response) => {
-        await showcaseController.getAllShowcases(request, response);
+        await controllers.showcase.getAllShowcases(request, response);
       }
     );
     router.addRoute(
       RequestMethods.GET,
       "/showcases/random",
       async (request, response) => {
-        await showcaseController.getRandomShowcases(request, response);
+        await controllers.showcase.getRandomShowcases(request, response);
       },
       query("limit").isNumeric()
     );
@@ -372,7 +362,7 @@ class Routes {
       RequestMethods.DELETE,
       "/buildteams/:team/showcases/:id",
       async (request, response) => {
-        await showcaseController.deleteShowcase(request, response);
+        await controllers.showcase.deleteShowcase(request, response);
       },
       param("team"),
       param("id").isUUID(),
@@ -386,7 +376,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id/showcases",
       async (request, response) => {
-        await showcaseController.createShowcase(request, response);
+        await controllers.showcase.createShowcase(request, response);
       },
       param("id"),
       checkUserPermission(
@@ -407,7 +397,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/applications",
       async (request, response) => {
-        await applicationController.getApplications(request, response);
+        await controllers.application.getApplications(request, response);
       },
       param("id"),
       query("review").isBoolean().optional(),
@@ -421,7 +411,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/applications/user/:user",
       async (request, response) => {
-        await applicationController.getUserApplications(request, response);
+        await controllers.application.getUserApplications(request, response);
       },
       param("id"),
       param("user").isUUID()
@@ -430,7 +420,7 @@ class Routes {
       RequestMethods.GET,
       "/buildteams/:id/applications/:app",
       async (request, response) => {
-        await applicationController.getApplication(request, response);
+        await controllers.application.getApplication(request, response);
       },
       param("app").isUUID(),
       param("id"),
@@ -447,7 +437,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id/applications/:app",
       async (request, response) => {
-        await applicationController.review(request, response);
+        await controllers.application.review(request, response);
       },
       param("app").isUUID(),
       param("id"),
@@ -463,7 +453,7 @@ class Routes {
       RequestMethods.POST,
       "/buildteams/:id/apply",
       async (request, response) => {
-        await applicationController.apply(request, response);
+        await controllers.application.apply(request, response);
       },
       query("trial").isBoolean().optional()
     );
@@ -471,7 +461,7 @@ class Routes {
       RequestMethods.GET,
       "/applications/:id",
       async (request, response) => {
-        await applicationController.getApplication(request, response);
+        await controllers.application.getApplication(request, response);
       },
       param("id").isUUID(),
       query("includeBuildteam").isBoolean().optional(),
@@ -483,7 +473,7 @@ class Routes {
       RequestMethods.POST,
       "/applications/:id",
       async (request, response) => {
-        await applicationController.review(request, response);
+        await controllers.application.review(request, response);
       },
       param("id").isUUID(),
       body("isTrial").isBoolean(),
@@ -502,7 +492,7 @@ class Routes {
       RequestMethods.GET,
       "/faq",
       async (request, response) => {
-        await faqController.getFaqQuestions(request, response);
+        await controllers.faq.getFaqQuestions(request, response);
       },
       query("page").isNumeric().optional()
     );
@@ -510,7 +500,7 @@ class Routes {
       RequestMethods.POST,
       "/faq",
       async (request, response) => {
-        await faqController.addFaqQuestion(request, response);
+        await controllers.faq.addFaqQuestion(request, response);
       },
       body("question"),
       body("answer"),
@@ -520,14 +510,14 @@ class Routes {
       RequestMethods.GET,
       "/faq/:id",
       async (request, response) => {
-        await faqController.getFaqQuestion(request, response);
+        await controllers.faq.getFaqQuestion(request, response);
       }
     );
     router.addRoute(
       RequestMethods.POST,
       "/faq/:id",
       async (request, response) => {
-        await faqController.editFaqQuestion(request, response);
+        await controllers.faq.editFaqQuestion(request, response);
       },
       param("id").isUUID(),
       body("answer").isString().optional(),
@@ -539,7 +529,7 @@ class Routes {
       RequestMethods.DELETE,
       "/faq/:id",
       async (request, response) => {
-        await faqController.deleteFaqQuestions(request, response);
+        await controllers.faq.deleteFaqQuestions(request, response);
       },
       param("id").isUUID(),
       checkUserPermission(this.web.getCore().getPrisma(), "faq.remove")
@@ -555,7 +545,7 @@ class Routes {
       RequestMethods.GET,
       "/builders/search",
       async (request, response) => {
-        await userController.searchBuilders(request, response);
+        await controllers.user.searchBuilders(request, response);
       },
       query("search").isString().optional(),
       query("take").isNumeric().optional(),
@@ -565,7 +555,7 @@ class Routes {
       RequestMethods.GET,
       "/users",
       async (request, response) => {
-        await userController.getUsers(request, response);
+        await controllers.user.getUsers(request, response);
       },
       query("page").isNumeric().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "users.list")
@@ -574,7 +564,7 @@ class Routes {
       RequestMethods.GET,
       "/users/:id",
       async (request, response) => {
-        await userController.getUser(request, response);
+        await controllers.user.getUser(request, response);
       },
       param("id").isUUID()
       // Permission check later
@@ -583,7 +573,7 @@ class Routes {
       RequestMethods.GET,
       "/users/:id/kc",
       async (request, response) => {
-        await userController.getKeycloakUser(request, response);
+        await controllers.user.getKeycloakUser(request, response);
       },
       param("id").isUUID()
       // Permission check later
@@ -592,7 +582,7 @@ class Routes {
       RequestMethods.GET,
       "/users/:id/review",
       async (request, response) => {
-        await userController.getUserReviews(request, response);
+        await controllers.user.getUserReviews(request, response);
       },
       param("id").isUUID()
       // Permission check later
@@ -601,7 +591,7 @@ class Routes {
       RequestMethods.POST,
       "/users/:id",
       async (request, response) => {
-        await userController.updateUser(request, response);
+        await controllers.user.updateUser(request, response);
       },
       param("id").isUUID(),
       body("email").isEmail().optional(),
@@ -616,7 +606,7 @@ class Routes {
       RequestMethods.GET,
       "/users/:id/permissions",
       async (request, response) => {
-        await userController.getPermissions(request, response);
+        await controllers.user.getPermissions(request, response);
       },
       param("id"),
       checkUserPermission(this.web.getCore().getPrisma(), "users.list")
@@ -625,7 +615,7 @@ class Routes {
       RequestMethods.POST,
       "/users/:id/permissions",
       async (request, response) => {
-        await userController.addPermission(request, response);
+        await controllers.user.addPermission(request, response);
       },
       param("id"),
       body("permission").isString().optional(),
@@ -637,7 +627,7 @@ class Routes {
       RequestMethods.DELETE,
       "/users/:id/permissions",
       async (request, response) => {
-        await userController.removePermission(request, response);
+        await controllers.user.removePermission(request, response);
       },
       param("id"),
       body("permission").isString().optional(),
@@ -656,14 +646,14 @@ class Routes {
       RequestMethods.GET,
       "/contacts",
       async (request, response) => {
-        await contactController.getContacts(request, response);
+        await controllers.contact.getContacts(request, response);
       }
     );
     router.addRoute(
       RequestMethods.POST,
       "/contacts",
       async (request, response) => {
-        await faqController.addFaqQuestion(request, response);
+        await controllers.faq.addFaqQuestion(request, response);
       },
       body("name"),
       body("role"),
@@ -676,7 +666,7 @@ class Routes {
       RequestMethods.POST,
       "/contacts/:id",
       async (request, response) => {
-        await faqController.editFaqQuestion(request, response);
+        await controllers.faq.editFaqQuestion(request, response);
       },
       param("id").isUUID(),
       body("name").optional(),
@@ -697,7 +687,7 @@ class Routes {
       RequestMethods.GET,
       "/newsletter",
       async (request, response) => {
-        await newsletterController.getNewsletters(request, response);
+        await controllers.newsletter.getNewsletters(request, response);
       },
       param("page").optional()
     );
@@ -705,7 +695,7 @@ class Routes {
       RequestMethods.GET,
       "/newsletter/:id",
       async (request, response) => {
-        await newsletterController.getNewsletter(request, response);
+        await controllers.newsletter.getNewsletter(request, response);
       },
       param("id"),
       query("isIssue").optional()
@@ -714,7 +704,7 @@ class Routes {
       RequestMethods.POST,
       "/newsletter",
       async (request, response) => {
-        await newsletterController.addNewsletter(request, response);
+        await controllers.newsletter.addNewsletter(request, response);
       },
       param("public").isBoolean().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "newsletter.add")
@@ -730,7 +720,7 @@ class Routes {
       RequestMethods.GET,
       "/public/buildteams/:team/claims",
       async (request, response) => {
-        await tokenRouteContoller.getClaims(request, response);
+        await controllers.tokenRoute.getClaims(request, response);
       },
       param("team"),
       query("page").isNumeric().optional(),
@@ -741,7 +731,7 @@ class Routes {
       RequestMethods.GET,
       "/public/buildteams/:team/claims/:id",
       async (request, response) => {
-        await tokenRouteContoller.getClaim(request, response);
+        await controllers.tokenRoute.getClaim(request, response);
       },
       param("team"),
       param("id"),
@@ -752,7 +742,7 @@ class Routes {
       RequestMethods.POST,
       "/public/buildteams/:team/claimsbatch",
       async (request, response) => {
-        await tokenRouteContoller.addClaims(request, response);
+        await controllers.tokenRoute.addClaims(request, response);
       },
       // body("data").isArray({ min: 1, max: 100 }),
       param("team"),
@@ -762,7 +752,7 @@ class Routes {
       RequestMethods.POST,
       "/public/buildteams/:team/claims/:id",
       async (request, response) => {
-        await tokenRouteContoller.updateClaim(request, response);
+        await controllers.tokenRoute.updateClaim(request, response);
       },
       param("team"),
       param("id"),
@@ -778,7 +768,7 @@ class Routes {
       RequestMethods.POST,
       "/public/buildteams/:team/claims",
       async (request, response) => {
-        await tokenRouteContoller.addClaim(request, response);
+        await controllers.tokenRoute.addClaim(request, response);
       },
       param("team"),
       body("owner").isString(),
@@ -795,7 +785,7 @@ class Routes {
       RequestMethods.DELETE,
       "/public/buildteams/:team/claims/:id",
       async (request, response) => {
-        await tokenRouteContoller.removeClaim(request, response);
+        await controllers.tokenRoute.removeClaim(request, response);
       },
       param("team"),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
@@ -804,7 +794,7 @@ class Routes {
       RequestMethods.GET,
       "/public/buildteams/:id/members",
       async (request, response) => {
-        await buildTeamController.getBuildTeamMembers(request, response);
+        await controllers.buildTeam.getBuildTeamMembers(request, response);
       },
       param("id"),
       query("page").isNumeric().optional(),
@@ -820,7 +810,7 @@ class Routes {
       RequestMethods.GET,
       "/admin/cron",
       async (request, response) => {
-        await adminController.getCronJobs(request, response);
+        await controllers.admin.getCronJobs(request, response);
       },
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
@@ -828,7 +818,7 @@ class Routes {
       RequestMethods.GET,
       "/admin/progress",
       async (request, response) => {
-        await adminController.getProgress(request, response);
+        await controllers.admin.getProgress(request, response);
       },
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
@@ -836,7 +826,7 @@ class Routes {
       RequestMethods.POST,
       "/admin/claims/buildings",
       async (request, response) => {
-        await adminController.getClaimBuildingCounts(request, response);
+        await controllers.admin.getClaimBuildingCounts(request, response);
       },
       query("skipExisting").isBoolean().optional(),
       query("take").isNumeric().optional(),

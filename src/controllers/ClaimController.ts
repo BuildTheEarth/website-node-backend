@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import turf, {
   CoordinateType,
   parseCoordinates,
+  toOverpassPolygon,
   toPolygon,
 } from "../util/Coordinates.js";
 import {
@@ -10,6 +11,8 @@ import {
   ERROR_VALIDATION,
 } from "../util/Errors.js";
 
+import { Claim } from "@prisma/client";
+import axios from "axios";
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
 
@@ -175,6 +178,7 @@ class ClaimController {
         builders: req.body.builders
           ? { set: req.body.builders.map((b: any) => ({ id: b.id })) }
           : undefined,
+        buildings: area && (await this.updateClaimBuildingCount({ area })),
       },
     });
 
@@ -222,12 +226,13 @@ class ClaimController {
           area && turf.center(toPolygon(area)).geometry.coordinates.join(", "),
         owner: { connect: { id: req.user.id } },
         builders: req.body.builders
-          ? { connect: req.body.builders.map((b: any) => ({ id: b })) }
+          ? { connect: req.body.builders.map((b: any) => ({ area })) }
           : undefined,
         name: req.body.name,
         description: req.body.description,
         finished: req.body.finished,
         active: req.body.active,
+        buildings: area && (await this.updateClaimBuildingCount({ area })),
       },
     });
 
@@ -273,6 +278,46 @@ class ClaimController {
       res.send(claim);
     } else {
       ERROR_GENERIC(res, 404, "Claim does not exist.");
+    }
+  }
+
+  public async updateClaimBuildingCount(
+    claim: {
+      id?: string;
+      area: string[];
+    },
+    update?: boolean
+  ) {
+    const polygon = toOverpassPolygon(claim.area);
+
+    const overpassQuery = `[out:json][timeout:25];
+        (
+          node["building"]["building"!~"grandstand"]["building"!~"roof"]["building"!~"garage"]["building"!~"hut"]["building"!~"shed"](poly: "${polygon}");
+          way["building"]["building"!~"grandstand"]["building"!~"roof"]["building"!~"garage"]["building"!~"hut"]["building"!~"shed"](poly: "${polygon}");
+          relation["building"]["building"!~"grandstand"]["building"!~"roof"]["building"!~"garage"]["building"!~"hut"]["building"!~"shed"](poly: "${polygon}");
+        );
+      out count;`;
+
+    try {
+      const { data } = await axios.get(
+        `https://overpass.kumi.systems/api/interpreter?data=${overpassQuery.replace(
+          "\n",
+          ""
+        )}`
+      );
+
+      if (update) {
+        const updatedClaim = await this.core.getPrisma().claim.update({
+          where: { id: claim.id },
+          data: { buildings: parseInt(data?.elements[0]?.tags?.total) || 0 },
+        });
+        return updatedClaim;
+      } else {
+        return parseInt(data?.elements[0]?.tags?.total) || 0;
+      }
+    } catch (e) {
+      this.core.getLogger().error(e.message);
+      return e;
     }
   }
 }

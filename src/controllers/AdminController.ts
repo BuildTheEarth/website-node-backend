@@ -62,43 +62,16 @@ class AdminController {
     this.progress.buildings.total = claims.length;
 
     for (const [i, claim] of claims.entries()) {
-      const polygon = toOverpassPolygon(claim.area);
-
-      const overpassQuery = `[out:json][timeout:25];
-        (
-          node["building"]["building"!~"grandstand"]["building"!~"roof"]["building"!~"garage"]["building"!~"hut"]["building"!~"shed"](poly: "${polygon}");
-          way["building"]["building"!~"grandstand"]["building"!~"roof"]["building"!~"garage"]["building"!~"hut"]["building"!~"shed"](poly: "${polygon}");
-          relation["building"]["building"!~"grandstand"]["building"!~"roof"]["building"!~"garage"]["building"!~"hut"]["building"!~"shed"](poly: "${polygon}");
-        );
-      out count;`;
-
-      try {
-        const { data } = await axios.get(
-          `https://overpass.kumi.systems/api/interpreter?data=${overpassQuery.replace(
-            "\n",
-            ""
-          )}`
-        );
-        this.core
-          .getLogger()
-          .debug(
-            "Getting buildings for claim " +
-              claim.id +
-              ` (${i + 1}/${claims.length})`
-          );
-
-        const updatedClaim = await this.core.getPrisma().claim.update({
-          where: { id: claim.id },
-          data: { buildings: parseInt(data?.elements[0]?.tags?.total) || 0 },
-        });
-
-        this.progress.buildings.done = i + 1;
-      } catch (e) {
-        this.core.getLogger().error(e.message);
-      }
+      this.core
+        .getWeb()
+        .getControllers()
+        .claim.updateClaimBuildingCount(claim, true);
+      this.progress.buildings.done = i + 1;
     }
     this.progress.buildings = { done: 0, total: 0 };
   }
+
+
 }
 
 export default AdminController;

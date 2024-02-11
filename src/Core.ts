@@ -91,6 +91,8 @@ class Core {
 
   public getCron = (): CronHandler => this.cron;
 
+  public getWeb = (): Web => this.web;
+
   private setUpLogger(): void {
     // const logger = this.getLogger();
     // logger.level = process.env.LOGLEVEL;

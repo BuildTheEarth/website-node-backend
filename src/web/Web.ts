@@ -1,14 +1,25 @@
 import express, { Request, Response } from "express";
 
+import bodyParser from "body-parser";
+import cors from "cors";
+import session from "express-session";
+import multer from "multer";
 import Core from "../Core.js";
+import AdminController from "../controllers/AdminController.js";
+import ApplicationController from "../controllers/ApplicationController.js";
+import BuildTeamController from "../controllers/BuildTeamController.js";
+import ClaimController from "../controllers/ClaimController.js";
+import ContactController from "../controllers/ContactController.js";
+import FaqController from "../controllers/FAQController.js";
+import GeneralController from "../controllers/GeneralController.js";
+import NewsletterController from "../controllers/NewsletterController.js";
+import ShowcaseController from "../controllers/ShowcaseController.js";
+import TokenRouteContoller from "../controllers/TokenRouteController.js";
+import UserController from "../controllers/UserController.js";
 import { ERROR_GENERIC } from "../util/Errors.js";
 import Routes from "./routes/index.js";
-import bodyParser from "body-parser";
 import checkNewUser from "./routes/utils/CheckNewUserMiddleware.js";
-import cors from "cors";
 import metricsMiddleware from "./routes/utils/MetricsMiddleware.js";
-import multer from "multer";
-import session from "express-session";
 
 class Web {
   app;
@@ -16,6 +27,19 @@ class Web {
   core: Core;
 
   routes: Routes;
+  controllers: {
+    general: GeneralController;
+    buildTeam: BuildTeamController;
+    showcase: ShowcaseController;
+    application: ApplicationController;
+    claim: ClaimController;
+    faq: FaqController;
+    user: UserController;
+    contact: ContactController;
+    newsletter: NewsletterController;
+    admin: AdminController;
+    tokenRoute: TokenRouteContoller;
+  };
 
   fileStorage: any;
   fileUpload: any;
@@ -25,6 +49,7 @@ class Web {
     this.core = core;
     this.fileStorage = multer.memoryStorage();
     this.fileUpload = multer({ storage: this.fileStorage });
+    this.controllers = this.initControllers(core);
   }
 
   public startWebserver() {
@@ -65,6 +90,22 @@ class Web {
     });
   }
 
+  private initControllers(core: Core) {
+    return {
+      general: new GeneralController(core),
+      buildTeam: new BuildTeamController(core),
+      showcase: new ShowcaseController(core),
+      application: new ApplicationController(core),
+      claim: new ClaimController(core),
+      faq: new FaqController(core),
+      user: new UserController(core),
+      contact: new ContactController(core),
+      newsletter: new NewsletterController(core),
+      tokenRoute: new TokenRouteContoller(core),
+      admin: new AdminController(core),
+    };
+  }
+
   public getPort() {
     return process.env.WEBPORT;
   }
@@ -83,6 +124,10 @@ class Web {
 
   public getFileUpload() {
     return this.fileUpload;
+  }
+
+  public getControllers() {
+    return this.controllers;
   }
 }
 
