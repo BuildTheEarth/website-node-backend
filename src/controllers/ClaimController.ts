@@ -118,23 +118,26 @@ class ClaimController {
       },
     });
     if (claim) {
-      const kcBuilders = await Promise.all(
-        claim.builders?.map(async (member) => {
-          const kcMember = await this.core
-            .getKeycloakAdmin()
-            .getKeycloakAdminClient()
-            .users.findOne({
-              id: member.ssoId,
-            });
-          return {
-            discordId: member.discordId,
-            id: member.id,
-            username: kcMember?.username,
-            avatar: member.avatar,
-            name: member.name,
-          };
-        })
-      );
+      let kcBuilders = [];
+      if (claim.builders) {
+        kcBuilders = await Promise.all(
+          claim?.builders?.map(async (member) => {
+            const kcMember = await this.core
+              .getKeycloakAdmin()
+              .getKeycloakAdminClient()
+              .users.findOne({
+                id: member.ssoId,
+              });
+            return {
+              discordId: member.discordId,
+              id: member.id,
+              username: kcMember?.username,
+              avatar: member.avatar,
+              name: member.name,
+            };
+          })
+        );
+      }
 
       let kcOwner;
       if (claim.owner) {
