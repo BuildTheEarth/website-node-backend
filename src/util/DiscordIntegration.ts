@@ -103,6 +103,14 @@ class DiscordIntegration {
     }).then((res) => res.json());
   }
 
+  public async isOnServer(user: string) {
+    const res = await this.getBuilderRole(user);
+    if (res?.error == "NOT_FOUND") {
+      return false;
+    }
+    return true;
+  }
+
   public async sendClaimUpdate(claim: Claim) {
     return this.sendRawWebhook({
       embeds: [

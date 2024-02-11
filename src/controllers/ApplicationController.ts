@@ -284,6 +284,15 @@ class ApplicationController {
       ERROR_NO_PERMISSION(res);
     }
 
+    if (!(await this.core.getDiscord().isOnServer(req.user.discordId))) {
+      ERROR_GENERIC(
+        res,
+        428,
+        "Please join the BuildTheEarth.net Discord Server"
+      );
+      return;
+    }
+
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
       where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
       select: {
