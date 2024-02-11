@@ -70,8 +70,6 @@ class AdminController {
     }
     this.progress.buildings = { done: 0, total: 0 };
   }
-
-
 }
 
 export default AdminController;

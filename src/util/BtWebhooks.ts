@@ -14,4 +14,4 @@ export const WebhookType = {
   APPLICATION: "APPLICATION",
 };
 
-export type WebhookType = (typeof WebhookType)[keyof typeof WebhookType];
+export type WebhookType = typeof WebhookType[keyof typeof WebhookType];
