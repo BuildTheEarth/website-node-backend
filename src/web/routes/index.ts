@@ -35,18 +35,6 @@ class Routes {
     const router: Router = new Router(this.web, "v1");
     const controllers = this.web.getControllers();
 
-    // const controllers.buildTeam = new controllers.buildTeam(this.web.getCore());
-    // const controllers.showcase = new controllers.showcase(this.web.getCore());
-    // const controllers.application = new controllers.application(this.web.getCore());
-    // const controllers.claim = new controllers.claim(this.web.getCore());
-    // const controllers.faq = new controllers.faq(this.web.getCore());
-    // const controllers.user = new controllers.user(this.web.getCore());
-    // const controllers.contact = new controllers.contact(this.web.getCore());
-    // const controllers.newsletter = new controllers.newsletter(this.web.getCore());
-    // const controllers.general = new controllers.general(this.web.getCore());
-    // const controllers.tokenRoute = new controllers.tokenRoute(this.web.getCore());
-    // const controllers.admin = new controllers.admin(this.web.getCore());
-
     router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
       response.send({ status: "up" });
     });
@@ -314,7 +302,7 @@ class Routes {
       },
       param("id").isUUID(),
       body("name").isString().optional(),
-      body("description").isString().optional(),
+      body("description").optional(),
       body("finished").isBoolean().optional(),
       body("active").isBoolean().optional(),
       body("area").isArray().optional(),
