@@ -11,8 +11,8 @@ model User {
   id                String           @id @default(uuid())
   ssoId             String           @unique
   discordId         String?
-  name              String?
   avatar            String?
+  name              String?
   reviewed          Application[]    @relation("reviewer")
   applications      Application[]    @relation("user")
   createdBuildTeams BuildTeam[]      @relation("creator")
@@ -39,19 +39,19 @@ model BuildTeam {
   rejectionMessage     String                @default("")
   trialMessage         String                @default("")
   token                String                @default("")
+  allowBuilderClaim    Boolean?              @default(true)
+  instantAccept        Boolean?              @default(false)
+  webhook              String?
+  allowApplications    Boolean?              @default(true)
+  color                String                @default("#1098AD")
   Application          Application[]
   applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
   creator              User                  @relation("creator", fields: [creatorId], references: [id])
+  claims               Claim[]
   showcases            Showcase[]            @relation("showcases")
   socials              Social[]              @relation("socials")
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
-  claims               Claim[]
-  allowBuilderClaim    Boolean?              @default(true)
-  allowApplications    Boolean?              @default(true)
-  instantAccept        Boolean?              @default(false)
-  webhook              String?
-  color                String                @default("#1098AD")
 }
 
 model ApplicationQuestion {
@@ -81,12 +81,12 @@ model Social {
 
 model Showcase {
   id          String    @id @default(uuid())
-  image       Upload    @relation(fields: [uploadId], references: [id])
   title       String
   createdAt   DateTime  @default(now())
   buildTeamId String
-  buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
   uploadId    String
+  buildTeam   BuildTeam @relation("showcases", fields: [buildTeamId], references: [id])
+  image       Upload    @relation(fields: [uploadId], references: [id])
 }
 
 model UserPermission {
@@ -94,8 +94,8 @@ model UserPermission {
   userId       String
   buildTeamId  String?
   permissionId String
-  permission   Permisision @relation(fields: [permissionId], references: [id])
   buildTeam    BuildTeam?  @relation(fields: [buildTeamId], references: [id])
+  permission   Permisision @relation(fields: [permissionId], references: [id])
   user         User        @relation(fields: [userId], references: [id])
 }
 
@@ -134,23 +134,23 @@ model Newsletter {
 
 model Claim {
   id          String        @id @default(uuid())
-  externalId  String?
   ownerId     String?
   area        String[]
   center      String?
   active      Boolean       @default(false)
   finished    Boolean       @default(false)
+  buildTeamId String
   name        String        @default("")
+  createdAt   DateTime      @default(now())
+  externalId  String?
   description String?
-  osmName     String?
+  buildings   Int           @default(1)
   city        String?
-  buildings   Int           @default(0)
+  osmName     String?
   Application Application[]
+  buildTeam   BuildTeam     @relation(fields: [buildTeamId], references: [id])
   owner       User?         @relation("owner", fields: [ownerId], references: [id])
   builders    User[]        @relation("builders")
-  buildTeam   BuildTeam     @relation(fields: [buildTeamId], references: [id])
-  buildTeamId String
-  createdAt   DateTime      @default(now())
 }
 
 model Application {
