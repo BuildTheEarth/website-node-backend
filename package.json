@@ -9,6 +9,7 @@
     "start": "node index.js",
     "start-nodemon": "nodemon index.js",
     "start:migrate": "npx prisma migrate deploy && node index.js",
+    "prebuild": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'+'export const LIB_LICENSE = ' + JSON.stringify(require('./package.json').license) + ';'\" > src/util/package.ts",
     "build": "yarn install --pure-lockfile && tsc",
     "studio": "prisma studio",
     "prettier": "prettier --write ./src",
@@ -18,12 +19,12 @@
     "type": "git",
     "url": "git+https://github.com/BuildTheEarth/website-node-backend.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "BuildTheEarth Developers",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/BuildTheEarth/website-node-backend/issues"
   },
-  "homepage": "https://github.com/BuildTheEarth/website-node-backend#readme",
+  "homepage": "https://api.buildtheearth.net",
   "devDependencies": {
     "@types/express": "^4.17.14",
     "@types/express-session": "^1.17.5",
