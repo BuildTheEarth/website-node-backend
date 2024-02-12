@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -45,7 +46,7 @@ class AmazonAWS {
     return process.env.AWS_UPLOAD_BUCKET_NAME;
   }
 
-  public async uploadFile(file: any) {
+  public async uploadFile(file: any, opts?: any) {
     const fileKey = crypto.randomBytes(32).toString("hex");
 
     const { data: fileBuffer, info: fileInfo } = await sharp(file.buffer)
@@ -74,8 +75,22 @@ class AmazonAWS {
           4,
           4
         ),*/ "",
+        ...opts,
       },
     });
+    return upload;
+  }
+
+  public async deleteFile(bucket: string, fileKey: string) {
+    const upload = await this.core
+      .getPrisma()
+      .upload.delete({ where: { id: fileKey } });
+    const command = new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: upload.name,
+    });
+    await this.core.getAWS().getS3Client().send(command);
+
     return upload;
   }
 

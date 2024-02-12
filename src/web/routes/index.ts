@@ -59,6 +59,7 @@ class Routes {
       async (request, response) => {
         await controllers.general.uploadImage(request, response);
       },
+      query("claim").isUUID().optional(),
       this.web.getFileUpload().single("image")
     );
     router.addRoute(
@@ -314,6 +315,15 @@ class Routes {
       async (request, response) => {
         await controllers.claim.deleteClaim(request, response);
       },
+      param("id").isUUID()
+    );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/claims/:id/images/:image",
+      async (request, response) => {
+        await controllers.claim.deleteClaimImage(request, response);
+      },
+      param("image").isUUID(),
       param("id").isUUID()
     );
 

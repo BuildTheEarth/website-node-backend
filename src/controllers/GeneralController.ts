@@ -75,8 +75,13 @@ class GeneralController {
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(res, errors.array());
     }
+    let opts = undefined;
 
-    const upload = await this.core.getAWS().uploadFile(req.file);
+    if (req.query.claim) {
+      opts = { Claim: { connect: { id: req.query.claim as string } } };
+    }
+
+    const upload = await this.core.getAWS().uploadFile(req.file, opts);
 
     res.send(upload);
   }

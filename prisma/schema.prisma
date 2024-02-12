@@ -133,24 +133,24 @@ model Newsletter {
 }
 
 model Claim {
-  id          String        @id @default(uuid())
+  id          String    @id @default(uuid())
   ownerId     String?
   area        String[]
   center      String?
-  active      Boolean       @default(false)
-  finished    Boolean       @default(false)
+  active      Boolean   @default(false)
+  finished    Boolean   @default(false)
   buildTeamId String
-  name        String        @default("")
-  createdAt   DateTime      @default(now())
+  name        String    @default("")
+  createdAt   DateTime  @default(now())
   externalId  String?
   description String?
-  buildings   Int           @default(1)
+  buildings   Int       @default(1)
   city        String?
   osmName     String?
-  Application Application[]
-  buildTeam   BuildTeam     @relation(fields: [buildTeamId], references: [id])
-  owner       User?         @relation("owner", fields: [ownerId], references: [id])
-  builders    User[]        @relation("builders")
+  buildTeam   BuildTeam @relation(fields: [buildTeamId], references: [id])
+  owner       User?     @relation("owner", fields: [ownerId], references: [id])
+  builders    User[]    @relation("builders")
+  images      Upload[] 
 }
 
 model Application {
@@ -165,7 +165,6 @@ model Application {
   claimId           String?
   trial             Boolean             @default(false)
   buildteam         BuildTeam           @relation(fields: [buildteamId], references: [id])
-  claim             Claim?              @relation(fields: [claimId], references: [id])
   reviewer          User?               @relation("reviewer", fields: [reviewerId], references: [id])
   user              User                @relation("user", fields: [userId], references: [id])
   ApplicationAnswer ApplicationAnswer[]
@@ -188,6 +187,8 @@ model Upload {
   width     Int
   createdAt DateTime   @default(now())
   Showcase  Showcase[]
+  Claim     Claim?     @relation(fields: [claimId], references: [id])
+  claimId   String?
 }
 
 enum ApplicationStatus {

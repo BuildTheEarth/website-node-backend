@@ -102,6 +102,15 @@ class ClaimController {
             allowBuilderClaim: true,
           },
         },
+        images: {
+          select: {
+            id: true,
+            name: true,
+            hash: true,
+            height: true,
+            width: true,
+          },
+        },
         builders: req.query.builders
           ? {
               select: {
@@ -270,7 +279,6 @@ class ClaimController {
         },
       });
     }
-    console.log(claim);
 
     if (claim) {
       await this.core.getPrisma().claim.delete({
@@ -281,6 +289,33 @@ class ClaimController {
       res.send(claim);
     } else {
       ERROR_GENERIC(res, 404, "Claim does not exist.");
+    }
+  }
+
+  public async deleteClaimImage(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(res, errors.array());
+    }
+
+    if (!req.user) {
+      return ERROR_NO_PERMISSION(res);
+    }
+    const claim = await this.core.getPrisma().claim.findFirst({
+      where: {
+        id: req.params.id,
+        ownerId: req.user.id,
+      },
+      select: {
+        images: { where: { id: req.params.image } },
+      },
+    });
+
+    if (claim?.images[0]) {
+      await this.core.getAWS().deleteFile("uploads", claim.images[0].id);
+      res.send(claim);
+    } else {
+      ERROR_GENERIC(res, 404, "Claim or Image does not exist.");
     }
   }
 

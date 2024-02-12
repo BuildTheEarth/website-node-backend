@@ -114,7 +114,6 @@ class UserController {
             reason: true,
             trial: true,
             buildteam: { select: { name: true, id: true } },
-            claim: { select: { id: true } },
           },
         },
         createdBuildTeams: {
