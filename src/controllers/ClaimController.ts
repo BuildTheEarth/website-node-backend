@@ -187,6 +187,7 @@ class ClaimController {
         finished,
         active,
         area: area,
+        size: area && turf.area(toPolygon(area)),
         center: center,
         builders: req.body.builders
           ? { set: req.body.builders.map((b: any) => ({ id: b.id })) }
@@ -241,6 +242,7 @@ class ClaimController {
           },
         },
         area: area,
+        size: area && turf.area(toPolygon(area)),
         center,
         owner: { connect: { id: req.user.id } },
         builders: req.body.builders

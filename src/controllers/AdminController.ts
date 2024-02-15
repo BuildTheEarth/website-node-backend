@@ -14,6 +14,7 @@ class AdminController {
     this.progress = {
       buildings: { done: 0, total: 0 },
       addresses: { done: 0, total: 0 },
+      sizes: { done: 0, total: 0 },
     };
   }
 
@@ -107,6 +108,43 @@ class AdminController {
     }
 
     this.progress.addresses = { done: 0, total: 0 };
+  }
+
+  public async getClaimSizes(req: Request, res: Response) {
+    if (this.progress.sizes > 0) {
+      return ERROR_GENERIC(res, 409, "Recalculations are already ongoing.");
+    }
+
+    const claims = await this.core.getPrisma().claim.findMany({
+      where: {
+        center: { not: null },
+        size: 0,
+      },
+      take: req.query.take && parseInt(req.query.take as string),
+      skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
+      select: { buildings: true, id: true, area: true },
+    });
+
+    res.send({ progress: 0, count: claims.length });
+    this.progress.sizes.total = claims.length;
+
+    for (const [i, claim] of claims.entries()) {
+      const area = claim.area;
+
+      if (area.at(-1) != area.at(0)) {
+        claim.area.push(area.at(0));
+      }
+
+      await this.core.getPrisma().claim.update({
+        where: { id: claim.id },
+        data: {
+          size: turf.area(toPolygon(area)),
+        },
+      });
+
+      this.progress.sizes.done = i + 1;
+    }
+    this.progress.sizes = { done: 0, total: 0 };
   }
 }
 

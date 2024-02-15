@@ -843,6 +843,16 @@ class Routes {
       query("skip").isNumeric().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/admin/claims/sizes",
+      async (request, response) => {
+        await controllers.admin.getClaimSizes(request, response);
+      },
+      query("take").isNumeric().optional(),
+      query("skip").isNumeric().optional(),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
+    );
   }
 }
 

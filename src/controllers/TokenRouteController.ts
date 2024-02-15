@@ -115,6 +115,7 @@ class TokenRouteContoller {
         externalId,
         active,
         area: area,
+        size: area && turf.area(toPolygon(area)),
         center: area
           ? turf.center(toPolygon(area)).geometry.coordinates.join(", ")
           : undefined,
@@ -142,6 +143,10 @@ class TokenRouteContoller {
         c.owner = undefined;
       }
 
+      const area = parseCoordinates(
+        c.area,
+        (req.query.coordType as string) || "stringarray"
+      );
       const claim = await this.core.getPrisma().claim.create({
         data: {
           id: c.id,
@@ -154,20 +159,9 @@ class TokenRouteContoller {
           builders: c.builders
             ? { connect: c.builders.map((b: any) => ({ id: b })) }
             : undefined,
-          area: parseCoordinates(
-            c.area,
-            (req.query.coordType as string) || "stringarray"
-          ),
-          center: turf
-            .center(
-              toPolygon(
-                parseCoordinates(
-                  c.area,
-                  (req.query.coordType as string) || "stringarray"
-                )
-              )
-            )
-            .geometry.coordinates.join(", "),
+          area,
+          size: area && turf.area(toPolygon(area)),
+          center: turf.center(toPolygon(area)).geometry.coordinates.join(", "),
         },
       });
       claims.push(claim);
@@ -206,6 +200,7 @@ class TokenRouteContoller {
         finished,
         active,
         area: area,
+        size: area && turf.area(toPolygon(area)),
         center: area
           ? turf.center(toPolygon(area)).geometry.coordinates.join(", ")
           : undefined,
