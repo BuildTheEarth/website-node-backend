@@ -176,6 +176,7 @@ class ClaimController {
     }
 
     const { name, finished, active, area, description } = req.body;
+    const center = turf.center(toPolygon(area)).geometry.coordinates.join(", ")
     const claim = await this.core.getPrisma().claim.update({
       where: {
         id: req.params.id,
@@ -186,11 +187,15 @@ class ClaimController {
         finished,
         active,
         area: area,
-        center: turf.center(toPolygon(area)).geometry.coordinates.join(", "),
+        center: center,
         builders: req.body.builders
           ? { set: req.body.builders.map((b: any) => ({ id: b.id })) }
           : undefined,
         buildings: area && (await this.updateClaimBuildingCount({ area })),
+        ...(await this.updateClaimOSMDetails(
+          { id: req.params.id, name, center },
+          false
+        )),
       },
     });
 
@@ -225,6 +230,8 @@ class ClaimController {
     }
 
     const area = req.body.area?.map((p: [number, number]) => p.join(", "));
+    const center =
+      area && turf.center(toPolygon(area)).geometry.coordinates.join(", ");
 
     const claim = await this.core.getPrisma().claim.create({
       data: {
@@ -234,8 +241,7 @@ class ClaimController {
           },
         },
         area: area,
-        center:
-          area && turf.center(toPolygon(area)).geometry.coordinates.join(", "),
+        center,
         owner: { connect: { id: req.user.id } },
         builders: req.body.builders
           ? { connect: req.body.builders.map((b: any) => ({ area })) }
@@ -245,6 +251,12 @@ class ClaimController {
         finished: req.body.finished,
         active: req.body.active,
         buildings: area && (await this.updateClaimBuildingCount({ area })),
+        ...(area
+          ? await this.updateClaimOSMDetails(
+              { name: req.body.name, center },
+              false
+            )
+          : {}),
       },
     });
 
@@ -356,6 +368,58 @@ class ClaimController {
     } catch (e) {
       this.core.getLogger().error(e.message);
       return e;
+    }
+  }
+
+  public async updateClaimOSMDetails(
+    claim: { id?: string; center: string; name?: string },
+    update?: boolean
+  ): Promise<{osmName:string,city:string,name:string}|undefined|Error> {
+    try {
+      const { data } = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${
+          claim.center.split(", ")[1]
+        }&lon=${
+          claim.center.split(", ")[0]
+        }&format=json&accept-language=en&zoom=18`,
+        { headers: { "User-Agent": "BTE/1.0" } }
+      );
+
+      if (data?.error) this.core.getLogger().error(data.error);
+
+      const parsed = {
+        osmName: data.display_name,
+        name: claim.name
+          ? claim.name
+          : data.name != ""
+          ? data.name
+          : `${data.address?.road || ""} ${
+              data.address?.house_number || ""
+            }`.trim() || data.display_name.split(",")[0],
+        city:
+          data.address?.city ||
+          data.address?.town ||
+          data.address?.hamlet ||
+          data.address?.township ||
+          data.address?.village ||
+          data.address?.suburb ||
+          data.address?.neighbourhood ||
+          data.address?.county,
+      };
+
+      if (data?.display_name && update) {
+        await this.core.getPrisma().claim.update({
+          where: {
+            id: claim.id,
+          },
+          data: parsed,
+        });
+      } else {
+        return parsed;
+      }
+    } catch (e) {
+      this.core.getLogger().error(e);
+      //return e;
     }
   }
 }

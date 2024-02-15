@@ -832,6 +832,17 @@ class Routes {
       query("gte").isNumeric().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/admin/claims/addresses",
+      async (request, response) => {
+        await controllers.admin.getClaimOSMDetails(request, response);
+      },
+      query("skipExisting").isBoolean().optional(),
+      query("take").isNumeric().optional(),
+      query("skip").isNumeric().optional(),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
+    );
   }
 }
 
