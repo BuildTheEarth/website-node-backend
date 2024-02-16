@@ -6,6 +6,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 import crypto from "crypto";
+import { getPlaiceholder } from "plaiceholder";
 import sharp from "sharp";
 import Core from "../Core.js";
 
@@ -68,13 +69,8 @@ class AmazonAWS {
         name: fileKey,
         height: fileInfo.height,
         width: fileInfo.width,
-        hash: /*blurhash.encode(
-          new Uint8ClampedArray(fileBuffer),
-          fileInfo.width,
-          fileInfo.height,
-          4,
-          4
-        ),*/ "",
+        hash: (await getPlaiceholder(file.buffer)).base64,
+        // hash: "",
         ...opts,
       },
     });

@@ -860,6 +860,14 @@ class Routes {
       query("skip").isNumeric().optional(),
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/admin/images",
+      async (request, response) => {
+        await controllers.admin.getImageHashes(request, response);
+      },
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
+    );
   }
 }
 

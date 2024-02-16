@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
 
-import axios from "axios";
 import Core from "../Core.js";
 import { ERROR_GENERIC } from "../util/Errors.js";
+import axios from "axios";
+import { getPlaiceholder } from "plaiceholder";
 
 class AdminController {
   private core: Core;
@@ -146,6 +147,44 @@ class AdminController {
     }
     this.progress.sizes = { done: 0, total: 0 };
   }
+
+  public async getImageHashes(req: Request, res: Response) {
+    const images = await this.core.getPrisma().upload.findMany({
+      where: { hash: "" },
+      select: { name: true, id: true },
+      take: 50,
+    });
+
+    const hashes = await Promise.all(
+      images.map((image) =>
+        getHash(`https://cdn.buildtheearth.net/uploads/${image.name}`)
+      )
+    );
+
+    for (const [i, image] of images.entries()) {
+      await this.core.getPrisma().upload.update({
+        where: { id: image.id },
+        data: {
+          hash: hashes[i],
+        },
+      });
+    }
+    res.send({ count: images.length });
+  }
 }
 
+async function getHash(src: string) {
+  try {
+    const buffer = await fetch(src).then(async (res) =>
+      Buffer.from(await res.arrayBuffer())
+    );
+
+    const { base64 } = await getPlaiceholder(buffer);
+    console.log(src.split("/").at(-1), base64.slice(0, 10));
+    return base64;
+  } catch (e) {
+    console.log(e.message);
+    return "";
+  }
+}
 export default AdminController;
