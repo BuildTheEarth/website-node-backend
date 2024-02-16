@@ -169,6 +169,97 @@ class ClaimController {
     return;
   }
 
+  public async getStatistics(req: Request, res: Response) {
+    const claimAggr = await this.core.getPrisma().claim.aggregate({
+      _avg: {
+        size: true,
+        buildings: true,
+      },
+      _sum: {
+        size: true,
+        buildings: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+    const claimTopArea = await this.core.getPrisma().claim.findMany({
+      orderBy: { size: "desc" },
+      take: 3,
+      select: { id: true, name: true, city: true, size: true, buildings: true },
+    });
+    const claimTopBuildings = await this.core.getPrisma().claim.findMany({
+      orderBy: { buildings: "desc" },
+      take: 3,
+      select: { id: true, name: true, city: true, size: true, buildings: true },
+    });
+
+    const _claimTopUser: any[] = await this.core.getPrisma().$queryRaw`
+    SELECT "User".*, COUNT(*) AS count
+    FROM "User"
+    LEFT JOIN "Claim" ON "Claim"."ownerId" = "User"."id"
+    GROUP BY "User"."id"
+    ORDER BY count DESC
+    LIMIT 3;
+    `;
+
+    const _claimTopTeam: any[] = await this.core.getPrisma().$queryRaw`
+    SELECT "BuildTeam"."name", "BuildTeam"."id", "BuildTeam"."slug", "BuildTeam"."location", "BuildTeam"."icon", COUNT(*) AS count
+    FROM "BuildTeam"
+    LEFT JOIN "Claim" ON "Claim"."buildTeamId" = "BuildTeam"."id"
+    GROUP BY "BuildTeam"."id"
+    ORDER BY count DESC
+    LIMIT 3;
+    `;
+
+    let claimTopUser = [];
+    if (_claimTopUser) {
+      claimTopUser = await Promise.all(
+        _claimTopUser?.map(async (member) => {
+          const kcMember = await this.core
+            .getKeycloakAdmin()
+            .getKeycloakAdminClient()
+            .users.findOne({
+              id: member.ssoId,
+            });
+          return {
+            id: member.id,
+            name: member.name,
+            username: kcMember?.username,
+            discordId: member.discordId,
+            avatar: member.avatar,
+            count: parseInt(member.count.toString().replace("n", "")),
+          };
+        })
+      );
+    }
+
+    const claimTopTeam = _claimTopTeam.map((team) => ({
+      ...team,
+      count: parseInt(team.count.toString().replace("n", "")),
+    }));
+
+    res.send({
+      total: {
+        area: claimAggr._sum.size,
+        claims: claimAggr._count.id,
+        buildings: claimAggr._sum.buildings,
+      },
+      average: {
+        area: claimAggr._avg.size,
+        buildings: claimAggr._avg.buildings,
+      },
+      largest: {
+        area: claimTopArea,
+        buildings: claimTopBuildings,
+      },
+      most: {
+        user: claimTopUser,
+        team: claimTopTeam,
+      },
+    });
+  }
+
   public async updateClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -176,7 +267,7 @@ class ClaimController {
     }
 
     const { name, finished, active, area, description } = req.body;
-    const center = turf.center(toPolygon(area)).geometry.coordinates.join(", ")
+    const center = turf.center(toPolygon(area)).geometry.coordinates.join(", ");
     const claim = await this.core.getPrisma().claim.update({
       where: {
         id: req.params.id,
@@ -376,7 +467,9 @@ class ClaimController {
   public async updateClaimOSMDetails(
     claim: { id?: string; center: string; name?: string },
     update?: boolean
-  ): Promise<{osmName:string,city:string,name:string}|undefined|Error> {
+  ): Promise<
+    { osmName: string; city: string; name: string } | undefined | Error
+  > {
     try {
       const { data } = await axios.get(
         `https://nominatim.openstreetmap.org/reverse?lat=${

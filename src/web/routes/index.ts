@@ -274,6 +274,13 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.GET,
+      "/map/statistics",
+      async (request, response) => {
+        await controllers.claim.getStatistics(request, response);
+      }
+    );
+    router.addRoute(
+      RequestMethods.GET,
       "/claims/:id",
       async (request, response) => {
         await controllers.claim.getClaim(request, response);
