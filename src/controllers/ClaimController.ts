@@ -182,16 +182,19 @@ class ClaimController {
       _count: {
         id: true,
       },
+      where: { finished: true },
     });
     const claimTopArea = await this.core.getPrisma().claim.findMany({
       orderBy: { size: "desc" },
       take: 3,
       select: { id: true, name: true, city: true, size: true, buildings: true },
+      where: { finished: true },
     });
     const claimTopBuildings = await this.core.getPrisma().claim.findMany({
       orderBy: { buildings: "desc" },
       take: 3,
       select: { id: true, name: true, city: true, size: true, buildings: true },
+      where: { finished: true },
     });
 
     const _claimTopUser: any[] = await this.core.getPrisma().$queryRaw`
