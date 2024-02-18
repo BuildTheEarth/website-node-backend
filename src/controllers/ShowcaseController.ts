@@ -104,24 +104,27 @@ class ShowcaseController {
 
     const fileKey = showcase.image.name;
 
-    const delUpload = this.core.getPrisma().upload.delete({
-      where: { id: showcase.image.id },
-    });
-    const delShowcase = this.core.getPrisma().showcase.delete({
+    let delUpload;
+    const delShowcase = await this.core.getPrisma().showcase.delete({
       where: { id: showcase.id },
     });
 
-    const transaction = await this.core
-      .getPrisma()
-      .$transaction([delShowcase, delUpload]);
-
+    try {
+      delUpload = await this.core.getPrisma().upload.delete({
+        where: { id: showcase.image.id, claimId: null },
+      });
+    } catch (e) {
+      delUpload = {
+        message: "Upload not deleted because it is linked to an claim",
+      };
+      return res.send([delUpload, delShowcase]);
+    }
     const command = new DeleteObjectCommand({
       Bucket: this.core.getAWS().getS3Bucket(false),
       Key: fileKey,
     });
     await this.core.getAWS().getS3Client().send(command);
-
-    res.send(transaction);
+    res.send([delUpload, delShowcase]);
   }
 
   public async createShowcase(req: Request, res: Response) {
@@ -134,6 +137,41 @@ class ShowcaseController {
     const showcase = await this.core.getPrisma().showcase.create({
       data: {
         title: req.body.title,
+        city: req.body.city,
+        image: { connect: { id: upload.id } },
+        buildTeam: {
+          connect: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
+        },
+        createdAt: req.body.date,
+      },
+      select: { image: true },
+    });
+
+    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
+
+    res.send(showcase);
+  }
+
+  public async linkShowcase(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(res, errors.array());
+    }
+
+    const upload = await this.core
+      .getPrisma()
+      .upload.findFirst({ where: { id: req.body.image } });
+
+    if (!upload) {
+      ERROR_GENERIC(res, 404, "Image does not exist.");
+    }
+
+    const showcase = await this.core.getPrisma().showcase.create({
+      data: {
+        title: req.body.title,
+        city: req.body.city,
         image: { connect: { id: upload.id } },
         buildTeam: {
           connect: req.query.slug

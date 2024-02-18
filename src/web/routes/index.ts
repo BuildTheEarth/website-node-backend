@@ -364,17 +364,16 @@ class Routes {
       query("limit").isNumeric()
     );
     router.addRoute(
-      RequestMethods.DELETE,
-      "/buildteams/:team/showcases/:id",
+      RequestMethods.POST,
+      "/buildteams/:id/showcases/link",
       async (request, response) => {
-        await controllers.showcase.deleteShowcase(request, response);
+        await controllers.showcase.linkShowcase(request, response);
       },
-      param("team"),
-      param("id").isUUID(),
+      param("id"),
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.showcases.edit",
-        "team"
+        "id"
       )
     );
     router.addRoute(
@@ -390,6 +389,20 @@ class Routes {
         "id"
       ),
       this.web.getFileUpload().single("image")
+    );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/buildteams/:team/showcases/:id",
+      async (request, response) => {
+        await controllers.showcase.deleteShowcase(request, response);
+      },
+      param("team"),
+      param("id").isUUID(),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "team.showcases.edit",
+        "team"
+      )
     );
 
     /*

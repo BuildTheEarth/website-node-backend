@@ -82,6 +82,7 @@ model Social {
 model Showcase {
   id          String    @id @default(uuid())
   title       String
+  city        String    @default("")
   createdAt   DateTime  @default(now())
   buildTeamId String
   uploadId    String
@@ -137,7 +138,7 @@ model Claim {
   ownerId     String?
   area        String[]
   center      String?
-  size Int @default(0)
+  size        Int       @default(0)
   active      Boolean   @default(false)
   finished    Boolean   @default(false)
   buildTeamId String
@@ -151,7 +152,7 @@ model Claim {
   buildTeam   BuildTeam @relation(fields: [buildTeamId], references: [id])
   owner       User?     @relation("owner", fields: [ownerId], references: [id])
   builders    User[]    @relation("builders")
-  images      Upload[] 
+  images      Upload[]
 }
 
 model Application {

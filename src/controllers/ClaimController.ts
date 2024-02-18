@@ -43,6 +43,10 @@ class ClaimController {
           ? { slug: filters.team }
           : { id: filters.team },
       },
+      include: {
+        _count: { select: { builders: true, images: true } },
+        images: { select: { id: true, name: true, hash: true } },
+      },
     });
 
     res.send(claims);
