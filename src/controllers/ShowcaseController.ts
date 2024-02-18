@@ -187,6 +187,27 @@ class ShowcaseController {
 
     res.send(showcase);
   }
+
+  public async editShowcase(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(res, errors.array());
+    }
+
+    const showcase = await this.core.getPrisma().showcase.update({
+      where: { id: req.params.id,buildTeam: req.query.slug ? { slug: req.params.team } : { id: req.params.team } },
+      data: {
+        title: req.body.title,
+        city: req.body.city,
+        createdAt: req.body.date,
+      },
+      select: { image: true },
+    });
+
+    rerenderFrontend(FrontendRoutesGroups.TEAM, { team: req.params.id });
+
+    res.send(showcase);
+  }
 }
 
 export default ShowcaseController;

@@ -391,6 +391,20 @@ class Routes {
       this.web.getFileUpload().single("image")
     );
     router.addRoute(
+      RequestMethods.POST,
+      "/buildteams/:team/showcases/:id",
+      async (request, response) => {
+        await controllers.showcase.editShowcase(request, response);
+      },
+      param("team"),
+      param("id").isUUID(),
+      checkUserPermission(
+        this.web.getCore().getPrisma(),
+        "team.showcases.edit",
+        "team"
+      )
+    );
+    router.addRoute(
       RequestMethods.DELETE,
       "/buildteams/:team/showcases/:id",
       async (request, response) => {
