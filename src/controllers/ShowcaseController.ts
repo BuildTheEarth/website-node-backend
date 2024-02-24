@@ -74,12 +74,20 @@ class ShowcaseController {
           },
         },
       },
+      where: req.query.approved
+        ? {
+            approved: req.query.approved === "true",
+          }
+        : {},
     });
 
     const randomIndexes = [];
 
-    for (let i = 0; i < parseInt(req.query.limit as string); i++) {
-      randomIndexes.push(Math.floor(Math.random() * showcases.length));
+    while (randomIndexes.length < parseInt(req.query.limit as string)) {
+      const randomIndex = Math.floor(Math.random() * showcases.length);
+      if (!randomIndexes.includes(randomIndex)) {
+        randomIndexes.push(randomIndex);
+      }
     }
 
     res.send(showcases.filter((s, index) => randomIndexes.includes(index)));

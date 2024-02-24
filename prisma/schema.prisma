@@ -83,6 +83,7 @@ model Showcase {
   id          String    @id @default(uuid())
   title       String
   city        String    @default("")
+  approved Boolean @default(false)
   createdAt   DateTime  @default(now())
   buildTeamId String
   uploadId    String
