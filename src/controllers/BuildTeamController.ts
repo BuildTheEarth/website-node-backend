@@ -1,13 +1,13 @@
-import { Request, Response } from "express";
 import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
+import { Request, Response } from "express";
 
 import { ApplicationQuestionType } from "@prisma/client";
+import Core from "../Core.js";
 import crypto from "crypto";
+import { questions } from "../util/QuestionData.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
-import Core from "../Core.js";
-import { questions } from "../util/QuestionData.js";
 
 class BuildTeamController {
   private core: Core;
@@ -50,9 +50,10 @@ class BuildTeamController {
       });
     } else {
       const buildteams = await this.core.getPrisma().buildTeam.findMany({
+        orderBy: { members: { _count: "desc" } },
         include: {
           _count: {
-            select: { members: true },
+            select: { members: true, showcases: true },
           },
           members: req.user
             ? {

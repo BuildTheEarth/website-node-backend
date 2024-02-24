@@ -5,6 +5,7 @@ import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class ShowcaseController {
   private core: Core;
@@ -201,13 +202,24 @@ class ShowcaseController {
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(res, errors.array());
     }
+    const isAdmin = await userHasPermissions(
+      this.core.getPrisma(),
+      req.user.ssoId,
+      ["admin.admin"]
+    );
 
     const showcase = await this.core.getPrisma().showcase.update({
-      where: { id: req.params.id,buildTeam: req.query.slug ? { slug: req.params.team } : { id: req.params.team } },
+      where: {
+        id: req.params.id,
+        buildTeam: req.query.slug
+          ? { slug: req.params.team }
+          : { id: req.params.team },
+      },
       data: {
         title: req.body.title,
         city: req.body.city,
         createdAt: req.body.date,
+        approved: isAdmin ? req.body.approved : undefined,
       },
       select: { image: true },
     });
