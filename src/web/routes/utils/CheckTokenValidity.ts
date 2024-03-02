@@ -1,7 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
-import { minimatch } from "minimatch";
+import { PrismaClient } from "@prisma/client";
 import { ERROR_NO_PERMISSION } from "../../../util/Errors.js";
 
 export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {

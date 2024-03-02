@@ -1,6 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
+import { PrismaClient } from "@prisma/client";
 import { minimatch } from "minimatch";
 import { ERROR_NO_PERMISSION } from "../../../util/Errors.js";
 

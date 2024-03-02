@@ -1,5 +1,4 @@
 import { core } from "../../index.js";
-import Core from "../Core.js";
 
 export async function rerenderFrontend(query: string, props: any) {
   const routes = frontendRoutes

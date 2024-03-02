@@ -1,5 +1,3 @@
-import { ApplicationQuestionType } from "@prisma/client";
-import Core from "../Core.js";
 import runFetch from "./Fetcher.js";
 
 export async function sendBtWebhook(
@@ -14,4 +12,4 @@ export const WebhookType = {
   APPLICATION: "APPLICATION",
 };
 
-export type WebhookType = typeof WebhookType[keyof typeof WebhookType];
+export type WebhookType = (typeof WebhookType)[keyof typeof WebhookType];

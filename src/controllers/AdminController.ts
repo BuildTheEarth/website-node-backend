@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
+import turf, { toPolygon } from "../util/Coordinates.js";
 
-import axios from "axios";
 import { getPlaiceholder } from "plaiceholder";
 import Core from "../Core.js";
 import { ERROR_GENERIC } from "../util/Errors.js";

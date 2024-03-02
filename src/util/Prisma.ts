@@ -1,5 +1,4 @@
-import { ApplicationStatus, PrismaClient } from "@prisma/client";
-
+import { ApplicationStatus } from "@prisma/client";
 import Core from "../Core.js";
 
 export async function middlewareUploadSrc(params, next) {

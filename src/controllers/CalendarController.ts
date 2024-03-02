@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
 import { validationResult } from "express-validator";
 import Core from "../Core.js";

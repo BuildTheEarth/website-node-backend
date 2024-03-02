@@ -13,7 +13,6 @@ import {
 
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
-import runFetch from "../util/Fetcher.js";
 import { parseApplicationStatus } from "../util/Parser.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 

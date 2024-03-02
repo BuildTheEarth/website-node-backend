@@ -1,5 +1,4 @@
-import { Application, ApplicationStatus, Claim, User } from "@prisma/client";
-
+import { Claim } from "@prisma/client";
 import Core from "../Core.js";
 
 class DiscordIntegration {

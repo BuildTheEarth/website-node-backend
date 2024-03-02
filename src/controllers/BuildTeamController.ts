@@ -7,7 +7,6 @@ import crypto from "crypto";
 import { validationResult } from "express-validator";
 import yup from "yup";
 import Core from "../Core.js";
-import { questions } from "../util/QuestionData.js";
 
 class BuildTeamController {
   private core: Core;

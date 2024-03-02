@@ -1,13 +1,7 @@
-import * as blurhash from "blurhash";
-
 import { Request, Response } from "express";
 import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import crypto from "crypto";
 import { validationResult } from "express-validator";
-import { parse } from "path";
-import sharp from "sharp";
 import Core from "../Core.js";
 
 class GeneralController {
