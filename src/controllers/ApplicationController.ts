@@ -4,7 +4,7 @@ import {
   ApplicationStatus,
 } from "@prisma/client";
 import { Request, Response } from "express";
-import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
+import { sendBtWebhook, WebhookType } from "../util/BtWebhooks.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
@@ -458,7 +458,7 @@ class ApplicationController {
     }
   }
 
-  private mutateApplicationMessage(
+  public mutateApplicationMessage(
     message: string,
     application: Application,
     user: { discordId: string },

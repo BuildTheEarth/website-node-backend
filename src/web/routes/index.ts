@@ -892,6 +892,39 @@ class Routes {
       query("page").isNumeric().optional(),
       checkTokenValidity(this.web.getCore().getPrisma(), "id")
     );
+    router.addRoute(
+      RequestMethods.GET,
+      "/public/buildteams/:team/applications",
+      async (request, response) => {
+        await controllers.tokenRoute.getApplications(request, response);
+      },
+      param("team"),
+      query("page").isNumeric().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.GET,
+      "/public/buildteams/:team/applications/:id",
+      async (request, response) => {
+        await controllers.tokenRoute.getApplication(request, response);
+      },
+      param("id"),
+      param("team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/public/buildteams/:team/applications/:id",
+      async (request, response) => {
+        await controllers.tokenRoute.review(request, response);
+      },
+      param("id"),
+      param("team"),
+      body("status").isString(),
+      body("reviewer").isUUID(),
+      body("reason").isString().optional(),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    );
 
     /*
      *
