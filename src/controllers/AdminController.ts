@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
 
-import Core from "../Core.js";
-import { ERROR_GENERIC } from "../util/Errors.js";
 import axios from "axios";
 import { getPlaiceholder } from "plaiceholder";
+import Core from "../Core.js";
+import { ERROR_GENERIC } from "../util/Errors.js";
 
 class AdminController {
   private core: Core;
@@ -42,7 +42,12 @@ class AdminController {
 
   public async getClaimBuildingCounts(req: Request, res: Response) {
     if (this.progress.buildings > 0) {
-      return ERROR_GENERIC(res, 409, "Recalculations are already ongoing.");
+      return ERROR_GENERIC(
+        req,
+        res,
+        409,
+        "Recalculations are already ongoing."
+      );
     }
 
     const claims = await this.core.getPrisma().claim.findMany({
@@ -75,7 +80,12 @@ class AdminController {
 
   public async getClaimOSMDetails(req: Request, res: Response) {
     if (this.progress.addresses > 0) {
-      return ERROR_GENERIC(res, 409, "Recalculations are already ongoing.");
+      return ERROR_GENERIC(
+        req,
+        res,
+        409,
+        "Recalculations are already ongoing."
+      );
     }
 
     let claims = await this.core.getPrisma().claim.findMany({
@@ -113,7 +123,12 @@ class AdminController {
 
   public async getClaimSizes(req: Request, res: Response) {
     if (this.progress.sizes > 0) {
-      return ERROR_GENERIC(res, 409, "Recalculations are already ongoing.");
+      return ERROR_GENERIC(
+        req,
+        res,
+        409,
+        "Recalculations are already ongoing."
+      );
     }
 
     const claims = await this.core.getPrisma().claim.findMany({

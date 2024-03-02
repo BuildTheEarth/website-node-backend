@@ -1,28 +1,31 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 
-export const ERROR_NO_PERMISSION = (res: Response, msg?: string) => {
-  return res.status(401).send({
-    error: true,
-    errors: [],
-    message: msg || "You don't have permission to access this resource.",
-    code: 401,
-  });
+import { LIB_VERSION } from "./package.js";
+
+export const ERROR_NO_PERMISSION = (
+  req: Request,
+  res: Response,
+  msg?: string
+) => {
+  return ERROR_GENERIC(
+    req,
+    res,
+    401,
+    msg || "You don't have permission to access this resource."
+  );
 };
 
 export const ERROR_VALIDATION = (
+  req: Request,
   res: Response,
   errors: any[],
   msg?: string
 ) => {
-  return res.status(400).send({
-    error: true,
-    errors: errors,
-    message: msg || "Validation error.",
-    code: 400,
-  });
+  return ERROR_GENERIC(req, res, 400, msg || "Validation error.", errors);
 };
 
 export const ERROR_GENERIC = (
+  req: Request,
   res: Response,
   code: number,
   msg: string,
@@ -33,5 +36,9 @@ export const ERROR_GENERIC = (
     errors: errors || [],
     message: msg,
     code: code,
+    timestamp: new Date().toISOString(),
+    url: req.path,
+    authorization: req.headers.authorization?.split(" ")[0],
+    version: LIB_VERSION,
   });
 };

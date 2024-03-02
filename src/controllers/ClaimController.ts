@@ -26,7 +26,7 @@ class ClaimController {
   public async getClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const filters = {
@@ -55,7 +55,7 @@ class ClaimController {
   public async getClaimsGeoJson(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const filters = {
@@ -88,7 +88,7 @@ class ClaimController {
   public async getClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const claim = await this.core.getPrisma().claim.findUnique({
       where: {
@@ -168,7 +168,7 @@ class ClaimController {
         owner: { ...claim.owner, username: kcOwner?.username },
       });
     } else {
-      ERROR_GENERIC(res, 404, "Claim does not exist.");
+      ERROR_GENERIC(req, res, 404, "Claim does not exist.");
     }
     return;
   }
@@ -270,7 +270,7 @@ class ClaimController {
   public async updateClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const { name, finished, active, area, description } = req.body;
@@ -308,7 +308,7 @@ class ClaimController {
   public async createClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -321,11 +321,16 @@ class ClaimController {
     });
 
     if (buildteam.allowBuilderClaim === false) {
-      return ERROR_GENERIC(res, 403, "BuildTeam does not allow Claims.");
+      return ERROR_GENERIC(req, res, 403, "BuildTeam does not allow Claims.");
     }
 
     if (buildteam.members.length <= 0) {
-      return ERROR_GENERIC(res, 403, "You are not a member of this BuildTeam.");
+      return ERROR_GENERIC(
+        req,
+        res,
+        403,
+        "You are not a member of this BuildTeam."
+      );
     }
 
     const area = req.body.area?.map((p: [number, number]) => p.join(", "));
@@ -366,11 +371,11 @@ class ClaimController {
   public async deleteClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!req.user) {
-      return ERROR_NO_PERMISSION(res);
+      return ERROR_NO_PERMISSION(req, res);
     }
     let claim = null;
 
@@ -400,18 +405,18 @@ class ClaimController {
       });
       res.send(claim);
     } else {
-      ERROR_GENERIC(res, 404, "Claim does not exist.");
+      ERROR_GENERIC(req, res, 404, "Claim does not exist.");
     }
   }
 
   public async deleteClaimImage(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!req.user) {
-      return ERROR_NO_PERMISSION(res);
+      return ERROR_NO_PERMISSION(req, res);
     }
     const claim = await this.core.getPrisma().claim.findFirst({
       where: {
@@ -427,7 +432,7 @@ class ClaimController {
       await this.core.getAWS().deleteFile("uploads", claim.images[0].id);
       res.send(claim);
     } else {
-      ERROR_GENERIC(res, 404, "Claim or Image does not exist.");
+      ERROR_GENERIC(req, res, 404, "Claim or Image does not exist.");
     }
   }
 

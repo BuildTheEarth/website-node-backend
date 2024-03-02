@@ -1,13 +1,13 @@
+import { Request, Response } from "express";
 import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
-import { Request, Response } from "express";
 
 import { ApplicationQuestionType } from "@prisma/client";
-import Core from "../Core.js";
 import crypto from "crypto";
-import { questions } from "../util/QuestionData.js";
 import { validationResult } from "express-validator";
 import yup from "yup";
+import Core from "../Core.js";
+import { questions } from "../util/QuestionData.js";
 
 class BuildTeamController {
   private core: Core;
@@ -19,7 +19,7 @@ class BuildTeamController {
   public async getBuildTeams(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -93,14 +93,14 @@ class BuildTeamController {
     if (buildteam) {
       res.send({ ...buildteam, token: undefined, webhook: undefined });
     } else {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
 
   public async getBuildTeamApplicationQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let applicationQuestions = await this.core
@@ -116,7 +116,7 @@ class BuildTeamController {
     if (applicationQuestions) {
       res.send(applicationQuestions);
     } else {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
 
@@ -126,7 +126,7 @@ class BuildTeamController {
   ) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -174,17 +174,17 @@ class BuildTeamController {
           res.send(validatedSchema);
         })
         .catch((e) => {
-          return ERROR_GENERIC(res, 400, e);
+          return ERROR_GENERIC(req, res, 400, e);
         });
     } else {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
 
   public async getBuildTeamSocials(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -197,14 +197,14 @@ class BuildTeamController {
     if (buildteam) {
       res.send(buildteam.socials);
     } else {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
 
   public async updateBuildTeamSocials(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -250,16 +250,16 @@ class BuildTeamController {
           res.send(validatedSchema);
         })
         .catch((e) => {
-          return ERROR_GENERIC(res, 400, e);
+          return ERROR_GENERIC(req, res, 400, e);
         });
     } else {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
   public async deleteBuildTeamSocial(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     try {
@@ -268,13 +268,13 @@ class BuildTeamController {
       });
       res.send(social);
     } catch {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
   public async updateBuildTeam(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const {
@@ -326,7 +326,7 @@ class BuildTeamController {
   public async getBuildTeamMembers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     let members;
     let count = 0;
@@ -395,7 +395,7 @@ class BuildTeamController {
   public async removeBuildTeamMember(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const user = await this.core.getPrisma().user.update({
@@ -417,7 +417,7 @@ class BuildTeamController {
   public async getBuildTeamManagers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const members = await this.core.getPrisma().user.findMany({
@@ -468,7 +468,7 @@ class BuildTeamController {
   public async generateBuildTeamToken(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const buildteam = await this.core.getPrisma().buildTeam.findUnique({
@@ -483,11 +483,12 @@ class BuildTeamController {
     });
 
     if (!buildteam) {
-      return ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      return ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
 
     if (buildteam.creator.id !== req.user.id) {
       return ERROR_GENERIC(
+        req,
         res,
         403,
         "You are not the Creator of this BuildTeam."

@@ -15,7 +15,7 @@ class NewsletterController {
   public async getNewsletters(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -34,7 +34,7 @@ class NewsletterController {
   public async getNewsletter(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const newsletter = await this.core.getPrisma().newsletter.findUnique({
       where: req.query.isIssue
@@ -48,7 +48,7 @@ class NewsletterController {
     if (newsletter) {
       res.send(newsletter);
     } else {
-      ERROR_GENERIC(res, 404, "Newseltter does not exist.");
+      ERROR_GENERIC(req, res, 404, "Newseltter does not exist.");
     }
     return;
   }
@@ -56,7 +56,7 @@ class NewsletterController {
   public async addNewsletter(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const issue = (await this.core.getPrisma().newsletter.count()) + 1;
     const newsletter = await this.core.getPrisma().newsletter.create({

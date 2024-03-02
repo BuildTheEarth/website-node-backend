@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import session from "express-session";
 import multer from "multer";
-import Core from "../Core.js";
 import AdminController from "../controllers/AdminController.js";
 import ApplicationController from "../controllers/ApplicationController.js";
 import BuildTeamController from "../controllers/BuildTeamController.js";
@@ -17,6 +16,7 @@ import NewsletterController from "../controllers/NewsletterController.js";
 import ShowcaseController from "../controllers/ShowcaseController.js";
 import TokenRouteContoller from "../controllers/TokenRouteController.js";
 import UserController from "../controllers/UserController.js";
+import Core from "../Core.js";
 import { ERROR_GENERIC } from "../util/Errors.js";
 import Routes from "./routes/index.js";
 import checkNewUser from "./routes/utils/CheckNewUserMiddleware.js";
@@ -78,11 +78,11 @@ class Web {
 
     this.routes = new Routes(this);
 
-    this.app.use("/api/v1/*", (_req: Request, res: Response) => {
-      return ERROR_GENERIC(res, 404, "Not Found");
+    this.app.use("/api/v1/*", (req: Request, res: Response) => {
+      return ERROR_GENERIC(req, res, 404, "Not Found");
     });
-    this.app.use("*", (_req: Request, res: Response) => {
-      return ERROR_GENERIC(res, 404, "Not Found. Use /api/v1");
+    this.app.use("*", (req: Request, res: Response) => {
+      return ERROR_GENERIC(req, res, 404, "Not Found. Use /api/v1");
     });
 
     this.app.listen(this.getPort(), () => {

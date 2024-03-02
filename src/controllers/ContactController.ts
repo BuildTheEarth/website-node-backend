@@ -15,7 +15,7 @@ class ContactController {
   public async getContacts(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const contacts = await this.core.getPrisma().contact.findMany({});
@@ -25,7 +25,7 @@ class ContactController {
   public async addContact(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const { name, role, discord, email, avatar } = req.body;
     const contact = await this.core.getPrisma().contact.create({
@@ -39,7 +39,7 @@ class ContactController {
   public async editContact(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const { name, role, discord, email, avatar } = req.body;

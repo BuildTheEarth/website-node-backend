@@ -7,13 +7,14 @@ import { ERROR_NO_PERMISSION } from "../../../util/Errors.js";
 export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.params[buildteam]) {
-      ERROR_NO_PERMISSION(res, "No token was provided in Authorization");
+      ERROR_NO_PERMISSION(req, res, "No token was provided in Authorization");
       return;
     }
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
       ERROR_NO_PERMISSION(
+        req,
         res,
         "No authorization header, please use api keys for public routes."
       );
@@ -24,6 +25,7 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
 
     if (!authToken) {
       ERROR_NO_PERMISSION(
+        req,
         res,
         "Invalid authorization header, please use api keys for public routes."
       );
@@ -37,12 +39,16 @@ export const checkTokenValidity = (prisma: PrismaClient, buildteam: string) => {
     });
 
     if (!tokenTeam) {
-      ERROR_NO_PERMISSION(res, "Invalid token was provided in Authorization");
+      ERROR_NO_PERMISSION(
+        req,
+        res,
+        "Invalid token was provided in Authorization"
+      );
       return;
     }
 
     if (tokenTeam.token !== authToken) {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
       return;
     }
 

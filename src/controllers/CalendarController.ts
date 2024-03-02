@@ -15,7 +15,7 @@ class CalendarController {
   public async getCalendarEvents(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -45,7 +45,7 @@ class CalendarController {
   public async getCalendarEvent(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const event = await this.core
@@ -57,7 +57,7 @@ class CalendarController {
   public async addCalendarEvent(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const event = await this.core.getPrisma().calendarEvent.create({
       data: {

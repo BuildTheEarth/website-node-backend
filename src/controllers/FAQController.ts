@@ -1,9 +1,9 @@
-import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 import { Request, Response } from "express";
+import { FrontendRoutesGroups, rerenderFrontend } from "../util/Frontend.js";
 
+import { validationResult } from "express-validator";
 import Core from "../Core.js";
 import { ERROR_VALIDATION } from "../util/Errors.js";
-import { validationResult } from "express-validator";
 
 class FaqController {
   private core: Core;
@@ -15,7 +15,7 @@ class FaqController {
   public async getFaqQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -33,7 +33,7 @@ class FaqController {
   public async getFaqQuestion(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const questions = await this.core
@@ -45,7 +45,7 @@ class FaqController {
   public async addFaqQuestion(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const question = await this.core.getPrisma().fAQQuestion.create({
       data: { question: req.body.question, answer: req.body.answer },
@@ -58,7 +58,7 @@ class FaqController {
   public async editFaqQuestion(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const question = await this.core.getPrisma().fAQQuestion.update({
@@ -77,7 +77,7 @@ class FaqController {
   public async deleteFaqQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const question = await this.core.getPrisma().fAQQuestion.delete({
       where: { id: req.params.id },

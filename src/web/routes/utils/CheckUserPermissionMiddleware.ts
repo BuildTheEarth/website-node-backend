@@ -11,7 +11,7 @@ export const checkUserPermission = (
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
       return;
     }
 
@@ -26,7 +26,7 @@ export const checkUserPermission = (
       next();
       return;
     } else {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
       return;
     }
   };
@@ -39,7 +39,7 @@ export const checkUserPermissions = (
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
       return;
     }
 
@@ -54,7 +54,7 @@ export const checkUserPermissions = (
       next();
       return;
     } else {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
       return;
     }
   };

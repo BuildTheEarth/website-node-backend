@@ -26,11 +26,11 @@ class ApplicationController {
   public async getApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!req.user) {
-      return ERROR_NO_PERMISSION(res);
+      return ERROR_NO_PERMISSION(req, res);
     }
 
     let applications = await this.core.getPrisma().application.findMany({
@@ -50,11 +50,11 @@ class ApplicationController {
   public async getUserApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!req.user) {
-      return ERROR_NO_PERMISSION(res);
+      return ERROR_NO_PERMISSION(req, res);
     }
 
     let applications = await this.core.getPrisma().application.findMany({
@@ -92,14 +92,14 @@ class ApplicationController {
     ) {
       res.send(applications);
     } else {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
     }
   }
 
   public async getApplication(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const application = await this.core.getPrisma().application.findFirst({
@@ -145,7 +145,7 @@ class ApplicationController {
         user: { ...application.user, discordName: kcUser.username },
       });
     } else {
-      ERROR_GENERIC(res, 404, "Application does not exist.");
+      ERROR_GENERIC(req, res, 404, "Application does not exist.");
     }
     return;
   }
@@ -153,7 +153,7 @@ class ApplicationController {
   public async review(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const { status, reason } = req.body;
@@ -206,7 +206,7 @@ class ApplicationController {
             application.buildteam
           ),
           [user.discordId],
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
@@ -224,7 +224,7 @@ class ApplicationController {
             application.buildteam
           ),
           [user.discordId],
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
     } else {
       const user = await this.core.getPrisma().user.update({
@@ -250,14 +250,14 @@ class ApplicationController {
             application.buildteam
           ),
           [user.discordId],
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
 
       if (user._count.joinedBuildTeams < 1) {
         await this.core
           .getDiscord()
           .updateBuilderRole(user.discordId, false, (e) =>
-            ERROR_GENERIC(res, 500, e)
+            ERROR_GENERIC(req, res, 500, e)
           );
       }
     }
@@ -278,14 +278,15 @@ class ApplicationController {
   public async apply(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (!req.user) {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
     }
 
     if (!(await this.core.getDiscord().isOnServer(req.user.discordId))) {
       ERROR_GENERIC(
+        req,
         res,
         428,
         "Please join the BuildTheEarth.net Discord Server"
@@ -322,6 +323,7 @@ class ApplicationController {
         pastApplications.some((a) => a.status == ApplicationStatus.ACCEPTED)
       ) {
         return ERROR_GENERIC(
+          req,
           res,
           409,
           "You are already a builder of this BuildTeam."
@@ -336,6 +338,7 @@ class ApplicationController {
         )
       ) {
         return ERROR_GENERIC(
+          req,
           res,
           409,
           "You already have an pending application for this BuildTeam."
@@ -347,6 +350,7 @@ class ApplicationController {
         trial
       ) {
         return ERROR_GENERIC(
+          req,
           res,
           409,
           "You are already a trial of this BuildTeam."
@@ -354,7 +358,12 @@ class ApplicationController {
       }
 
       if (!buildteam.allowApplications) {
-        return ERROR_GENERIC(res, 403, "BuildTeam has disabled applications.");
+        return ERROR_GENERIC(
+          req,
+          res,
+          403,
+          "BuildTeam has disabled applications."
+        );
       }
 
       if (buildteam.instantAccept) {
@@ -379,7 +388,7 @@ class ApplicationController {
               buildteam
             ),
             [req.user.discordId],
-            (e) => ERROR_GENERIC(res, 500, e)
+            (e) => ERROR_GENERIC(req, res, 500, e)
           );
       }
 
@@ -410,7 +419,12 @@ class ApplicationController {
               req.user = user;
             }
           } else if (question.required && question.sort >= 0) {
-            return ERROR_GENERIC(res, 400, "Required Questions are missing.");
+            return ERROR_GENERIC(
+              req,
+              res,
+              400,
+              "Required Questions are missing."
+            );
           }
         }
       }
@@ -446,15 +460,15 @@ class ApplicationController {
         await this.core.getDiscord().sendBotMessage(
           `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}> (${req.user.name}). Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
           reviewers.map((r) => r.user.discordId),
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
 
         res.send(application);
       } else {
-        return ERROR_GENERIC(res, 400, "Questions are missing.");
+        return ERROR_GENERIC(req, res, 400, "Questions are missing.");
       }
     } else {
-      ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
 

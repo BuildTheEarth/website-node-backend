@@ -17,7 +17,7 @@ class ShowcaseController {
   public async getShowcases(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
@@ -36,7 +36,7 @@ class ShowcaseController {
   public async getAllShowcases(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
@@ -59,7 +59,7 @@ class ShowcaseController {
   public async getRandomShowcases(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const showcases = await this.core.getPrisma().showcase.findMany({
@@ -97,7 +97,7 @@ class ShowcaseController {
   public async deleteShowcase(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const showcase = await this.core.getPrisma().showcase.findFirst({
@@ -108,7 +108,7 @@ class ShowcaseController {
     });
 
     if (!showcase) {
-      ERROR_GENERIC(res, 404, "Showcase does not exist.");
+      ERROR_GENERIC(req, res, 404, "Showcase does not exist.");
     }
 
     const fileKey = showcase.image.name;
@@ -139,7 +139,7 @@ class ShowcaseController {
   public async createShowcase(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const upload = await this.core.getAWS().uploadFile(req.file);
@@ -166,7 +166,7 @@ class ShowcaseController {
   public async linkShowcase(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const upload = await this.core
@@ -174,7 +174,7 @@ class ShowcaseController {
       .upload.findFirst({ where: { id: req.body.image } });
 
     if (!upload) {
-      ERROR_GENERIC(res, 404, "Image does not exist.");
+      ERROR_GENERIC(req, res, 404, "Image does not exist.");
     }
 
     const showcase = await this.core.getPrisma().showcase.create({
@@ -200,7 +200,7 @@ class ShowcaseController {
   public async editShowcase(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const isAdmin = await userHasPermissions(
       this.core.getPrisma(),

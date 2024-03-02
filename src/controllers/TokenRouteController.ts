@@ -18,7 +18,7 @@ class TokenRouteContoller {
   public async getClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -75,14 +75,14 @@ class TokenRouteContoller {
     if (claim) {
       res.send(claim);
     } else {
-      ERROR_GENERIC(res, 404, "Claim does not exist.");
+      ERROR_GENERIC(req, res, 404, "Claim does not exist.");
     }
   }
 
   public async addClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let { owner, area, active, finished, name, id, builders, externalId } =
@@ -102,7 +102,7 @@ class TokenRouteContoller {
       .user.findFirst({ where: { name: owner } });
 
     if (!o) {
-      return ERROR_GENERIC(res, 404, "Owner does not exist.");
+      return ERROR_GENERIC(req, res, 404, "Owner does not exist.");
     }
 
     const claim = await this.core.getPrisma().claim.create({
@@ -132,7 +132,7 @@ class TokenRouteContoller {
   public async addClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let claims = [];
@@ -176,7 +176,7 @@ class TokenRouteContoller {
   public async updateClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     let { owner, area, active, finished, name, id, builders } = req.body;
@@ -216,7 +216,7 @@ class TokenRouteContoller {
   public async removeClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const claim = await this.core.getPrisma().claim.findFirst({
@@ -224,7 +224,7 @@ class TokenRouteContoller {
     });
 
     if (!claim) {
-      ERROR_GENERIC(res, 404, "Claim does not exist.");
+      ERROR_GENERIC(req, res, 404, "Claim does not exist.");
     }
 
     await this.core.getPrisma().claim.delete({ where: { id: claim.id } });
@@ -236,7 +236,7 @@ class TokenRouteContoller {
   public async getApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -273,7 +273,7 @@ class TokenRouteContoller {
   public async getApplication(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const application = await this.core.getPrisma().application.findFirst({
@@ -313,7 +313,7 @@ class TokenRouteContoller {
         user: { ...application.user, discordName: kcUser.username },
       });
     } else {
-      ERROR_GENERIC(res, 404, "Application does not exist.");
+      ERROR_GENERIC(req, res, 404, "Application does not exist.");
     }
     return;
   }
@@ -321,7 +321,7 @@ class TokenRouteContoller {
   public async review(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const { status, reason, reviewer: reviewerId } = req.body;
@@ -331,7 +331,7 @@ class TokenRouteContoller {
       .user.findFirst({ where: { id: reviewerId } });
 
     if (!reviewer) {
-      return ERROR_GENERIC(res, 404, "Reviewer does not exist.");
+      return ERROR_GENERIC(req, res, 404, "Reviewer does not exist.");
     }
 
     const application = await this.core.getPrisma().application.update({
@@ -385,7 +385,7 @@ class TokenRouteContoller {
               application.buildteam
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
@@ -406,7 +406,7 @@ class TokenRouteContoller {
               application.buildteam
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
     } else {
       const user = await this.core.getPrisma().user.update({
@@ -435,14 +435,14 @@ class TokenRouteContoller {
               application.buildteam
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
 
       if (user._count.joinedBuildTeams < 1) {
         await this.core
           .getDiscord()
           .updateBuilderRole(user.discordId, false, (e) =>
-            ERROR_GENERIC(res, 500, e)
+            ERROR_GENERIC(req, res, 500, e)
           );
       }
     }

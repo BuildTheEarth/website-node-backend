@@ -20,7 +20,7 @@ class GeneralController {
   public async getAccount(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const { exp, iat, sub, email_verified, preferred_username, email } =
       req.kauth.grant.access_token.content;
@@ -28,7 +28,7 @@ class GeneralController {
       .getPrisma()
       .user.findFirst({ where: { ssoId: sub } });
 
-    if (!user) return ERROR_GENERIC(res, 500, "Unidentified User.");
+    if (!user) return ERROR_GENERIC(req, res, 500, "Unidentified User.");
 
     const userPermissions = await this.core
       .getPrisma()
@@ -64,7 +64,7 @@ class GeneralController {
   public async getPermissions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const permissions = await this.core.getPrisma().permisision.findMany();
     res.send(permissions);
@@ -73,7 +73,7 @@ class GeneralController {
   public async uploadImage(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     let opts = undefined;
 

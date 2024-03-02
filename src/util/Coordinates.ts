@@ -51,7 +51,7 @@ export function useCoordinateInput(coordinates: string, required?: boolean) {
 
     if (!coords) {
       if (required) {
-        return ERROR_VALIDATION(res, [
+        return ERROR_VALIDATION(req, res, [
           { msg: "Invalid Value", param: coordinates, location: "body" },
         ]);
       }
@@ -69,6 +69,7 @@ export function useCoordinateInput(coordinates: string, required?: boolean) {
         next();
       } catch (e) {
         return ERROR_GENERIC(
+          req,
           res,
           500,
           "Error parsing coordinates. Correct type?"

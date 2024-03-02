@@ -20,7 +20,7 @@ class UserController {
   public async getUsers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
@@ -38,7 +38,7 @@ class UserController {
   public async searchBuilders(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     // const builders = await this.core
@@ -95,10 +95,10 @@ class UserController {
   public async getUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    if (!req.kauth.grant) ERROR_NO_PERMISSION(res);
+    if (!req.kauth.grant) ERROR_NO_PERMISSION(req, res);
 
     const user = await this.core.getPrisma().user.findFirst({
       where: {
@@ -177,17 +177,17 @@ class UserController {
     ) {
       res.send(user);
     } else {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
     }
   }
 
   public async getKeycloakUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    if (!req.kauth.grant) return ERROR_NO_PERMISSION(res);
+    if (!req.kauth.grant) return ERROR_NO_PERMISSION(req, res);
 
     const user = await this.core.getPrisma().user.findFirst({
       where: {
@@ -215,18 +215,18 @@ class UserController {
     ) {
       res.send({ ...user, ...kcUser, sessions: kcSessions });
     } else {
-      ERROR_NO_PERMISSION(res);
+      ERROR_NO_PERMISSION(req, res);
     }
   }
 
   public async getUserReviews(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!req.kauth.grant) {
-      return ERROR_NO_PERMISSION(res);
+      return ERROR_NO_PERMISSION(req, res);
     }
     const user = await this.core.getPrisma().user.findFirst({
       where: {
@@ -235,7 +235,7 @@ class UserController {
     });
 
     if (user.ssoId != req.kauth.grant.access_token.content.sub) {
-      return ERROR_NO_PERMISSION(res);
+      return ERROR_NO_PERMISSION(req, res);
     }
 
     const reviewPermissions = await this.core
@@ -265,7 +265,7 @@ class UserController {
   public async updateUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const { email, firstName, lastName, username, name, avatar } = req.body;
@@ -298,7 +298,7 @@ class UserController {
   public async getPermissions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
     const permissions = await this.core.getPrisma().userPermission.findMany({
       where: { userId: req.params.id },
@@ -310,11 +310,11 @@ class UserController {
   public async addPermission(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!(req.body.permission || req.body.permissions)) {
-      return ERROR_VALIDATION(res, [
+      return ERROR_VALIDATION(req, res, [
         { msg: "Invalid value", path: "permission" },
       ]);
     }
@@ -330,7 +330,7 @@ class UserController {
           req.query.buildteam as string
         ))
       ) {
-        return ERROR_NO_PERMISSION(res);
+        return ERROR_NO_PERMISSION(req, res);
       }
 
       const buildteam = await this.core.getPrisma().buildTeam.findFirst({
@@ -341,7 +341,7 @@ class UserController {
       });
 
       if (!buildteam) {
-        ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+        ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
       }
 
       res.send(
@@ -360,7 +360,7 @@ class UserController {
           ["permission.add"]
         ))
       ) {
-        return ERROR_NO_PERMISSION(res);
+        return ERROR_NO_PERMISSION(req, res);
       }
 
       res.send(await addPermission(this.core.getPrisma(), permissions, userId));
@@ -370,11 +370,11 @@ class UserController {
   public async removePermission(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(res, errors.array());
+      return ERROR_VALIDATION(req, res, errors.array());
     }
 
     if (!(req.body.permission || req.body.permissions)) {
-      return ERROR_VALIDATION(res, [
+      return ERROR_VALIDATION(req, res, [
         { msg: "Invalid value", path: "permission" },
       ]);
     }
@@ -390,7 +390,7 @@ class UserController {
           req.query.buildteam as string
         ))
       ) {
-        return ERROR_NO_PERMISSION(res);
+        return ERROR_NO_PERMISSION(req, res);
       }
 
       const buildteam = await this.core.getPrisma().buildTeam.findFirst({
@@ -401,7 +401,7 @@ class UserController {
       });
 
       if (!buildteam) {
-        ERROR_GENERIC(res, 404, "BuildTeam does not exist.");
+        ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
       }
 
       res.send(
@@ -420,7 +420,7 @@ class UserController {
           ["permission.remove"]
         ))
       ) {
-        return ERROR_NO_PERMISSION(res);
+        return ERROR_NO_PERMISSION(req, res);
       }
 
       res.send(
