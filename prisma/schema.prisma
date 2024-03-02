@@ -52,6 +52,7 @@ model BuildTeam {
   socials              Social[]              @relation("socials")
   UserPermission       UserPermission[]
   members              User[]                @relation("members")
+  CalendarEvent        CalendarEvent[]
 }
 
 model ApplicationQuestion {
@@ -83,7 +84,7 @@ model Showcase {
   id          String    @id @default(uuid())
   title       String
   city        String    @default("")
-  approved Boolean @default(false)
+  approved    Boolean   @default(false)
   createdAt   DateTime  @default(now())
   buildTeamId String
   uploadId    String
@@ -192,6 +193,19 @@ model Upload {
   Showcase  Showcase[]
   Claim     Claim?     @relation(fields: [claimId], references: [id])
   claimId   String?
+}
+
+model CalendarEvent {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  city        String?
+  country     String?
+  start       DateTime
+  end         DateTime
+  discordLink String?
+  buildTeam   BuildTeam? @relation(fields: [buildTeamId], references: [id])
+  buildTeamId String?
 }
 
 enum ApplicationStatus {

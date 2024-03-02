@@ -8,6 +8,7 @@ import Core from "../Core.js";
 import AdminController from "../controllers/AdminController.js";
 import ApplicationController from "../controllers/ApplicationController.js";
 import BuildTeamController from "../controllers/BuildTeamController.js";
+import CalendarController from "../controllers/CalendarController.js";
 import ClaimController from "../controllers/ClaimController.js";
 import ContactController from "../controllers/ContactController.js";
 import FaqController from "../controllers/FAQController.js";
@@ -39,6 +40,7 @@ class Web {
     newsletter: NewsletterController;
     admin: AdminController;
     tokenRoute: TokenRouteContoller;
+    calendar: CalendarController;
   };
 
   fileStorage: any;
@@ -103,6 +105,7 @@ class Web {
       newsletter: new NewsletterController(core),
       tokenRoute: new TokenRouteContoller(core),
       admin: new AdminController(core),
+      calendar: new CalendarController(core),
     };
   }
 
