@@ -11,6 +11,7 @@ import {
 } from "./utils/CheckUserPermissionMiddleware.js";
 
 import { Keycloak } from "keycloak-connect";
+import { ERROR_GENERIC } from "../../util/Errors.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
 import { RequestMethods } from "./utils/RequestMethods.js";
@@ -35,8 +36,8 @@ class Routes {
     const router: Router = new Router(this.web, "v1");
     const controllers = this.web.getControllers();
 
-    router.addRoute(RequestMethods.GET, "/healthcheck", (request, response) => {
-      response.send({ status: "up" });
+    router.addRoute(RequestMethods.GET, "/healthcheck", (req, res) => {
+      ERROR_GENERIC(req, res, 200, "OK");
     });
     router.addRoute(
       RequestMethods.GET,
