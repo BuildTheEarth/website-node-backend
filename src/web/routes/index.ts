@@ -597,7 +597,7 @@ class Routes {
       body("discordLink").isString().optional(),
       body("buildTeam").isString().optional(),
       query("slug").optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
+      checkUserPermission(this.web.getCore().getPrisma(), "calendar.manage")
     );
     router.addRoute(
       RequestMethods.GET,
