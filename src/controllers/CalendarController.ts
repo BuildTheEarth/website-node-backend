@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
 import { ERROR_VALIDATION } from "../util/Errors.js";
+import { rerenderFrontend } from "../util/Frontend.js";
 
 class CalendarController {
   private core: Core;
@@ -74,6 +75,8 @@ class CalendarController {
         },
       },
     });
+
+    rerenderFrontend("/calendar", {});
 
     res.send(event);
   }

@@ -25,6 +25,7 @@ export const frontendRoutes = [
   "/404",
   "/500",
   "/contact",
+  "/calendar",
   "/",
   "/map",
   "/about",
