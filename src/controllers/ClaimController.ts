@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class ClaimController {
   private core: Core;
@@ -59,23 +60,56 @@ class ClaimController {
 
     const claims = await this.core.getPrisma().claim.findMany({
       where: { finished: filters.finished, active: filters.active },
-      select: { id: true, area: true, finished: true },
+      select: req.query.props
+        ? {
+            id: true,
+            area: true,
+            finished: true,
+            active: true,
+            owner: {
+              select: { id: true, ssoId: true, name: true, avatar: true },
+            },
+            builders: { select: { id: true, name: true, avatar: true } },
+            buildings: true,
+            buildTeam: {
+              select: { id: true, slug: true, name: true, location: true },
+            },
+            city: true,
+            name: true,
+            osmName: true,
+            images: {
+              select: {
+                id: true,
+                hash: true,
+                name: true,
+                createdAt: true,
+                height: true,
+                width: true,
+              },
+            },
+          }
+        : { id: true, area: true, finished: true },
     });
 
     res.send({
       type: "FeatureCollection",
-      features: claims.map((c) => {
-        const mapped = c.area?.map((p: string) => p.split(", ").map(Number));
-        return {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [mapped],
-          },
-          properties: { ...c, area: undefined },
-          id: c.id,
-        };
-      }),
+      features: claims
+        .filter((c) => c.area.length > 0)
+        .map((c) => {
+          const mapped = c.area?.map((p: string) => p.split(", ").map(Number));
+          if (c.area[0] != c.area[c.area.length - 1]) {
+            mapped.push(mapped[0]);
+          }
+          return {
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [mapped],
+            },
+            properties: { ...c, area: undefined },
+            id: c.id,
+          };
+        }),
     });
   }
 
@@ -266,10 +300,29 @@ class ClaimController {
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
+    const claim = await this.core
+      .getPrisma()
+      .claim.findFirst({
+        where: { id: req.params.id },
+        select: { id: true, buildTeamId: true, ownerId: true },
+      });
+
+    if (claim.ownerId != req.user.id) {
+      if (
+        !userHasPermissions(
+          this.core.getPrisma(),
+          req.user.ssoId,
+          ["team.claim.list"],
+          claim.buildTeamId
+        )
+      ) {
+        return ERROR_NO_PERMISSION(req, res);
+      }
+    }
 
     const { name, finished, active, area, description } = req.body;
     const center = turf.center(toPolygon(area)).geometry.coordinates.join(", ");
-    const claim = await this.core.getPrisma().claim.update({
+    const updatedClaim = await this.core.getPrisma().claim.update({
       where: {
         id: req.params.id,
       },
@@ -292,10 +345,10 @@ class ClaimController {
       },
     });
 
-    this.core.getDiscord().sendClaimUpdate(claim);
+    this.core.getDiscord().sendClaimUpdate(updatedClaim);
     res.send({
-      ...claim,
-      builders: req.body.builders.map((b: any) => ({ ...b, new: false })),
+      ...updatedClaim,
+      builders: req.body.builders?.map((b: any) => ({ ...b, new: false })),
     });
   }
 
