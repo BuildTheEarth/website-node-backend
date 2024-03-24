@@ -320,7 +320,7 @@ class ClaimController {
       }
     }
 
-    const { name, finished, active, area, description } = req.body;
+    const { name, finished, active, area, description, owner } = req.body;
     const center = turf.center(toPolygon(area)).geometry.coordinates.join(", ");
     const updatedClaim = await this.core.getPrisma().claim.update({
       where: {
@@ -331,6 +331,7 @@ class ClaimController {
         description,
         finished,
         active,
+        owner: owner && { connect: { id: owner } },
         area: area,
         size: area && turf.area(toPolygon(area)),
         center: center,

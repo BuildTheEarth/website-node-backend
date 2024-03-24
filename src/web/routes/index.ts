@@ -315,6 +315,7 @@ class Routes {
       body("finished").isBoolean().optional(),
       body("active").isBoolean().optional(),
       body("area").isArray().optional(),
+      body("owner").isUUID().optional(),
       useCoordinateInput("area", false)
     );
     router.addRoute(
