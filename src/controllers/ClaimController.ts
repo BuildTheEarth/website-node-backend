@@ -381,7 +381,7 @@ class ClaimController {
       );
     }
 
-    const area = req.body.area?.map((p: [number, number]) => p.join(", "));
+    const area = req.body.area;
     const center =
       area && turf.center(toPolygon(area)).geometry.coordinates.join(", ");
 
@@ -397,7 +397,7 @@ class ClaimController {
         center,
         owner: { connect: { id: req.user.id } },
         builders: req.body.builders
-          ? { connect: req.body.builders.map((b: any) => ({ area })) }
+          ? { connect: req.body.builders.map((b: any) => ({ id: b.id })) }
           : undefined,
         name: req.body.name,
         description: req.body.description,
