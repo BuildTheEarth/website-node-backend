@@ -425,25 +425,23 @@ class ClaimController {
     if (!req.user) {
       return ERROR_NO_PERMISSION(req, res);
     }
-    let claim = null;
+     const claim = await this.core.getPrisma().claim.findFirst({
+       where: { id: req.params.id },
+       select: { id: true, buildTeamId: true, ownerId: true },
+     });
 
-    if (req.params.team) {
-      claim = await this.core.getPrisma().claim.findFirst({
-        where: {
-          id: req.params.id,
-          buildTeam: req.query.slug
-            ? { slug: req.params.team }
-            : { id: req.params.team },
-        },
-      });
-    } else {
-      claim = await this.core.getPrisma().claim.findFirst({
-        where: {
-          id: req.params.id,
-          ownerId: req.user.id,
-        },
-      });
-    }
+     if (claim.ownerId != req.user.id) {
+       if (
+         !userHasPermissions(
+           this.core.getPrisma(),
+           req.user.ssoId,
+           ["team.claim.list"],
+           claim.buildTeamId
+         )
+       ) {
+         return ERROR_NO_PERMISSION(req, res);
+       }
+     }
 
     if (claim) {
       await this.core.getPrisma().claim.delete({
