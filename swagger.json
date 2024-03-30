@@ -1107,7 +1107,8 @@
                       "$ref": "#/components/schemas/UserRef"
                     }
                   }
-                }
+                },
+                "required": ["area", "active", "finished", "name"]
               }
             }
           }
