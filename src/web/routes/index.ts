@@ -878,58 +878,70 @@ class Routes {
       param("team"),
       param("id"),
       query("withBuilders").isBoolean().optional(),
+      query("external").optional(),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
+    // router.addRoute(
+    //   RequestMethods.POST,
+    //   "/public/buildteams/:team/claimsbatch",
+    //   async (request, response) => {
+    //     await controllers.tokenRoute.addClaims(request, response);
+    //   },
+    //   // body("data").isArray({ min: 1, max: 100 }),
+    //   param("team"),
+    //   checkTokenValidity(this.web.getCore().getPrisma(), "team")
+    // );
     router.addRoute(
       RequestMethods.POST,
-      "/public/buildteams/:team/claimsbatch",
+      "/public/buildteams/:team/claims",
       async (request, response) => {
-        await controllers.tokenRoute.addClaims(request, response);
+        await controllers.tokenRoute.createClaim(request, response);
       },
-      // body("data").isArray({ min: 1, max: 100 }),
       param("team"),
+      body("owner").isObject().optional(),
+      body("area"),
+      body("active").isBoolean(),
+      body("finished").isBoolean(),
+      body("name").isString(),
+      body("externalId").isString().optional(),
+      body("description").isString().optional(),
+      body("buildings").isNumeric().optional(),
+      body("city").isString().optional(),
+      body("builders").isArray({ max: 20 }).optional(),
+      useCoordinateInput("area", true),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
+
     router.addRoute(
-      RequestMethods.POST,
+      RequestMethods.PUT,
       "/public/buildteams/:team/claims/:id",
       async (request, response) => {
         await controllers.tokenRoute.updateClaim(request, response);
       },
       param("team"),
-      param("id"),
-      body("owner").isUUID().optional(),
+      body("owner").isObject().optional(),
       body("area").optional(),
       body("active").isBoolean().optional(),
       body("finished").isBoolean().optional(),
       body("name").isString().optional(),
+      body("externalId").isString().optional(),
+      body("description").isString().optional(),
+      body("buildings").isNumeric().optional(),
+      body("city").isString().optional(),
+      body("builders").isArray({ max: 20 }).optional(),
       useCoordinateInput("area", false),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
-    router.addRoute(
-      RequestMethods.POST,
-      "/public/buildteams/:team/claims",
-      async (request, response) => {
-        await controllers.tokenRoute.addClaim(request, response);
-      },
-      param("team"),
-      body("owner").isString(),
-      body("builders").isArray({ max: 20 }).optional(),
-      body("area"),
-      body("active").isBoolean(),
-      body("finished").isBoolean(),
-      body("name").isString(),
-      body("id").isUUID().optional(),
-      useCoordinateInput("area", true),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team")
-    );
+
     router.addRoute(
       RequestMethods.DELETE,
       "/public/buildteams/:team/claims/:id",
       async (request, response) => {
-        await controllers.tokenRoute.removeClaim(request, response);
+        await controllers.tokenRoute.deleteClaim(request, response);
       },
       param("team"),
+      param("id"),
+      query("external").optional(),
       checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(

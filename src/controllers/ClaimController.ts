@@ -300,12 +300,10 @@ class ClaimController {
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
-    const claim = await this.core
-      .getPrisma()
-      .claim.findFirst({
-        where: { id: req.params.id },
-        select: { id: true, buildTeamId: true, ownerId: true },
-      });
+    const claim = await this.core.getPrisma().claim.findFirst({
+      where: { id: req.params.id },
+      select: { id: true, buildTeamId: true, ownerId: true },
+    });
 
     if (claim.ownerId != req.user.id) {
       if (
@@ -425,23 +423,23 @@ class ClaimController {
     if (!req.user) {
       return ERROR_NO_PERMISSION(req, res);
     }
-     const claim = await this.core.getPrisma().claim.findFirst({
-       where: { id: req.params.id },
-       select: { id: true, buildTeamId: true, ownerId: true },
-     });
+    const claim = await this.core.getPrisma().claim.findFirst({
+      where: { id: req.params.id },
+      select: { id: true, buildTeamId: true, ownerId: true },
+    });
 
-     if (claim.ownerId != req.user.id) {
-       if (
-         !userHasPermissions(
-           this.core.getPrisma(),
-           req.user.ssoId,
-           ["team.claim.list"],
-           claim.buildTeamId
-         )
-       ) {
-         return ERROR_NO_PERMISSION(req, res);
-       }
-     }
+    if (claim.ownerId != req.user.id) {
+      if (
+        !userHasPermissions(
+          this.core.getPrisma(),
+          req.user.ssoId,
+          ["team.claim.list"],
+          claim.buildTeamId
+        )
+      ) {
+        return ERROR_NO_PERMISSION(req, res);
+      }
+    }
 
     if (claim) {
       await this.core.getPrisma().claim.delete({
@@ -525,9 +523,7 @@ class ClaimController {
   public async updateClaimOSMDetails(
     claim: { id?: string; center: string; name?: string },
     update?: boolean
-  ): Promise<
-    { osmName: string; city: string; name: string } | undefined | Error
-  > {
+  ): Promise<{ osmName: string; city: string; name: string } | undefined> {
     try {
       const { data } = await axios.get(
         `https://nominatim.openstreetmap.org/reverse?lat=${

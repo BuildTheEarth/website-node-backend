@@ -15,11 +15,16 @@ class TokenRouteContoller {
     this.core = core;
   }
 
+  /**
+   * Gets all claims of a build team based on the team and optional pagination
+   */
   public async getClaims(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
+
+    // With Pagination
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
       const claims = await this.core.getPrisma().claim.findMany({
@@ -40,6 +45,8 @@ class TokenRouteContoller {
       });
       let count = await this.core.getPrisma().claim.count();
       res.send({ pages: Math.ceil(count / 10), data: claims });
+
+      // Without Pagination
     } else {
       const claims = await this.core.getPrisma().claim.findMany({
         where: {
@@ -59,9 +66,14 @@ class TokenRouteContoller {
     }
   }
 
+  /**
+   * Gets a single claim based on build team and id
+   */
   public async getClaim(req: Request, res: Response) {
     const claim = await this.core.getPrisma().claim.findFirst({
-      where: { id: req.params.id, buildTeamId: req.team.id },
+      where: req.query.external
+        ? { externalId: req.params.id, buildTeamId: req.team.id }
+        : { id: req.params.id, buildTeamId: req.team.id },
       include: {
         _count: {
           select: { builders: true },
@@ -79,148 +91,229 @@ class TokenRouteContoller {
     }
   }
 
-  public async addClaim(req: Request, res: Response) {
+  /**
+   * Creates a new claim for a build team
+   */
+  public async createClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    let { owner, area, active, finished, name, id, builders, externalId } =
-      req.body;
+    let {
+      owner: _owner,
+      area,
+      active,
+      finished,
+      name,
+      externalId,
+      description,
+      buildings,
+      city,
+      builders,
+    } = req.body;
 
     if (area[0] != area[area.length - 1]) {
       area.push(area[0]);
     }
 
-    if (typeof area[0] === "string") {
-      area = area.map((p: string) =>
-        p.split(", ").map((s: string) => parseFloat(s))
+    const owner =
+      _owner && (await this.core.getPrisma().user.findFirst({ where: _owner }));
+
+    if (_owner && !owner) {
+      return ERROR_GENERIC(
+        req,
+        res,
+        404,
+        `Could not find an owner with the following properties: ${Object.keys(
+          _owner
+        ).join(", ")}`
       );
     }
-    const o = await this.core
-      .getPrisma()
-      .user.findFirst({ where: { name: owner } });
 
-    if (!o) {
-      return ERROR_GENERIC(req, res, 404, "Owner does not exist.");
-    }
+    const center =
+      area && turf.center(toPolygon(area)).geometry.coordinates.join(", ");
 
-    const claim = await this.core.getPrisma().claim.create({
-      data: {
-        id,
-        owner: { connect: { id: o.id } },
-        buildTeam: { connect: { id: req.team.id } },
-        builders: builders
-          ? { connect: builders.map((b: any) => ({ id: b })) }
-          : undefined,
-        name,
-        finished,
-        externalId,
-        active,
-        area: area,
-        size: area && turf.area(toPolygon(area)),
-        center: area
-          ? turf.center(toPolygon(area)).geometry.coordinates.join(", ")
-          : undefined,
-      },
-    });
+    const osmDetails = await this.core
+      .getWeb()
+      .getControllers()
+      .claim.updateClaimOSMDetails({ name, center });
 
-    this.core.getDiscord().sendClaimUpdate(claim);
-    res.send(claim);
-  }
+    const data = {
+      owner: { connect: { id: owner.id } },
+      buildTeam: { connect: { id: req.team.id } },
+      builders: builders ? { connect: builders } : undefined,
+      name: name,
+      finished: finished,
+      externalId: externalId,
+      active: active,
+      description: description,
+      buildings:
+        buildings ||
+        (await this.core
+          .getWeb()
+          .getControllers()
+          .claim.updateClaimBuildingCount({ area })),
+      city: city || osmDetails.city,
+      area: area,
+      osmName: osmDetails.osmName,
+      size: area && turf.area(toPolygon(area)),
+      center: center,
+    };
 
-  public async addClaims(req: Request, res: Response) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(req, res, errors.array());
-    }
-
-    let claims = [];
-    for (const c of req.body.data) {
-      const owner = await this.core
-        .getPrisma()
-        .user.findFirst({ where: { name: c.owner } });
-      if (owner) {
-        c.owner = owner.id;
-      } else {
-        c.owner = undefined;
-      }
-
-      const area = parseCoordinates(
-        c.area,
-        (req.query.coordType as string) || "stringarray"
-      );
+    try {
       const claim = await this.core.getPrisma().claim.create({
-        data: {
-          id: c.id,
-          owner: owner ? { connect: { id: owner.id } } : undefined,
-          buildTeam: { connect: { id: req.params.team } },
-          name: c.name,
-          finished: c.finished,
-          active: c.active,
-          externalId: c.externalId,
-          builders: c.builders
-            ? { connect: c.builders.map((b: any) => ({ id: b })) }
-            : undefined,
-          area,
-          size: area && turf.area(toPolygon(area)),
-          center: turf.center(toPolygon(area)).geometry.coordinates.join(", "),
-        },
+        data,
       });
-      claims.push(claim);
-    }
 
-    res.send({ data: claims });
+      this.core.getDiscord().sendClaimUpdate(claim);
+      res.send(claim);
+    } catch (e) {
+      ERROR_GENERIC(req, res, 500, e.message);
+    }
   }
 
+  // public async addClaims(req: Request, res: Response) {
+  //   const errors = validationResult(req);
+  //   if (!errors.isEmpty()) {
+  //     return ERROR_VALIDATION(req, res, errors.array());
+  //   }
+
+  //   let claims = [];
+  //   for (const c of req.body.data) {
+  //     const owner = await this.core
+  //       .getPrisma()
+  //       .user.findFirst({ where: { name: c.owner } });
+  //     if (owner) {
+  //       c.owner = owner.id;
+  //     } else {
+  //       c.owner = undefined;
+  //     }
+
+  //     const area = parseCoordinates(
+  //       c.area,
+  //       (req.query.coordType as string) || "stringarray"
+  //     );
+  //     const claim = await this.core.getPrisma().claim.create({
+  //       data: {
+  //         id: c.id,
+  //         owner: owner ? { connect: { id: owner.id } } : undefined,
+  //         buildTeam: { connect: { id: req.params.team } },
+  //         name: c.name,
+  //         finished: c.finished,
+  //         active: c.active,
+  //         externalId: c.externalId,
+  //         builders: c.builders
+  //           ? { connect: c.builders.map((b: any) => ({ id: b })) }
+  //           : undefined,
+  //         area,
+  //         size: area && turf.area(toPolygon(area)),
+  //         center: turf.center(toPolygon(area)).geometry.coordinates.join(", "),
+  //       },
+  //     });
+  //     claims.push(claim);
+  //   }
+
+  //   res.send({ data: claims });
+  // }
+
+  /**
+   * Updates a claim from a build team based on the claim id
+   */
   public async updateClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    let { owner, area, active, finished, name, id, builders } = req.body;
+    let {
+      owner: _owner,
+      area,
+      active,
+      finished,
+      name,
+      externalId,
+      description,
+      buildings,
+      city,
+      builders,
+    } = req.body;
 
-    if (area) {
-      if (area[0] != area[area.length - 1]) {
-        area.push(area[0]);
-      }
-
-      if (typeof area[0] === "string") {
-        area = area.map((p: string) =>
-          p.split(", ").map((s: string) => parseFloat(s))
-        );
-      }
+    if (area[0] != area[area.length - 1]) {
+      area.push(area[0]);
     }
 
-    const claim = await this.core.getPrisma().claim.update({
-      where: { id: req.params.id },
-      data: {
-        ownerId: owner,
-        buildTeamId: req.team.id,
-        builders: { set: builders.map((b: any) => ({ id: b })) },
-        name,
-        finished,
-        active,
-        area: area,
-        size: area && turf.area(toPolygon(area)),
-        center: area
-          ? turf.center(toPolygon(area)).geometry.coordinates.join(", ")
-          : undefined,
-      },
-    });
+    const owner =
+      _owner && (await this.core.getPrisma().user.findFirst({ where: _owner }));
 
-    res.send(claim);
+    if (_owner && !owner) {
+      return ERROR_GENERIC(
+        req,
+        res,
+        404,
+        `Could not find an owner with the following properties: ${Object.keys(
+          _owner
+        ).join(", ")}`
+      );
+    }
+
+    const center =
+      area && turf.center(toPolygon(area)).geometry.coordinates.join(", ");
+
+    const osmDetails =
+      area &&
+      (await this.core
+        .getWeb()
+        .getControllers()
+        .claim.updateClaimOSMDetails({ name, center }));
+
+    const data = {
+      owner: owner && { connect: { id: owner.id } },
+      builders: builders ? { set: builders } : undefined,
+      name: name,
+      finished: finished,
+      externalId: externalId,
+      active: active,
+      description: description,
+      buildings:
+        buildings ||
+        (area &&
+          (await this.core
+            .getWeb()
+            .getControllers()
+            .claim.updateClaimBuildingCount({ area }))),
+      city: city || osmDetails.city,
+      area: area,
+      osmName: osmDetails.osmName,
+      size: area && turf.area(toPolygon(area)),
+      center: center,
+    };
+
+    try {
+      const claim = await this.core.getPrisma().claim.update({
+        where: req.query.external
+        ? { externalId: req.params.id, buildTeamId: req.team.id }
+        : { id: req.params.id, buildTeamId: req.team.id },
+         
+        data,
+      });
+
+      res.send(claim);
+    } catch (e) {
+      ERROR_GENERIC(req, res, 500, e.message);
+    }
   }
 
-  public async removeClaim(req: Request, res: Response) {
+  public async deleteClaim(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
     const claim = await this.core.getPrisma().claim.findFirst({
-      where: { id: req.params.id, buildTeamId: req.team.id },
+      where: req.query.external
+        ? { externalId: req.params.id, buildTeamId: req.team.id }
+        : { id: req.params.id, buildTeamId: req.team.id },
     });
 
     if (!claim) {

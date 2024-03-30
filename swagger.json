@@ -963,9 +963,9 @@
         "tags": ["Claim"]
       }
     },
-    "/public/buildteams/{team}/claims/{id}": {
+    "/public/buildteams/{team}/claims": {
       "get": {
-        "summary": "Get one claim",
+        "summary": "Get a all claims",
         "parameters": [
           {
             "description": "BuildTeam ID",
@@ -977,16 +977,7 @@
             }
           },
           {
-            "description": "Claim ID",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "format": "uuid"
-            }
-          },
-          {
-            "description": "Only include active claims",
+            "description": "Show Builders",
             "in": "query",
             "name": "withBuilders",
             "required": false,
@@ -995,7 +986,7 @@
             }
           },
           {
-            "description": "Use Slug",
+            "description": "Use BuildTeam Slug",
             "in": "query",
             "name": "slug",
             "required": false,
@@ -1010,7 +1001,9 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Claim"
+                  "items": {
+                    "$ref": "#/components/schemas/Claim"
+                  }
                 }
               }
             }
@@ -1020,9 +1013,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Error"
-                  }
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -1031,7 +1022,7 @@
         "tags": ["Claim", "Token based"]
       },
       "post": {
-        "summary": "Update one claim",
+        "summary": "Create a single claim",
         "parameters": [
           {
             "description": "BuildTeam ID",
@@ -1043,12 +1034,12 @@
             }
           },
           {
-            "description": "Claim ID",
-            "in": "path",
-            "name": "id",
-            "required": true,
+            "description": "Use BuildTeam Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
             "schema": {
-              "format": "uuid"
+              "type": "boolean"
             }
           }
         ],
@@ -1059,9 +1050,8 @@
                 "type": "object",
                 "properties": {
                   "owner": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "9fcef3c2-0353-425f-a64d-46539b421bb8"
+                    "type": "object",
+                    "properties": {}
                   },
                   "area": {
                     "type": "array",
@@ -1095,13 +1085,26 @@
                     "type": "string",
                     "example": "Elphilharmonie Hamburg"
                   },
+                  "externalId": {
+                    "type": "string",
+                    "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Theaterhaus"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Hamburg"
+                  },
+                  "buildings": {
+                    "type": "number",
+                    "example": 2
+                  },
                   "builders": {
                     "type": "array",
                     "items": {
-                      "type": "string",
-                      "format": "uuid",
-                      "description": "The ID of all Builders. **Not the Minecraft Name**",
-                      "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
+                      "$ref": "#/components/schemas/UserRef"
                     }
                   }
                 }
@@ -1125,9 +1128,197 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Claim", "Token based"]
+      }
+    },
+    "/public/buildteams/{team}/claims/{id}": {
+      "get": {
+        "summary": "Get a single claim",
+        "parameters": [
+          {
+            "description": "BuildTeam ID",
+            "in": "path",
+            "name": "team",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "Show Builders",
+            "in": "query",
+            "name": "withBuilders",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Use BuildTeam Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Is external Id",
+            "in": "query",
+            "name": "external",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Claim"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Claim", "Token based"]
+      },
+      "put": {
+        "summary": "Update a single claim",
+        "parameters": [
+          {
+            "description": "BuildTeam ID",
+            "in": "path",
+            "name": "team",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "Use BuildTeam Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Is external Id",
+            "in": "query",
+            "name": "external",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "area": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "description": "Coordinate pair in form of lat, lng",
+                          "example": "8.741082435175388, 48.82172221980192"
+                        },
+                        {
+                          "type": "array",
+                          "description": "Coordinate pair in form of lat, lng",
+                          "example": ["8.741082435175388", "48.82172221980192"],
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "finished": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Elphilharmonie Hamburg"
+                  },
+                  "externalId": {
+                    "type": "string",
+                    "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Theaterhaus"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Hamburg"
+                  },
+                  "buildings": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "builders": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/UserRef"
+                    }
                   }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Claim"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -1136,7 +1327,7 @@
         "tags": ["Claim", "Token based"]
       },
       "delete": {
-        "summary": "Delete one claim",
+        "summary": "Delete a single claim",
         "parameters": [
           {
             "description": "BuildTeam ID",
@@ -1148,12 +1339,21 @@
             }
           },
           {
-            "description": "Claim ID",
-            "in": "path",
-            "name": "id",
-            "required": true,
+            "description": "Use BuildTeam Slug",
+            "in": "query",
+            "name": "slug",
+            "required": false,
             "schema": {
-              "format": "uuid"
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Is external Id",
+            "in": "query",
+            "name": "external",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -1173,234 +1373,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Error"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": ["Claim", "Token based"]
-      }
-    },
-    "/public/buildteams/{team}/claimsbatch": {
-      "post": {
-        "summary": "Create multiple Claims",
-        "parameters": [
-          {
-            "description": "BuildTeam ID",
-            "in": "path",
-            "name": "team",
-            "required": true,
-            "schema": {
-              "format": "uuid"
-            }
-          },
-          {
-            "description": "Use Slug",
-            "in": "query",
-            "name": "slug",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "data": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "owner": {
-                          "type": "string",
-                          "description": "The Minecraft Name of the Owner",
-                          "example": "Nudlsupp"
-                        },
-                        "name": {
-                          "type": "string",
-                          "example": "Elphilharmonie"
-                        },
-                        "finished": {
-                          "type": "boolean",
-                          "example": false
-                        },
-                        "active": {
-                          "type": "boolean",
-                          "example": true,
-                          "description": "If this is false, the claim will be hidden on the map"
-                        },
-                        "externalId": {
-                          "type": "string",
-                          "description": "A field for you to keep track of the IDs of your own regions"
-                        },
-                        "builders": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "The ID of all Builders. **Not the Minecraft Name**",
-                            "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
-                          }
-                        },
-                        "area": {
-                          "type": "array",
-                          "items": {
-                            "type": "array",
-                            "description": "An array of lat, lng",
-                            "example": [
-                              "48.82172221980192",
-                              "8.741082435175388"
-                            ],
-                            "items": {
-                              "type": "string",
-                              "example": "8.741082435175388"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Error"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": ["Claim", "Token based"]
-      }
-    },
-    "/public/buildteams/{team}/claims": {
-      "post": {
-        "summary": "Create a claim",
-        "parameters": [
-          {
-            "description": "BuildTeam ID",
-            "in": "path",
-            "name": "team",
-            "required": true,
-            "schema": {
-              "format": "uuid"
-            }
-          },
-          {
-            "description": "Use Slug",
-            "in": "query",
-            "name": "slug",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["owner", "area", "active", "finished", "name"],
-                "properties": {
-                  "owner": {
-                    "type": "string",
-                    "description": "The Minecraft name of the User",
-                    "example": "Nudlsupp"
-                  },
-                  "area": {
-                    "type": "array",
-                    "items": {
-                      "oneOf": [
-                        {
-                          "type": "string",
-                          "description": "Coordinate pair in form of lat, lng",
-                          "example": "8.741082435175388, 48.82172221980192"
-                        },
-                        {
-                          "type": "array",
-                          "description": "Coordinate pair in form of lat, lng",
-                          "example": ["8.741082435175388", "48.82172221980192"],
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "active": {
-                    "type": "boolean",
-                    "example": true
-                  },
-                  "finished": {
-                    "type": "boolean",
-                    "example": true
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "Elphilharmonie Hamburg"
-                  },
-                  "builders": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid",
-                      "description": "The ID of all Builders. **Not the Minecraft Name**",
-                      "example": "2b4282eb-cce1-4fad-8920-77eab48d5125"
-                    }
-                  },
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "b2b1dd2e-5a10-4d58-bcd1-a3ea936f6685"
-                  },
-                  "externalId": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Claim"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Error"
-                  }
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -1414,16 +1387,25 @@
         "summary": "Get all build team members",
         "parameters": [
           {
-            "description": "The uuid of the buildteam",
+            "description": "BuildTeam ID",
             "in": "path",
-            "name": "id",
+            "name": "team",
             "required": true,
             "schema": {
-              "type": "string"
+              "format": "uuid"
             }
           },
           {
-            "description": "Use Slug",
+            "description": "Show Builders",
+            "in": "query",
+            "name": "withBuilders",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Use BuildTeam Slug",
             "in": "query",
             "name": "slug",
             "required": false,
@@ -1432,12 +1414,12 @@
             }
           },
           {
-            "description": "Page",
+            "description": "Is external Id",
             "in": "query",
-            "name": "page",
+            "name": "external",
             "required": false,
             "schema": {
-              "type": "number"
+              "type": "boolean"
             }
           }
         ],
@@ -1809,6 +1791,14 @@
             "description": "In the format of lng, lat",
             "nullable": true
           },
+          "size": {
+            "type": "number",
+            "example": 673
+          },
+          "buildings": {
+            "type": "number",
+            "example": 2
+          },
           "active": {
             "type": "boolean",
             "example": true
@@ -1819,7 +1809,19 @@
           },
           "name": {
             "type": "string",
-            "example": "Drossener Straße, Alt-Hohenschönhause"
+            "example": "Balinger Straße 19"
+          },
+          "description": {
+            "type": "string",
+            "example": "beautiful building i built here"
+          },
+          "city": {
+            "type": "string",
+            "example": "Rosenfeld"
+          },
+          "osmName": {
+            "type": "string",
+            "example": "19, Balinger Straße, Isingen, Rosenfeld, Zollernalbkreis, Baden-Württemberg, 72348, Germany"
           },
           "buildTeamId": {
             "type": "string",
@@ -2005,6 +2007,26 @@
           "trial": {
             "type": "boolean",
             "example": true
+          }
+        }
+      },
+      "UserRef": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ssoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "discordId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The Minecraft name of the user"
           }
         }
       }

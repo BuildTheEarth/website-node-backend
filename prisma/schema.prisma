@@ -147,7 +147,7 @@ model Claim {
   buildTeamId String
   name        String    @default("")
   createdAt   DateTime  @default(now())
-  externalId  String?
+  externalId  String? @unique
   description String?
   buildings   Int       @default(1)
   city        String?
