@@ -353,10 +353,11 @@ class ClaimController {
     });
 
     this.core.getDiscord().sendClaimUpdate(updatedClaim);
-    sendBtWebhook(
+    await sendBtWebhook(
+      this.core,
       updatedClaim.buildTeam.webhook,
       WebhookType.CLAIM_UPDATE,
-      updatedClaim
+      { ...updatedClaim, buildTeam: undefined }
     );
     res.send({
       ...updatedClaim,
@@ -431,7 +432,15 @@ class ClaimController {
         },
       },
     });
-    sendBtWebhook(claim.buildTeam.webhook, WebhookType.CLAIM_CREATE, claim);
+    await sendBtWebhook(
+      this.core,
+      claim.buildTeam.webhook,
+      WebhookType.CLAIM_CREATE,
+      {
+        ...claim,
+        buildTeam: undefined,
+      }
+    );
     res.send({ ...claim, buildTeam: undefined });
   }
 
@@ -450,6 +459,7 @@ class ClaimController {
         id: true,
         buildTeamId: true,
         ownerId: true,
+        externalId: true,
         buildTeam: { select: { webhook: true } },
       },
     });
@@ -473,7 +483,15 @@ class ClaimController {
           id: req.params.id,
         },
       });
-      sendBtWebhook(claim.buildTeam.webhook, WebhookType.CLAIM_DELETE, claim);
+      await sendBtWebhook(
+        this.core,
+        claim.buildTeam.webhook,
+        WebhookType.CLAIM_DELETE,
+        {
+          ...claim,
+          buildTeam: undefined,
+        }
+      );
       res.send({ ...claim, buildTeam: undefined });
     } else {
       ERROR_GENERIC(req, res, 404, "Claim does not exist.");

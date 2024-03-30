@@ -543,7 +543,8 @@ class TokenRouteContoller {
     await this.core.getDiscord().sendApplicationUpdate(application);
 
     if (application.buildteam.webhook) {
-      sendBtWebhook(
+      await sendBtWebhook(
+        this.core,
         application.buildteam.webhook,
         WebhookType.APPLICATION,
         application

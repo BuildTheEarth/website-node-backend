@@ -265,6 +265,7 @@ class ApplicationController {
 
     if (application.buildteam.webhook) {
       sendBtWebhook(
+        this.core,
         application.buildteam.webhook,
         WebhookType.APPLICATION,
         application
