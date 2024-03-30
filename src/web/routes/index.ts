@@ -115,6 +115,53 @@ class Routes {
       param("id")
     );
     router.addRoute(
+      RequestMethods.GET,
+      "/buildteams/:id/application/templates",
+      async (request: Request, response: Response) => {
+        await controllers.buildTeam.getBuildTeamResponseTemplates(
+          request,
+          response
+        );
+      },
+      param("id")
+    );
+    router.addRoute(
+      RequestMethods.POST,
+      "/buildteams/:id/application/templates",
+      async (request: Request, response: Response) => {
+        await controllers.buildTeam.addBuildTeamResponseTemplate(
+          request,
+          response
+        );
+      },
+      param("id"),
+      body("content").isString(),
+      checkUserPermissions(
+        this.web.getCore().getPrisma(),
+        ["team.application.edit", "team.application.review"],
+        "id"
+      )
+    );
+    router.addRoute(
+      RequestMethods.DELETE,
+      "/buildteams/:id/application/templates/:template",
+      async (request: Request, response: Response) => {
+        await controllers.buildTeam.addBuildTeamResponseTemplate(
+          request,
+          response
+        );
+      },
+      param("id"),
+      param("template").isUUID(),
+      body("content").isString(),
+      body("name").isString(),
+      checkUserPermissions(
+        this.web.getCore().getPrisma(),
+        ["team.application.edit", "team.application.review"],
+        "id"
+      )
+    );
+    router.addRoute(
       RequestMethods.POST,
       "/buildteams/:id/application/questions",
       async (request: Request, response: Response) => {
@@ -450,6 +497,7 @@ class Routes {
       param("id"),
       param("user").isUUID()
     );
+
     router.addRoute(
       RequestMethods.GET,
       "/buildteams/:id/applications/:app",

@@ -23,36 +23,37 @@ model User {
 }
 
 model BuildTeam {
-  id                   String                @id @default(uuid())
-  name                 String                @unique
-  icon                 String
-  backgroundImage      String
-  invite               String
-  about                String
-  creatorId            String
-  createdAt            DateTime              @default(now())
-  location             String                @default("")
-  slug                 String                @unique @default("")
-  ip                   String                @default("buildtheearth.net")
-  acceptionMessage     String                @default("")
-  allowTrial           Boolean               @default(false)
-  rejectionMessage     String                @default("")
-  trialMessage         String                @default("")
-  token                String                @default("")
-  allowBuilderClaim    Boolean?              @default(true)
-  instantAccept        Boolean?              @default(false)
-  webhook              String?
-  allowApplications    Boolean?              @default(true)
-  color                String                @default("#1098AD")
-  Application          Application[]
-  applicationQuestions ApplicationQuestion[] @relation("applicationQuestions")
-  creator              User                  @relation("creator", fields: [creatorId], references: [id])
-  claims               Claim[]
-  showcases            Showcase[]            @relation("showcases")
-  socials              Social[]              @relation("socials")
-  UserPermission       UserPermission[]
-  members              User[]                @relation("members")
-  CalendarEvent        CalendarEvent[]
+  id                          String                        @id @default(uuid())
+  name                        String                        @unique
+  icon                        String
+  backgroundImage             String
+  invite                      String
+  about                       String
+  creatorId                   String
+  createdAt                   DateTime                      @default(now())
+  location                    String                        @default("")
+  slug                        String                        @unique @default("")
+  ip                          String                        @default("buildtheearth.net")
+  acceptionMessage            String                        @default("")
+  allowTrial                  Boolean                       @default(false)
+  rejectionMessage            String                        @default("")
+  trialMessage                String                        @default("")
+  token                       String                        @default("")
+  allowBuilderClaim           Boolean?                      @default(true)
+  instantAccept               Boolean?                      @default(false)
+  webhook                     String?
+  allowApplications           Boolean?                      @default(true)
+  color                       String                        @default("#1098AD")
+  Application                 Application[]
+  applicationQuestions        ApplicationQuestion[]         @relation("applicationQuestions")
+  creator                     User                          @relation("creator", fields: [creatorId], references: [id])
+  claims                      Claim[]
+  showcases                   Showcase[]                    @relation("showcases")
+  socials                     Social[]                      @relation("socials")
+  UserPermission              UserPermission[]
+  members                     User[]                        @relation("members")
+  CalendarEvent               CalendarEvent[]
+  responseTemplate ApplicationResponseTemplate[]
 }
 
 model ApplicationQuestion {
@@ -181,6 +182,14 @@ model ApplicationAnswer {
   answer        String
   application   Application         @relation(fields: [applicationId], references: [id])
   question      ApplicationQuestion @relation(fields: [questionId], references: [id])
+}
+
+model ApplicationResponseTemplate {
+  id          String    @id @default(uuid())
+  buildteamId String
+  name String @default("Response Template")
+  content     String
+  buildteam   BuildTeam @relation(fields: [buildteamId], references: [id])
 }
 
 model Upload {

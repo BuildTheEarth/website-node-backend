@@ -255,6 +255,7 @@ class BuildTeamController {
       ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
+
   public async deleteBuildTeamSocial(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -270,6 +271,7 @@ class BuildTeamController {
       ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
+
   public async updateBuildTeam(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -462,6 +464,78 @@ class BuildTeamController {
       })
     );
     res.send(kcMembers);
+  }
+
+  public async getBuildTeamResponseTemplates(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    let templateResponses = await this.core
+      .getPrisma()
+      .applicationResponseTemplate.findMany({
+        where: {
+          buildteam: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
+        },
+      });
+
+    if (templateResponses) {
+      res.send(templateResponses);
+    } else {
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
+    }
+  }
+  public async addBuildTeamResponseTemplate(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    let templateResponses = await this.core
+      .getPrisma()
+      .applicationResponseTemplate.create({
+        data: {
+          buildteam: {
+            connect: req.query.slug
+              ? { slug: req.params.id }
+              : { id: req.params.id },
+          },
+          content: req.body.content,
+          name: req.body.name,
+        },
+      });
+
+    if (templateResponses) {
+      res.send(templateResponses);
+    } else {
+      ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
+    }
+  }
+  public async deleteBuildTeamResponseTemplate(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    let templateResponses = await this.core
+      .getPrisma()
+      .applicationResponseTemplate.delete({
+        where: {
+          buildteam: req.query.slug
+            ? { slug: req.params.id }
+            : { id: req.params.id },
+          id: req.params.template,
+        },
+      });
+
+    if (templateResponses) {
+      res.send(templateResponses);
+    } else {
+      ERROR_GENERIC(req, res, 404, "BuildTeam or Template does not exist.");
+    }
   }
 
   public async generateBuildTeamToken(req: Request, res: Response) {
