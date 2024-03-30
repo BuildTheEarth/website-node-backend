@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { sendBtWebhook, sendWebhook, WebhookType } from "../util/BtWebhooks.js";
 import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
 import {
   ERROR_GENERIC,
@@ -342,12 +343,25 @@ class ClaimController {
           false
         )),
       },
+      include: {
+        buildTeam: {
+          select: {
+            webhook: true,
+          },
+        },
+      },
     });
 
     this.core.getDiscord().sendClaimUpdate(updatedClaim);
+    sendBtWebhook(
+      updatedClaim.buildTeam.webhook,
+      WebhookType.CLAIM_UPDATE,
+      updatedClaim
+    );
     res.send({
       ...updatedClaim,
       builders: req.body.builders?.map((b: any) => ({ ...b, new: false })),
+      buildTeam: undefined,
     });
   }
 
@@ -409,9 +423,16 @@ class ClaimController {
             )
           : {}),
       },
+      include: {
+        buildTeam: {
+          select: {
+            webhook: true,
+          },
+        },
+      },
     });
-
-    res.send(claim);
+    sendBtWebhook(claim.buildTeam.webhook, WebhookType.CLAIM_CREATE, claim);
+    res.send({ ...claim, buildTeam: undefined });
   }
 
   public async deleteClaim(req: Request, res: Response) {
@@ -425,7 +446,12 @@ class ClaimController {
     }
     const claim = await this.core.getPrisma().claim.findFirst({
       where: { id: req.params.id },
-      select: { id: true, buildTeamId: true, ownerId: true },
+      select: {
+        id: true,
+        buildTeamId: true,
+        ownerId: true,
+        buildTeam: { select: { webhook: true } },
+      },
     });
 
     if (claim.ownerId != req.user.id) {
@@ -447,7 +473,8 @@ class ClaimController {
           id: req.params.id,
         },
       });
-      res.send(claim);
+      sendBtWebhook(claim.buildTeam.webhook, WebhookType.CLAIM_DELETE, claim);
+      res.send({ ...claim, buildTeam: undefined });
     } else {
       ERROR_GENERIC(req, res, 404, "Claim does not exist.");
     }
