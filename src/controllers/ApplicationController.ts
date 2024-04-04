@@ -115,7 +115,14 @@ class ApplicationController {
             : undefined,
         user:
           req.query.includeUser === "true"
-            ? { select: { id: true, discordId: true, name: true, ssoId: true } }
+            ? {
+                select: {
+                  id: true,
+                  discordId: true,
+                  ssoId: true,
+                  minecraft: true,
+                },
+              }
             : undefined,
         reviewer: {
           select: { id: true, discordId: true, ssoId: true },
@@ -181,8 +188,12 @@ class ApplicationController {
             webhook: true,
           },
         },
-        user: { select: { id: true, discordId: true, name: true } },
-        reviewer: { select: { id: true, discordId: true, name: true } },
+        user: {
+          select: { id: true, discordId: true, name: true, minecraft: true },
+        },
+        reviewer: {
+          select: { id: true, discordId: true, name: true, minecraft: true },
+        },
       },
     });
 

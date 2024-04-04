@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendBtWebhook, WebhookType } from "../util/BtWebhooks.js";
+import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
 import turf, { parseCoordinates, toPolygon } from "../util/Coordinates.js";
 import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
@@ -292,9 +292,9 @@ class TokenRouteContoller {
     try {
       const claim = await this.core.getPrisma().claim.update({
         where: req.query.external
-        ? { externalId: req.params.id, buildTeamId: req.team.id }
-        : { id: req.params.id, buildTeamId: req.team.id },
-         
+          ? { externalId: req.params.id, buildTeamId: req.team.id }
+          : { id: req.params.id, buildTeamId: req.team.id },
+
         data,
       });
 
@@ -451,8 +451,12 @@ class TokenRouteContoller {
             webhook: true,
           },
         },
-        user: { select: { id: true, discordId: true, name: true } },
-        reviewer: { select: { id: true, discordId: true, name: true } },
+        user: {
+          select: { id: true, discordId: true, name: true, minecraft: true },
+        },
+        reviewer: {
+          select: { id: true, discordId: true, name: true, minecraft: true },
+        },
       },
     });
 

@@ -13,6 +13,7 @@ model User {
   discordId         String?
   avatar            String?
   name              String?
+  minecraft         String?
   reviewed          Application[]    @relation("reviewer")
   applications      Application[]    @relation("user")
   createdBuildTeams BuildTeam[]      @relation("creator")
@@ -23,37 +24,37 @@ model User {
 }
 
 model BuildTeam {
-  id                          String                        @id @default(uuid())
-  name                        String                        @unique
-  icon                        String
-  backgroundImage             String
-  invite                      String
-  about                       String
-  creatorId                   String
-  createdAt                   DateTime                      @default(now())
-  location                    String                        @default("")
-  slug                        String                        @unique @default("")
-  ip                          String                        @default("buildtheearth.net")
-  acceptionMessage            String                        @default("")
-  allowTrial                  Boolean                       @default(false)
-  rejectionMessage            String                        @default("")
-  trialMessage                String                        @default("")
-  token                       String                        @default("")
-  allowBuilderClaim           Boolean?                      @default(true)
-  instantAccept               Boolean?                      @default(false)
-  webhook                     String?
-  allowApplications           Boolean?                      @default(true)
-  color                       String                        @default("#1098AD")
-  Application                 Application[]
-  applicationQuestions        ApplicationQuestion[]         @relation("applicationQuestions")
-  creator                     User                          @relation("creator", fields: [creatorId], references: [id])
-  claims                      Claim[]
-  showcases                   Showcase[]                    @relation("showcases")
-  socials                     Social[]                      @relation("socials")
-  UserPermission              UserPermission[]
-  members                     User[]                        @relation("members")
-  CalendarEvent               CalendarEvent[]
-  responseTemplate ApplicationResponseTemplate[]
+  id                   String                        @id @default(uuid())
+  name                 String                        @unique
+  icon                 String
+  backgroundImage      String
+  invite               String
+  about                String
+  creatorId            String
+  createdAt            DateTime                      @default(now())
+  location             String                        @default("")
+  slug                 String                        @unique @default("")
+  ip                   String                        @default("buildtheearth.net")
+  acceptionMessage     String                        @default("")
+  allowTrial           Boolean                       @default(false)
+  rejectionMessage     String                        @default("")
+  trialMessage         String                        @default("")
+  token                String                        @default("")
+  allowBuilderClaim    Boolean?                      @default(true)
+  instantAccept        Boolean?                      @default(false)
+  webhook              String?
+  allowApplications    Boolean?                      @default(true)
+  color                String                        @default("#1098AD")
+  Application          Application[]
+  applicationQuestions ApplicationQuestion[]         @relation("applicationQuestions")
+  creator              User                          @relation("creator", fields: [creatorId], references: [id])
+  claims               Claim[]
+  showcases            Showcase[]                    @relation("showcases")
+  socials              Social[]                      @relation("socials")
+  UserPermission       UserPermission[]
+  members              User[]                        @relation("members")
+  CalendarEvent        CalendarEvent[]
+  responseTemplate     ApplicationResponseTemplate[]
 }
 
 model ApplicationQuestion {
@@ -147,7 +148,7 @@ model Claim {
   buildTeamId String
   name        String    @default("")
   createdAt   DateTime  @default(now())
-  externalId  String? @unique
+  externalId  String?   @unique
   description String?
   buildings   Int       @default(1)
   city        String?
@@ -187,7 +188,7 @@ model ApplicationAnswer {
 model ApplicationResponseTemplate {
   id          String    @id @default(uuid())
   buildteamId String
-  name String @default("Response Template")
+  name        String    @default("Response Template")
   content     String
   buildteam   BuildTeam @relation(fields: [buildteamId], references: [id])
 }

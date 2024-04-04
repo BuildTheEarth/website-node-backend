@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-import Core from "../../../Core.js";
 import { PrismaClient } from "@prisma/client";
+import Core from "../../../Core.js";
 
 const checkNewUser = (prisma: PrismaClient, core: Core) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -48,18 +48,6 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
             req.user = user;
           }
         }
-        // else {
-
-        //   const user = await prisma.user.update({
-        //     where: {
-        //       ssoId: req.kauth.grant.access_token.content.sub,
-        //     },
-        //     data: {
-        //       discordId: "",
-        //     },
-        //   });
-        //   req.user = user;
-        // }
       } else {
         // Set Discord ID to "" when no Discord Linked
         const user = await prisma.user.update({
@@ -73,7 +61,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
         req.user = user;
       }
 
-      // Set kcUser attributes to user`s minecraft
+      // TEMPORARY: Set kcUser attributes to user`s minecraft
       if (!kcUser.attributes?.minecraft) {
         await core
           .getKeycloakAdmin()
@@ -86,6 +74,22 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
           ...kcUser,
           attributes: { minecraft: user.name, minecraftVerified: false },
         };
+      }
+
+      // User hast mc linked
+      if (kcUser.attributes?.minecraft) {
+        const minecraft = kcUser.attributes?.minecraft[0];
+        if (minecraft != user.minecraft) {
+          const user = await prisma.user.update({
+            where: {
+              ssoId: req.kauth.grant.access_token.content.sub,
+            },
+            data: {
+              minecraft: minecraft,
+            },
+          });
+          req.user = user;
+        }
       }
     } else {
       // Get KC user

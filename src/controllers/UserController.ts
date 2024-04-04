@@ -81,6 +81,7 @@ class UserController {
         where: { ssoId: { in: kcBuilders.map((b) => b.ssoId) } },
         select: {
           name: true,
+          minecraft: true,
           id: true,
           avatar: true,
           discordId: true,

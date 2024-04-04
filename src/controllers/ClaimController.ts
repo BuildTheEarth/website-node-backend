@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendBtWebhook, sendWebhook, WebhookType } from "../util/BtWebhooks.js";
+import { WebhookType, sendBtWebhook, sendWebhook } from "../util/BtWebhooks.js";
 import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
 import {
   ERROR_GENERIC,
@@ -68,9 +68,16 @@ class ClaimController {
             finished: true,
             active: true,
             owner: {
-              select: { id: true, ssoId: true, name: true, avatar: true },
+              select: {
+                id: true,
+                ssoId: true,
+                avatar: true,
+                minecraft: true,
+              },
             },
-            builders: { select: { id: true, name: true, avatar: true } },
+            builders: {
+              select: { id: true, avatar: true, minecraft: true },
+            },
             buildings: true,
             buildTeam: {
               select: { id: true, slug: true, name: true, location: true },
@@ -150,7 +157,7 @@ class ClaimController {
                 ssoId: true,
                 id: true,
                 discordId: true,
-                name: true,
+                minecraft: true,
                 avatar: true,
               },
               take: 10,
@@ -175,7 +182,7 @@ class ClaimController {
               id: member.id,
               username: kcMember?.username,
               avatar: member.avatar,
-              name: member.name,
+              minecraft: member.minecraft,
             };
           })
         );
@@ -260,7 +267,7 @@ class ClaimController {
             });
           return {
             id: member.id,
-            name: member.name,
+            minecraft: member.minecraft,
             username: kcMember?.username,
             discordId: member.discordId,
             avatar: member.avatar,
