@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
 import { body, param, query } from "express-validator";
+import {
+  checkUserPermission,
+  checkUserPermissions,
+} from "./utils/CheckUserPermissionMiddleware.js";
 import turf, {
   CoordinateType,
   toPolygon,
   useCoordinateInput,
 } from "../../util/Coordinates.js";
-import {
-  checkUserPermission,
-  checkUserPermissions,
-} from "./utils/CheckUserPermissionMiddleware.js";
 
-import { Keycloak } from "keycloak-connect";
 import { ERROR_GENERIC } from "../../util/Errors.js";
-import Web from "../Web.js";
-import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
+import { Keycloak } from "keycloak-connect";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
+import Web from "../Web.js";
+import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
 
 class Routes {
   app;
@@ -38,6 +38,9 @@ class Routes {
 
     router.addRoute(RequestMethods.GET, "/healthcheck", (req, res) => {
       ERROR_GENERIC(req, res, 200, "OK");
+    });
+    router.addRoute(RequestMethods.GET, "/test", (req, res) => {
+      res.send({ user: req.user, kcUser: req.kcUser, team: req.team });
     });
     router.addRoute(
       RequestMethods.GET,

@@ -1,3 +1,4 @@
+import UserRepresentation from "@keycloak/keycloak-admin-client/lib/defs/userRepresentation.js";
 import { BuildTeam, User } from "@prisma/client";
 
 interface kAuth {
@@ -10,6 +11,7 @@ declare global {
       kauth: kAuth;
       user: User;
       team?: BuildTeam;
+      kcUser?: UserRepresentation;
     }
   }
 }

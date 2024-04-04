@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-import { PrismaClient } from "@prisma/client";
 import Core from "../../../Core.js";
+import { PrismaClient } from "@prisma/client";
 
 const checkNewUser = (prisma: PrismaClient, core: Core) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -18,16 +18,18 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
     // If there is an user present in the DB -> Not first request
     if (user) {
       req.user = user;
-      const kcuser = await core
+      const kcUser = await core
         .getKeycloakAdmin()
         .getKeycloakAdminClient()
         .users.findOne({
           id: req.kauth.grant.access_token.content.sub,
         });
 
+      req.kcUser = kcUser;
+
       // User has KC IdPs linked
-      if (kcuser.federatedIdentities.length > 0) {
-        const discordIdentity = kcuser.federatedIdentities.find(
+      if (kcUser.federatedIdentities.length > 0) {
+        const discordIdentity = kcUser.federatedIdentities.find(
           (fi) => fi.identityProvider === "discord"
         );
 
@@ -70,19 +72,49 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
         });
         req.user = user;
       }
-      next();
-      return;
+
+      // Set kcUser attributes to user`s minecraft
+      if (!kcUser.attributes?.minecraft) {
+        await core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.update(
+            { id: req.kauth.grant.access_token.content.sub },
+            { attributes: { minecraft: user.name, minecraftVerified: false } }
+          );
+        req.kcUser = {
+          ...kcUser,
+          attributes: { minecraft: user.name, minecraftVerified: false },
+        };
+      }
     } else {
       // Get KC user
-      const kcuser = await core
+      const kcUser = await core
         .getKeycloakAdmin()
         .getKeycloakAdminClient()
         .users.findOne({
           id: req.kauth.grant.access_token.content.sub,
         });
 
+      req.kcUser = kcUser;
+
+      // Set kcUser attributes to empty values
+      if (!kcUser.attributes?.minecraft) {
+        await core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.update(
+            { id: req.kauth.grant.access_token.content.sub },
+            { attributes: { minecraft: "", minecraftVerified: false } }
+          );
+        req.kcUser = {
+          ...kcUser,
+          attributes: { minecraft: "", minecraftVerified: false },
+        };
+      }
+
       // User has discord IdP linked
-      const discordIdentity = kcuser.federatedIdentities.find(
+      const discordIdentity = kcUser.federatedIdentities.find(
         (fi) => fi.identityProvider === "discord"
       );
 
