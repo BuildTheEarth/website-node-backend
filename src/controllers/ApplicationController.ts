@@ -4,7 +4,7 @@ import {
   ApplicationStatus,
 } from "@prisma/client";
 import { Request, Response } from "express";
-import { sendBtWebhook, WebhookType } from "../util/BtWebhooks.js";
+import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
@@ -412,11 +412,42 @@ class ApplicationController {
             validatedAnswers.push({ id: question.id, answer: answer });
 
             if (type == ApplicationQuestionType.MINECRAFT) {
-              const user = await this.core.getPrisma().user.update({
-                where: { id: req.user.id },
-                data: { name: answer },
-              });
-              req.user = user;
+              // Not used anymore - stored in Keycloak
+              // const user = await this.core.getPrisma().user.update({
+              //   where: { id: req.user.id },
+              //   data: { name: answer },
+              // });
+              // req.user = user;
+              if (req.kcUser.attributes.minecraftVerified?.at(0) == "true") {
+                if (req.kcUser.attributes.minecraft?.at(0) != answer) {
+                  return ERROR_GENERIC(
+                    req,
+                    res,
+                    400,
+                    "Minecraft username is not equal to verified username on profile."
+                  );
+                }
+              } else {
+                await this.core
+                  .getKeycloakAdmin()
+                  .getKeycloakAdminClient()
+                  .users.update(
+                    { id: req.kcUser.id },
+                    {
+                      attributes: {
+                        minecraft: answer,
+                        minecraftVerified: false,
+                      },
+                    }
+                  );
+                req.kcUser = {
+                  ...req.kcUser,
+                  attributes: {
+                    minecraft: answer,
+                    minecraftVerified: false,
+                  },
+                };
+              }
             }
           } else if (question.required && question.sort >= 0) {
             return ERROR_GENERIC(
@@ -458,7 +489,7 @@ class ApplicationController {
         });
 
         await this.core.getDiscord().sendBotMessage(
-          `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}> (${req.user.name}). Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
+          `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}> (${req.kcUser.username}). Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
           reviewers.map((r) => r.user.discordId),
           (e) => ERROR_GENERIC(req, res, 500, e)
         );
