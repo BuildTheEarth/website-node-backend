@@ -72,7 +72,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
           );
         req.kcUser = {
           ...kcUser,
-          attributes: { minecraft: user.name, minecraftVerified: false },
+          attributes: { minecraft: [user.name], minecraftVerified: ["false"] },
         };
       }
 
@@ -113,7 +113,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
           );
         req.kcUser = {
           ...kcUser,
-          attributes: { minecraft: "", minecraftVerified: false },
+          attributes: { minecraft: [""], minecraftVerified: ["false"] },
         };
       }
 

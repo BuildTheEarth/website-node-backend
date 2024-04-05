@@ -429,6 +429,7 @@ class ApplicationController {
               //   data: { name: answer },
               // });
               // req.user = user;
+              console.log(req.kcUser.attributes);
               if (req.kcUser.attributes.minecraftVerified?.at(0) == "true") {
                 if (req.kcUser.attributes.minecraft?.at(0) != answer) {
                   return ERROR_GENERIC(
@@ -454,8 +455,8 @@ class ApplicationController {
                 req.kcUser = {
                   ...req.kcUser,
                   attributes: {
-                    minecraft: answer,
-                    minecraftVerified: false,
+                    minecraft: [answer],
+                    minecraftVerified: ["false"],
                   },
                 };
               }
