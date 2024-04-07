@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
 import { body, param, query } from "express-validator";
-import {
-  checkUserPermission,
-  checkUserPermissions,
-} from "./utils/CheckUserPermissionMiddleware.js";
 import turf, {
   CoordinateType,
   toPolygon,
   useCoordinateInput,
 } from "../../util/Coordinates.js";
+import {
+  checkUserPermission,
+  checkUserPermissions,
+} from "./utils/CheckUserPermissionMiddleware.js";
 
-import { ERROR_GENERIC } from "../../util/Errors.js";
 import { Keycloak } from "keycloak-connect";
-import { RequestMethods } from "./utils/RequestMethods.js";
-import Router from "./utils/Router.js";
+import { ERROR_GENERIC } from "../../util/Errors.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
+import { RequestMethods } from "./utils/RequestMethods.js";
+import Router from "./utils/Router.js";
 
 class Routes {
   app;
@@ -271,6 +271,7 @@ class Routes {
       body("about").isString().optional(),
       body("location").isString().optional(),
       body("slug").isString().optional(),
+      body("version").isString().optional(),
       body("ip").isString().optional(),
       checkUserPermission(
         this.web.getCore().getPrisma(),

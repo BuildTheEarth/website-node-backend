@@ -295,6 +295,7 @@ class BuildTeamController {
       instantAccept,
       webhook,
       ip,
+      version,
       color,
     } = req.body;
     const buildteam = await this.core.getPrisma().buildTeam.update({
@@ -315,6 +316,7 @@ class BuildTeamController {
         instantAccept,
         allowApplications,
         webhook,
+        version,
         ip,
         color,
       },

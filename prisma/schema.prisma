@@ -40,6 +40,7 @@ model BuildTeam {
   rejectionMessage     String                        @default("")
   trialMessage         String                        @default("")
   token                String                        @default("")
+  version              String                        @default("1.12.2")
   allowBuilderClaim    Boolean?                      @default(true)
   instantAccept        Boolean?                      @default(false)
   webhook              String?
