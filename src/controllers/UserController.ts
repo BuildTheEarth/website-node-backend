@@ -1,14 +1,15 @@
 import { ApplicationStatus, PrismaClient } from "@prisma/client";
-import { Request, Response } from "express";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
   ERROR_VALIDATION,
 } from "../util/Errors.js";
+import { Request, Response } from "express";
 
-import { validationResult } from "express-validator";
 import Core from "../Core.js";
+import type KcAdminClient from "@keycloak/keycloak-admin-client";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
+import { validationResult } from "express-validator";
 
 class UserController {
   private core: Core;
@@ -99,54 +100,37 @@ class UserController {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    const searchQuery = {
-      discordId: req.query.discord as string,
-      minecraft: req.query.minecraft as string,
-      id: req.query.id as string,
-      ssoId: req.query.ssoId as string,
-    };
-
-    const users = await this.core.getPrisma().user.findMany({
-      where: searchQuery,
-      take: req.query.limit ? parseInt(req.query.limit as string) : 10,
-      select: {
-        id: true,
-        ssoId: true,
-        avatar: true,
-        _count: {
-          select: {
-            joinedBuildTeams: true,
-            createdBuildTeams: true,
-            claims: true,
-            claimsBuilder: true,
+    if (req.query.bulk == "true") {
+      const users = await Promise.all(
+        req.body.query.map(async (query) =>
+          searchUser(
+            this.core.getPrisma(),
+            this.core.getKeycloakAdmin().getKeycloakAdminClient(),
+            {
+              discordId: query.discord as string,
+              minecraft: query.minecraft as string,
+              id: query.id as string,
+              ssoId: query.ssoId as string,
+            }
+          )
+        )
+      );
+      res.send(users);
+    } else {
+      res.send(
+        await searchUser(
+          this.core.getPrisma(),
+          this.core.getKeycloakAdmin().getKeycloakAdminClient(),
+          {
+            discordId: req.query.discord as string,
+            minecraft: req.query.minecraft as string,
+            id: req.query.id as string,
+            ssoId: req.query.ssoId as string,
           },
-        },
-      },
-    });
-    const kcUsers = await Promise.all(
-      users?.map(async (user) => {
-        const kcUser = await this.core
-          .getKeycloakAdmin()
-          .getKeycloakAdminClient()
-          .users.findOne({
-            id: user.ssoId,
-          });
-        const discordIdentity = kcUser.federatedIdentities.find(
-          (identity) => identity.identityProvider == "discord"
-        );
-        return {
-          ...user,
-          username: kcUser?.username,
-          minecraft: kcUser?.attributes?.minecraft?.at(0) || null,
-          minecraftVerified:
-            kcUser?.attributes?.minecraftVerified?.at(0) == "true" || false,
-          createdAt: new Date(kcUser?.createdTimestamp || 0).toISOString(),
-          discordId: discordIdentity.userId,
-          discordName: discordIdentity.userName.replace("#0", ""),
-        };
-      })
-    );
-    res.send(kcUsers);
+          req.query.limit && parseInt(req.query.limit as string)
+        )
+      );
+    }
   }
 
   public async getUser(req: Request, res: Response) {
@@ -514,5 +498,56 @@ async function removePermission(
       permissionId: { in: permissions },
     },
   });
+}
+
+async function searchUser(
+  prisma: PrismaClient,
+  kcAdmin: KcAdminClient,
+  search: {
+    discordId?: string;
+    minecraft?: string;
+    id?: string;
+    ssoId?: string;
+  },
+  limit?: number
+) {
+  const users = await prisma.user.findMany({
+    where: search,
+    take: limit | 1,
+    select: {
+      id: true,
+      ssoId: true,
+      avatar: true,
+      _count: {
+        select: {
+          joinedBuildTeams: true,
+          createdBuildTeams: true,
+          claims: true,
+          claimsBuilder: true,
+        },
+      },
+    },
+  });
+  const kcUsers = await Promise.all(
+    users?.map(async (user) => {
+      const kcUser = await kcAdmin.users.findOne({
+        id: user.ssoId,
+      });
+      const discordIdentity = kcUser.federatedIdentities.find(
+        (identity) => identity.identityProvider == "discord"
+      );
+      return {
+        ...user,
+        username: kcUser?.username,
+        minecraft: kcUser?.attributes?.minecraft?.at(0) || null,
+        minecraftVerified:
+          kcUser?.attributes?.minecraftVerified?.at(0) == "true" || false,
+        createdAt: new Date(kcUser?.createdTimestamp || 0).toISOString(),
+        discordId: discordIdentity.userId,
+        discordName: discordIdentity.userName.replace("#0", ""),
+      };
+    })
+  );
+  return kcUsers;
 }
 export default UserController;
