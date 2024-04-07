@@ -194,10 +194,8 @@ async function getHash(src: string) {
     );
 
     const { base64 } = await getPlaiceholder(buffer);
-    console.log(src.split("/").at(-1), base64.slice(0, 10));
     return base64;
   } catch (e) {
-    console.log(e.message);
     return "";
   }
 }

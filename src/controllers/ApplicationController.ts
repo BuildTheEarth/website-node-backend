@@ -423,13 +423,6 @@ class ApplicationController {
             validatedAnswers.push({ id: question.id, answer: answer });
 
             if (type == ApplicationQuestionType.MINECRAFT) {
-              // Not used anymore - stored in Keycloak
-              // const user = await this.core.getPrisma().user.update({
-              //   where: { id: req.user.id },
-              //   data: { name: answer },
-              // });
-              // req.user = user;
-              console.log(req.kcUser.attributes);
               if (req.kcUser.attributes.minecraftVerified?.at(0) == "true") {
                 if (req.kcUser.attributes.minecraft?.at(0) != answer) {
                   return ERROR_GENERIC(

@@ -241,7 +241,6 @@ class BuildTeamController {
                 buildTeam: { connect: { id: buildteam.id } },
               },
             });
-            console.log(d);
           });
 
           rerenderFrontend(FrontendRoutesGroups.TEAM, { team: buildteam.slug });
