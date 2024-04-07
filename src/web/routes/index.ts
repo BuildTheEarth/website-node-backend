@@ -698,6 +698,18 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.GET,
+      "/users/search",
+      async (request, response) => {
+        await controllers.user.searchUsers(request, response);
+      },
+      query("limit").isInt({ max: 10, min: 1 }).optional(),
+      query("discord").isString().optional(),
+      query("minecraft").isString().optional(),
+      query("id").isUUID().optional(),
+      query("ssoId").isUUID().optional()
+    );
+    router.addRoute(
+      RequestMethods.GET,
       "/users",
       async (request, response) => {
         await controllers.user.getUsers(request, response);

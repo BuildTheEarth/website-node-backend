@@ -93,6 +93,62 @@ class UserController {
     res.send(builders);
   }
 
+  public async searchUsers(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    const searchQuery = {
+      discordId: req.query.discord as string,
+      minecraft: req.query.minecraft as string,
+      id: req.query.id as string,
+      ssoId: req.query.ssoId as string,
+    };
+
+    const users = await this.core.getPrisma().user.findMany({
+      where: searchQuery,
+      take: req.query.limit ? parseInt(req.query.limit as string) : 10,
+      select: {
+        id: true,
+        ssoId: true,
+        avatar: true,
+        _count: {
+          select: {
+            joinedBuildTeams: true,
+            createdBuildTeams: true,
+            claims: true,
+            claimsBuilder: true,
+          },
+        },
+      },
+    });
+    const kcUsers = await Promise.all(
+      users?.map(async (user) => {
+        const kcUser = await this.core
+          .getKeycloakAdmin()
+          .getKeycloakAdminClient()
+          .users.findOne({
+            id: user.ssoId,
+          });
+        const discordIdentity = kcUser.federatedIdentities.find(
+          (identity) => identity.identityProvider == "discord"
+        );
+        return {
+          ...user,
+          username: kcUser?.username,
+          minecraft: kcUser?.attributes?.minecraft?.at(0) || null,
+          minecraftVerified:
+            kcUser?.attributes?.minecraftVerified?.at(0) == "true" || false,
+          createdAt: new Date(kcUser?.createdTimestamp || 0).toISOString(),
+          discordId: discordIdentity.userId,
+          discordName: discordIdentity.userName.replace("#0", ""),
+        };
+      })
+    );
+    res.send(kcUsers);
+  }
+
   public async getUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
