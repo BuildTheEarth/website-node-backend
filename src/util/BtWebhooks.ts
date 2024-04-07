@@ -49,4 +49,4 @@ export const WebhookType = {
   CLAIM_DELETE: "CLAIM_DELETE",
 };
 
-export type WebhookType = (typeof WebhookType)[keyof typeof WebhookType];
+export type WebhookType = typeof WebhookType[keyof typeof WebhookType];
