@@ -473,17 +473,22 @@ class ApplicationController {
             status: ApplicationStatus.SEND,
             createdAt: new Date(),
             trial: trial,
+            ApplicationAnswer: {
+              createMany: {
+                data: validatedAnswers.map((a) => ({
+                  answer: a.answer,
+                  questionId: a.id,
+                })),
+              },
+            },
+          },
+          include: {
+            buildteam: { select: { webhook: true } },
+            ApplicationAnswer: { include: { question: true } },
+            reviewer: true,
+            user: true,
           },
         });
-        const pAnswers = await this.core
-          .getPrisma()
-          .applicationAnswer.createMany({
-            data: validatedAnswers.map((a) => ({
-              answer: a.answer,
-              applicationId: application.id,
-              questionId: a.id,
-            })),
-          });
 
         const reviewers = await this.core.getPrisma().userPermission.findMany({
           where: {
@@ -498,6 +503,15 @@ class ApplicationController {
           reviewers.map((r) => r.user.discordId),
           (e) => ERROR_GENERIC(req, res, 500, e)
         );
+
+        if (application.buildteam.webhook) {
+          sendBtWebhook(
+            this.core,
+            application.buildteam.webhook,
+            WebhookType.APPLICATION_SEND,
+            application
+          );
+        }
 
         res.send(application);
       } else {

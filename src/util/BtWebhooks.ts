@@ -44,6 +44,7 @@ export async function sendWebhook(
 
 export const WebhookType = {
   APPLICATION: "APPLICATION",
+  APPLICATION_SEND: "APPLICATION_SEND",
   CLAIM_CREATE: "CLAIM_CREATE",
   CLAIM_UPDATE: "CLAIM_UPDATE",
   CLAIM_DELETE: "CLAIM_DELETE",
