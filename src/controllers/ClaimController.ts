@@ -517,7 +517,7 @@ class ClaimController {
     const claim = await this.core.getPrisma().claim.findFirst({
       where: {
         id: req.params.id,
-        ownerId: req.user.id,
+        ownerId: req.user.id, // TODO
       },
       select: {
         images: { where: { id: req.params.image } },

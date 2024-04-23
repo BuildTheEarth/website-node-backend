@@ -71,6 +71,10 @@ class GeneralController {
     }
     let opts = undefined;
 
+    if (!req.kauth) {
+      return ERROR_GENERIC(req, res, 500, "Unidentified User.");
+    }
+
     if (req.query.claim) {
       opts = { Claim: { connect: { id: req.query.claim as string } } };
     }
