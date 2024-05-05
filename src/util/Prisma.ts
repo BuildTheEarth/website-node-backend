@@ -3,7 +3,7 @@ import Core from "../Core.js";
 
 export async function middlewareUploadSrc(params, next) {
   const result = await next(params);
-  if (params.model == "Upload") {
+  if (params.model == "Upload" && params.action != "count") {
     result.src = `https://cdn.buildtheearth.net/uploads/${result.name}`;
   }
   return result;

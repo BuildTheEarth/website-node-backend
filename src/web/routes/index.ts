@@ -326,6 +326,14 @@ class Routes {
     );
     router.addRoute(
       RequestMethods.GET,
+      "/claims/images",
+      async (request, response) => {
+        await controllers.claim.getClaimImages(request, response);
+      },
+      checkUserPermission(this.web.getCore().getPrisma(), "team.claim.list")
+    );
+    router.addRoute(
+      RequestMethods.GET,
       "/map/statistics",
       async (request, response) => {
         await controllers.claim.getStatistics(request, response);

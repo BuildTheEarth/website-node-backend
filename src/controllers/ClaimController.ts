@@ -209,6 +209,43 @@ class ClaimController {
     return;
   }
 
+  public async getClaimImages(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+    const uploads = await this.core.getPrisma().upload.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: parseInt((req.query.take as string) || "10"),
+      skip: parseInt((req.query.skip as string) || "0"),
+      where: {
+        claimId: { not: null },
+      },
+      include: {
+        Showcase: {
+          select: {
+            id: true,
+            approved: true,
+            buildTeam: { select: { name: true, slug: true } },
+            city: true,
+            title: true,
+          },
+        },
+        Claim: { select: { id: true, name: true } },
+      },
+    });
+
+    const count = await this.core.getPrisma().upload.count({
+      where: {
+        claimId: { not: null },
+      },
+    });
+
+    res.send({ data: uploads, total: count });
+  }
+
   public async getStatistics(req: Request, res: Response) {
     const claimAggr = await this.core.getPrisma().claim.aggregate({
       _avg: {
@@ -517,7 +554,6 @@ class ClaimController {
     const claim = await this.core.getPrisma().claim.findFirst({
       where: {
         id: req.params.id,
-        ownerId: req.user.id, // TODO
       },
       select: {
         images: { where: { id: req.params.image } },
@@ -529,7 +565,7 @@ class ClaimController {
       },
     });
 
-    if (claim.ownerId != req.user.id) {
+    if (claim?.ownerId != req.user.id) {
       if (
         !userHasPermissions(
           this.core.getPrisma(),
@@ -541,7 +577,6 @@ class ClaimController {
         return ERROR_NO_PERMISSION(req, res);
       }
     }
-
 
     if (claim?.images[0]) {
       await this.core.getAWS().deleteFile("uploads", claim.images[0].id);
