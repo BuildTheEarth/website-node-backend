@@ -521,8 +521,27 @@ class ClaimController {
       },
       select: {
         images: { where: { id: req.params.image } },
+        id: true,
+        buildTeamId: true,
+        ownerId: true,
+        externalId: true,
+        buildTeam: { select: { webhook: true } },
       },
     });
+
+    if (claim.ownerId != req.user.id) {
+      if (
+        !userHasPermissions(
+          this.core.getPrisma(),
+          req.user.ssoId,
+          ["team.claim.list"],
+          claim.buildTeamId
+        )
+      ) {
+        return ERROR_NO_PERMISSION(req, res);
+      }
+    }
+
 
     if (claim?.images[0]) {
       await this.core.getAWS().deleteFile("uploads", claim.images[0].id);
