@@ -219,6 +219,11 @@ model CalendarEvent {
   buildTeamId String?
 }
 
+model JsonStore {
+  id   String @id @default(uuid())
+  data Json
+}
+
 enum ApplicationStatus {
   SEND
   REVIEWING
