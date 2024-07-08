@@ -128,7 +128,7 @@ class GeneralController {
       await this.core.getPrisma().jsonStore.update({
         where: {
           id: id
-        }
+        },
         data: {
           id: id,
           data: jsonBody
