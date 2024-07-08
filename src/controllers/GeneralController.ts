@@ -120,7 +120,7 @@ class GeneralController {
     if (!upload) {
         await this.core.getPrisma().jsonStore.create({
           data: {
-            id: id
+            id: id,
             data: jsonBody
           }
         })
@@ -130,7 +130,7 @@ class GeneralController {
           id: id
         }
         data: {
-          id: id
+          id: id,
           data: jsonBody
         }
       })
