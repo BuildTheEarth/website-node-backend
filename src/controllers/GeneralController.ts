@@ -89,10 +89,6 @@ class GeneralController {
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return ERROR_VALIDATION(req, res, errors.array());
-    }
 
     if (!req.kauth) {
       return ERROR_GENERIC(req, res, 500, "Unidentified User.");
@@ -106,7 +102,7 @@ class GeneralController {
 
     const jsonBody = req.body
 
-    if (!body) {
+    if (!jsonBody) {
       return ERROR_GENERIC(req, res, 404, "Body not found.");
     }
 
@@ -136,7 +132,7 @@ class GeneralController {
       })
     }
 
-    res.send(body)
+    res.send(jsonBody)
   }
 
   public async getJsonStore(req: Request, res: Response) {
