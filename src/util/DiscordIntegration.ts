@@ -99,7 +99,12 @@ class DiscordIntegration {
         "Content-type": "application/json",
         Authorization: `Bearer ${this.botSecret}`,
       },
-    }).then((res) => res.json());
+    })
+      .then((res) => res.json())
+      .catch((e) => {
+        this.core.getLogger().error(e);
+        return { error: "NOT_FOUND" };
+      });
   }
 
   public async isOnServer(user: string) {
