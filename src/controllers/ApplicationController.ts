@@ -356,16 +356,6 @@ class ApplicationController {
         );
 
         // Double trial application
-      } else if (
-        pastApplications.some((a) => a.status == ApplicationStatus.TRIAL) &&
-        trial
-      ) {
-        return ERROR_GENERIC(
-          req,
-          res,
-          409,
-          "You are already a trial of this BuildTeam."
-        );
       }
 
       if (!buildteam.allowApplications) {
