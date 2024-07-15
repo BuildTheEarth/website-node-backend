@@ -67,6 +67,24 @@ class Routes {
       this.web.getFileUpload().single("image")
     );
     router.addRoute(
+      RequestMethods.GET,
+      "/jsonstore/:id",
+      async (request, response) => {
+        await controllers.general.getJsonStore(request, response);
+      },
+      param("id")
+    );
+
+    router.addRoute(
+      RequestMethods.POST,
+      "/jsonstore/:id",
+      async (request, response) => {
+        await controllers.general.setJsonStore(request, response);
+      },
+      param("id")
+    );
+    
+    router.addRoute(
       RequestMethods.POST,
       "/coords",
       (request, response) => {
