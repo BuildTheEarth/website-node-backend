@@ -141,7 +141,9 @@ class UserController {
 
     if (!req.kauth.grant) ERROR_NO_PERMISSION(req, res);
 
-    const user = await this.core.getPrisma().user.findFirst({
+    let user;
+
+    const dbUser = await this.core.getPrisma().user.findFirst({
       where: {
         id: req.params.id,
       },
@@ -186,6 +188,8 @@ class UserController {
         },
       },
     });
+    user = dbUser;
+
     const buildTeamManager = await this.core.getPrisma().buildTeam.findMany({
       where: {
         UserPermission: {
@@ -207,6 +211,20 @@ class UserController {
       },
     });
     user.createdBuildTeams = user.createdBuildTeams.concat(buildTeamManager);
+
+    if (req.query.withKeycloak) {
+      const kcUser = await this.core
+        .getKeycloakAdmin()
+        .getKeycloakAdminClient()
+        .users.findOne({
+          id: user.ssoId,
+        });
+      user.email = kcUser?.email;
+      user.username = kcUser?.username;
+      user.enabled = kcUser?.enabled;
+      user.emailVerified = kcUser?.emailVerified;
+      user.createdTimestamp = kcUser?.createdTimestamp;
+    }
 
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(user);
