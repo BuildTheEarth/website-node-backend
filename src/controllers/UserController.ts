@@ -1,15 +1,15 @@
 import { ApplicationStatus, PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
   ERROR_VALIDATION,
 } from "../util/Errors.js";
-import { Request, Response } from "express";
 
-import Core from "../Core.js";
 import type KcAdminClient from "@keycloak/keycloak-admin-client";
-import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 import { validationResult } from "express-validator";
+import Core from "../Core.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class UserController {
   private core: Core;
@@ -207,6 +207,7 @@ class UserController {
       },
     });
     user.createdBuildTeams = user.createdBuildTeams.concat(buildTeamManager);
+
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(user);
     } else if (
@@ -215,6 +216,16 @@ class UserController {
         req.kauth.grant.access_token.content.sub,
         ["users.list"]
       )
+    ) {
+      res.send(user);
+    } else if (
+      req.query.asTeam &&
+      (await userHasPermissionsInAnyTeam(
+        this.core.getPrisma(),
+        req.kauth.grant.access_token.content.sub,
+        ["users.list"],
+        user.joinedBuildTeams.map((team) => team.slug)
+      ))
     ) {
       res.send(user);
     } else {
@@ -551,3 +562,17 @@ async function searchUser(
   return kcUsers;
 }
 export default UserController;
+
+async function userHasPermissionsInAnyTeam(
+  prisma: PrismaClient,
+  ssoId: string,
+  permission: string[],
+  buildteams: string[]
+) {
+  for (const team of buildteams) {
+    if (await userHasPermissions(prisma, ssoId, permission, team)) {
+      return true;
+    }
+  }
+  return false;
+}
