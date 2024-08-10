@@ -15,11 +15,16 @@ class BuildTeamController {
     this.core = core;
   }
 
+  /**
+   * Get Information about multiple Buildteams, may paginate
+   */
   public async getBuildTeams(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
+
+    // With pagination
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
       const buildteams = await this.core.getPrisma().buildTeam.findMany({
@@ -39,7 +44,7 @@ class BuildTeamController {
         },
       });
       let count = await this.core.getPrisma().buildTeam.count();
-      res.send({
+      return res.send({
         pages: Math.ceil(count / 10),
         data: buildteams.map((b) => ({
           ...b,
@@ -47,28 +52,32 @@ class BuildTeamController {
           webhook: undefined,
         })),
       });
-    } else {
-      const buildteams = await this.core.getPrisma().buildTeam.findMany({
-        orderBy: { members: { _count: "desc" } },
-        include: {
-          _count: {
-            select: { members: true, showcases: true },
-          },
-          members: req.user
-            ? {
-                where: {
-                  id: req.user.id,
-                },
-              }
-            : false,
-        },
-      });
-      res.send(
-        buildteams.map((b) => ({ ...b, token: undefined, webhook: undefined }))
-      );
     }
+
+    // Without pagination
+    const buildteams = await this.core.getPrisma().buildTeam.findMany({
+      orderBy: { members: { _count: "desc" } },
+      include: {
+        _count: {
+          select: { members: true, showcases: true },
+        },
+        members: req.user
+          ? {
+              where: {
+                id: req.user.id,
+              },
+            }
+          : false,
+      },
+    });
+    res.send(
+      buildteams.map((b) => ({ ...b, token: undefined, webhook: undefined }))
+    );
   }
 
+  /**
+   * Get a single buildteam, may include members and showcases
+   */
   public async getBuildTeam(req: Request, res: Response) {
     const buildteam = await this.core.getPrisma().buildTeam.findFirst({
       where: req.query.slug ? { slug: req.params.id } : { id: req.params.id },
@@ -78,17 +87,18 @@ class BuildTeamController {
         members: req.query.members
           ? true
           : req.user
-          ? {
-              where: {
-                id: req.user.id,
-              },
-            }
-          : false,
+            ? {
+                where: {
+                  id: req.user.id,
+                },
+              }
+            : false,
         _count: {
           select: { members: true },
         },
       },
     });
+
     if (buildteam) {
       res.send({ ...buildteam, token: undefined, webhook: undefined });
     } else {
@@ -96,6 +106,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Get application questions of a buildteam
+   */
   public async getBuildTeamApplicationQuestions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -119,6 +132,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Update application questions of a buildteam
+   */
   public async updateBuildTeamApplicationQuestions(
     req: Request,
     res: Response
@@ -137,7 +153,6 @@ class BuildTeamController {
 
     if (buildteam) {
       // validate schema
-
       let schema = yup.array().of(
         yup.object({
           id: yup.string(),
@@ -156,6 +171,7 @@ class BuildTeamController {
         .validate(req.body)
         .then((validatedSchema) => {
           validatedSchema.forEach(async (question: any) => {
+            // Update or insert question into db
             await this.core.getPrisma().applicationQuestion.upsert({
               where: {
                 id: question.id,
@@ -169,6 +185,7 @@ class BuildTeamController {
             });
           });
 
+          // Requires to rerender the static apply page
           rerenderFrontend("/teams/[team]", { team: buildteam.slug });
           res.send(validatedSchema);
         })
@@ -180,6 +197,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Get all buildteam social media links
+   */
   public async getBuildTeamSocials(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -200,6 +220,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Update a buildteam social media links
+   */
   public async updateBuildTeamSocials(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -215,7 +238,6 @@ class BuildTeamController {
 
     if (buildteam) {
       // validate schema
-
       let schema = yup.array().of(
         yup.object({
           id: yup.string(),
@@ -229,6 +251,7 @@ class BuildTeamController {
         .validate(req.body.socials)
         .then((validatedSchema) => {
           validatedSchema.forEach(async (question) => {
+            // Update or create social media link in db
             const d = await this.core.getPrisma().social.upsert({
               where: {
                 id: question.id,
@@ -243,6 +266,7 @@ class BuildTeamController {
             });
           });
 
+          // Requires to rerender the static team overview
           rerenderFrontend(FrontendRoutesGroups.TEAM, { team: buildteam.slug });
 
           res.send(validatedSchema);
@@ -255,6 +279,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Delete a buildteam social media link
+   */
   public async deleteBuildTeamSocial(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -271,6 +298,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Update settings of a buildteam
+   */
   public async updateBuildTeam(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -321,10 +351,14 @@ class BuildTeamController {
       },
     });
 
+    // Requires to rerender the static team pages
     rerenderFrontend(FrontendRoutesGroups.TEAM, { team: buildteam.slug });
     res.send(buildteam);
   }
 
+  /**
+   * Get all buildteam members, may paginate
+   */
   public async getBuildTeamMembers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -332,6 +366,8 @@ class BuildTeamController {
     }
     let members;
     let count = 0;
+
+    // With pagination
     if (req.query && req.query.page) {
       let page = parseInt(req.query.page as string);
       members = await this.core.getPrisma().user.findMany({
@@ -355,6 +391,7 @@ class BuildTeamController {
         },
       });
     } else {
+      // Without pagination
       members = await this.core.getPrisma().user.findMany({
         where: {
           joinedBuildTeams: {
@@ -366,6 +403,7 @@ class BuildTeamController {
       });
     }
 
+    // Get Keycloak information about all members present and mutate the object
     const kcMembers = await Promise.all(
       members.map(async (member) => {
         const kcMember = await this.core
@@ -387,6 +425,7 @@ class BuildTeamController {
         };
       })
     );
+
     res.send(
       req.query.page
         ? { pages: Math.ceil(count / 100), data: kcMembers }
@@ -394,6 +433,9 @@ class BuildTeamController {
     );
   }
 
+  /**
+   * Remove a user from a buildteam
+   */
   public async removeBuildTeamMember(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -416,6 +458,9 @@ class BuildTeamController {
     res.json(user);
   }
 
+  /**
+   * Get all users with special permissions for a buildteam (only direct, no indirect thru global)
+   */
   public async getBuildTeamManagers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -443,6 +488,7 @@ class BuildTeamController {
       },
     });
 
+    // Mutate users with information from keycloak
     const kcMembers = await Promise.all(
       members.map(async (member) => {
         const kcMember = await this.core
@@ -467,6 +513,9 @@ class BuildTeamController {
     res.send(kcMembers);
   }
 
+  /**
+   * Get all response templates from a buildteam
+   */
   public async getBuildTeamResponseTemplates(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -489,6 +538,10 @@ class BuildTeamController {
       ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
+
+  /**
+   * Add a response template to a buildteam
+   */
   public async addBuildTeamResponseTemplate(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -515,6 +568,10 @@ class BuildTeamController {
       ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
   }
+
+  /**
+   * Remove a response template from a buildteam
+   */
   public async deleteBuildTeamResponseTemplate(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -539,6 +596,9 @@ class BuildTeamController {
     }
   }
 
+  /**
+   * Generate a API Key for the Buildteam, dms to the owner
+   */
   public async generateBuildTeamToken(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -560,6 +620,7 @@ class BuildTeamController {
       return ERROR_GENERIC(req, res, 404, "BuildTeam does not exist.");
     }
 
+    // Check if the owner made the request
     if (buildteam.creator.id !== req.user.id) {
       return ERROR_GENERIC(
         req,
@@ -575,6 +636,7 @@ class BuildTeamController {
       data: { token },
     });
 
+    // Send token on discord
     await this.core
       .getDiscord()
       .sendBotMessage(
