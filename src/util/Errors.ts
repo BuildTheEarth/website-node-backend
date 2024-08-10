@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 
+import { validationResult } from "express-validator";
 import { LIB_VERSION } from "./package.js";
 
 export const ERROR_NO_PERMISSION = (

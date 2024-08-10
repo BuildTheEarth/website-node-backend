@@ -22,6 +22,10 @@ class ApplicationController {
   constructor(core: Core) {
     this.core = core;
   }
+
+  /**
+   * Get Applications to a buildteam, may filter by review
+   */
   public async getApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -32,12 +36,14 @@ class ApplicationController {
       return ERROR_NO_PERMISSION(req, res);
     }
 
+    const onlyReview = req.query.review;
+
     let applications = await this.core.getPrisma().application.findMany({
       where: {
         buildteam: req.query.slug
           ? { slug: req.params.id }
           : { id: req.params.id },
-        status: req.query.review
+        status: onlyReview
           ? { in: [ApplicationStatus.SEND, ApplicationStatus.REVIEWING] }
           : undefined,
       },
@@ -46,6 +52,9 @@ class ApplicationController {
     res.send(applications);
   }
 
+  /**
+   * Get Applications from a User to a buildteam, checks if User gets his ownor has permissions and filters by pending
+   */
   public async getUserApplications(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -71,6 +80,7 @@ class ApplicationController {
       },
     });
 
+    // Remove non-pending applications if filter is present
     if (req.query.pending) {
       applications = applications.filter(
         (a) =>
@@ -79,6 +89,7 @@ class ApplicationController {
       );
     }
 
+    // Check if User either gets his own, or has permissions on that buildteam
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
       res.send(applications);
     } else if (
@@ -95,6 +106,9 @@ class ApplicationController {
     }
   }
 
+  /**
+   * Get a single Application, allows expansion to include answers and user information
+   */
   public async getApplication(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -130,6 +144,7 @@ class ApplicationController {
       },
     });
 
+    // Add Keycloak Information of reviewer and user
     const kcReviewer = application.reviewer?.ssoId
       ? await this.core
           .getKeycloakAdmin()
@@ -156,6 +171,9 @@ class ApplicationController {
     return;
   }
 
+  /**
+   * Review an Application
+   */
   public async review(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -165,6 +183,7 @@ class ApplicationController {
     const { status, reason } = req.body;
     const reviewer = req.user;
 
+    // Set reviewer, time and status
     const application = await this.core.getPrisma().application.update({
       where: {
         id: req.params.app,
@@ -198,6 +217,7 @@ class ApplicationController {
     });
 
     if (parseApplicationStatus(status) == ApplicationStatus.ACCEPTED) {
+      // Join User to Team
       const user = await this.core.getPrisma().user.update({
         where: { id: application.userId },
         data: {
@@ -206,6 +226,7 @@ class ApplicationController {
         select: { discordId: true },
       });
 
+      // Send accept message on discord
       await this.core
         .getDiscord()
         .sendBotMessage(
@@ -218,12 +239,16 @@ class ApplicationController {
           [user.discordId],
           (e) => ERROR_GENERIC(req, res, 500, e)
         );
+
+      // Update builder role on discord
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
       const user = await this.core.getPrisma().user.findFirst({
         where: { id: application.userId },
         select: { discordId: true },
       });
+
+      // Send trial message on discord
       await this.core
         .getDiscord()
         .sendBotMessage(
@@ -237,6 +262,7 @@ class ApplicationController {
           (e) => ERROR_GENERIC(req, res, 500, e)
         );
     } else {
+      // Remove user from team (-> application was reviewed again)
       const user = await this.core.getPrisma().user.update({
         where: { id: application.userId },
         data: {
@@ -250,6 +276,7 @@ class ApplicationController {
         },
       });
 
+      // Send rejection message on discord
       await this.core
         .getDiscord()
         .sendBotMessage(
@@ -263,6 +290,7 @@ class ApplicationController {
           (e) => ERROR_GENERIC(req, res, 500, e)
         );
 
+      // Remove builder role if user isnt in any team
       if (user._count.joinedBuildTeams < 1) {
         await this.core
           .getDiscord()
@@ -272,8 +300,10 @@ class ApplicationController {
       }
     }
 
+    // Send Webhook to BTE Staff server
     await this.core.getDiscord().sendApplicationUpdate(application);
 
+    // Send Webhook to BuildTeam
     if (application.buildteam.webhook) {
       sendBtWebhook(
         this.core,
@@ -286,6 +316,9 @@ class ApplicationController {
     res.send(application);
   }
 
+  /**
+   * Create a new Application for a buildteam
+   */
   public async apply(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -295,6 +328,7 @@ class ApplicationController {
       ERROR_NO_PERMISSION(req, res);
     }
 
+    // Checks if User is on the BTE.net discord
     if (!(await this.core.getDiscord().isOnServer(req.user.discordId))) {
       ERROR_GENERIC(
         req,
@@ -320,6 +354,7 @@ class ApplicationController {
     });
 
     if (buildteam) {
+      // Get applications the user already submitted to this team
       const pastApplications = await this.core
         .getPrisma()
         .application.findMany({
@@ -339,9 +374,8 @@ class ApplicationController {
           409,
           "You are already a builder of this BuildTeam."
         );
-
-        // User already applied, waiting for review
       } else if (
+        // User already applied, waiting for review
         pastApplications.some(
           (a) =>
             a.status == ApplicationStatus.REVIEWING ||
@@ -354,10 +388,9 @@ class ApplicationController {
           409,
           "You already have an pending application for this BuildTeam."
         );
-
-        // Double trial application
       }
 
+      // Check if Buildteam has applications disabled
       if (!buildteam.allowApplications) {
         return ERROR_GENERIC(
           req,
@@ -367,6 +400,7 @@ class ApplicationController {
         );
       }
 
+      // Perform Accpet flow if needed
       if (buildteam.instantAccept) {
         const application = await this.core.getPrisma().application.create({
           data: {
@@ -379,6 +413,7 @@ class ApplicationController {
           },
         });
 
+        // Send accept message on discord
         await this.core
           .getDiscord()
           .sendBotMessage(
@@ -397,7 +432,6 @@ class ApplicationController {
         // Filter by correct questions
         if (question.trial == trial) {
           if (answers[question.id]) {
-            // TODO: validate answer type
             let answer = answers[question.id];
             const type = question.type;
 
@@ -412,6 +446,8 @@ class ApplicationController {
             }
             validatedAnswers.push({ id: question.id, answer: answer });
 
+            // If Type is minecraft, populate the minecraft name of the user
+            // TODO: verify account
             if (type == ApplicationQuestionType.MINECRAFT) {
               if (req.kcUser.attributes.minecraftVerified?.at(0) == "true") {
                 if (req.kcUser.attributes.minecraft?.at(0) != answer) {
@@ -455,6 +491,7 @@ class ApplicationController {
         }
       }
 
+      // Save answers in DB
       if (validatedAnswers.length >= 0) {
         const application = await this.core.getPrisma().application.create({
           data: {
@@ -488,12 +525,14 @@ class ApplicationController {
           select: { user: { select: { id: true, discordId: true } } },
         });
 
+        // Send message to all reviewers
         await this.core.getDiscord().sendBotMessage(
           `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}> (${req.kcUser.username}). Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
           reviewers.map((r) => r.user.discordId),
           (e) => ERROR_GENERIC(req, res, 500, e)
         );
 
+        // Send Webhook to BuildTeam
         if (application.buildteam.webhook) {
           sendBtWebhook(
             this.core,
@@ -512,6 +551,14 @@ class ApplicationController {
     }
   }
 
+  /**
+   * Replaces placeholders to actual data in discord messages to users
+   * @param message Message with placeholders
+   * @param application Application Information
+   * @param user User Information
+   * @param team Team Information
+   * @returns Replaced Message
+   */
   public mutateApplicationMessage(
     message: string,
     application: Application,
