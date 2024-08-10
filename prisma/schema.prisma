@@ -200,6 +200,7 @@ model Upload {
   hash      String
   height    Int
   width     Int
+  checked   Boolean    @default(false)
   createdAt DateTime   @default(now())
   Showcase  Showcase[]
   Claim     Claim?     @relation(fields: [claimId], references: [id])

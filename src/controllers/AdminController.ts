@@ -1,9 +1,15 @@
 import { Request, Response } from "express";
 import turf, { toPolygon } from "../util/Coordinates.js";
+import {
+  ERROR_GENERIC,
+  ERROR_NO_PERMISSION,
+  ERROR_VALIDATION,
+} from "../util/Errors.js";
 
+import { validationResult } from "express-validator";
 import { getPlaiceholder } from "plaiceholder";
 import Core from "../Core.js";
-import { ERROR_GENERIC } from "../util/Errors.js";
+import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class AdminController {
   private core: Core;
@@ -38,7 +44,7 @@ class AdminController {
           running: job.running,
           cronTime: job.cronTime.source,
         };
-      }),
+      })
     );
   }
 
@@ -58,7 +64,7 @@ class AdminController {
         req,
         res,
         409,
-        "Recalculations are already ongoing.",
+        "Recalculations are already ongoing."
       );
     }
 
@@ -99,7 +105,7 @@ class AdminController {
         req,
         res,
         409,
-        "Recalculations are already ongoing.",
+        "Recalculations are already ongoing."
       );
     }
 
@@ -145,7 +151,7 @@ class AdminController {
         req,
         res,
         409,
-        "Recalculations are already ongoing.",
+        "Recalculations are already ongoing."
       );
     }
 
@@ -193,8 +199,8 @@ class AdminController {
 
     const hashes = await Promise.all(
       images.map((image) =>
-        getHash(`https://cdn.buildtheearth.net/uploads/${image.name}`),
-      ),
+        getHash(`https://cdn.buildtheearth.net/uploads/${image.name}`)
+      )
     );
 
     for (const [i, image] of images.entries()) {
@@ -206,6 +212,28 @@ class AdminController {
       });
     }
     res.send({ count: images.length });
+  }
+
+  /**
+   * Set the status of a uploaded image to checked (verfied that it doesnt show anything bad)
+   */
+  public async checkImage(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    if (!req.user) {
+      return ERROR_NO_PERMISSION(req, res);
+    }
+    const image = await this.core.getPrisma().upload.update({
+      where: {
+        id: req.params.id,
+      },
+      data: { checked: true },
+    });
+
+    res.send(image);
   }
 }
 

@@ -1092,6 +1092,14 @@ class Routes {
       },
       checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
     );
+    router.addRoute(
+      RequestMethods.POST,
+      "/admin/images/:id/check",
+      async (request, response) => {
+        await controllers.admin.checkImage(request, response);
+      },
+      checkUserPermission(this.web.getCore().getPrisma(), "team.claim.list")
+    );
   }
 }
 

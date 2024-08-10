@@ -184,7 +184,7 @@ class ClaimController {
               avatar: member.avatar,
               minecraft: member.minecraft,
             };
-          }),
+          })
         );
       }
 
@@ -222,6 +222,7 @@ class ClaimController {
       skip: parseInt((req.query.skip as string) || "0"),
       where: {
         claimId: { not: null },
+        checked: false,
       },
       include: {
         Showcase: {
@@ -310,7 +311,7 @@ class ClaimController {
             avatar: member.avatar,
             count: parseInt(member.count.toString().replace("n", "")),
           };
-        }),
+        })
       );
     }
 
@@ -356,7 +357,7 @@ class ClaimController {
           this.core.getPrisma(),
           req.user.ssoId,
           ["team.claim.list"],
-          claim.buildTeamId,
+          claim.buildTeamId
         )
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -384,7 +385,7 @@ class ClaimController {
         buildings: area && (await this.updateClaimBuildingCount({ area })),
         ...(await this.updateClaimOSMDetails(
           { id: req.params.id, name, center },
-          false,
+          false
         )),
       },
       include: {
@@ -401,7 +402,7 @@ class ClaimController {
       this.core,
       updatedClaim.buildTeam.webhook,
       WebhookType.CLAIM_UPDATE,
-      { ...updatedClaim, buildTeam: undefined },
+      { ...updatedClaim, buildTeam: undefined }
     );
     res.send({
       ...updatedClaim,
@@ -434,7 +435,7 @@ class ClaimController {
         req,
         res,
         403,
-        "You are not a member of this BuildTeam.",
+        "You are not a member of this BuildTeam."
       );
     }
 
@@ -464,7 +465,7 @@ class ClaimController {
         ...(area
           ? await this.updateClaimOSMDetails(
               { name: req.body.name, center },
-              false,
+              false
             )
           : {}),
       },
@@ -483,7 +484,7 @@ class ClaimController {
       {
         ...claim,
         buildTeam: undefined,
-      },
+      }
     );
     res.send({ ...claim, buildTeam: undefined });
   }
@@ -514,7 +515,7 @@ class ClaimController {
           this.core.getPrisma(),
           req.user.ssoId,
           ["team.claim.list"],
-          claim.buildTeamId,
+          claim.buildTeamId
         )
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -534,7 +535,7 @@ class ClaimController {
         {
           ...claim,
           buildTeam: undefined,
-        },
+        }
       );
       res.send({ ...claim, buildTeam: undefined });
     } else {
@@ -571,7 +572,7 @@ class ClaimController {
           this.core.getPrisma(),
           req.user.ssoId,
           ["team.claim.list"],
-          claim.buildTeamId,
+          claim.buildTeamId
         )
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -591,7 +592,7 @@ class ClaimController {
       id?: string;
       area: string[];
     },
-    update?: boolean,
+    update?: boolean
   ) {
     const polygon = toOverpassPolygon(claim.area);
 
@@ -607,8 +608,8 @@ class ClaimController {
       const { data } = await axios.get(
         `https://overpass.kumi.systems/api/interpreter?data=${overpassQuery.replace(
           "\n",
-          "",
-        )}`,
+          ""
+        )}`
       );
 
       if (update) {
@@ -628,7 +629,7 @@ class ClaimController {
 
   public async updateClaimOSMDetails(
     claim: { id?: string; center: string; name?: string },
-    update?: boolean,
+    update?: boolean
   ): Promise<{ osmName: string; city: string; name: string } | undefined> {
     try {
       const { data } = await axios.get(
@@ -637,7 +638,7 @@ class ClaimController {
         }&lon=${
           claim.center.split(", ")[0]
         }&format=json&accept-language=en&zoom=18`,
-        { headers: { "User-Agent": "BTE/1.0" } },
+        { headers: { "User-Agent": "BTE/1.0" } }
       );
 
       if (data?.error) this.core.getLogger().error(data.error);
