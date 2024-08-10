@@ -6,13 +6,13 @@ import { LIB_VERSION } from "./package.js";
 export const ERROR_NO_PERMISSION = (
   req: Request,
   res: Response,
-  msg?: string
+  msg?: string,
 ) => {
   return ERROR_GENERIC(
     req,
     res,
     401,
-    msg || "You don't have permission to access this resource."
+    msg || "You don't have permission to access this resource.",
   );
 };
 
@@ -20,7 +20,7 @@ export const ERROR_VALIDATION = (
   req: Request,
   res: Response,
   errors: any[],
-  msg?: string
+  msg?: string,
 ) => {
   return ERROR_GENERIC(req, res, 400, msg || "Validation error.", errors);
 };
@@ -30,7 +30,7 @@ export const ERROR_GENERIC = (
   res: Response,
   code: number,
   msg: string,
-  errors?: any[]
+  errors?: any[],
 ) => {
   return res.status(code).send({
     error: true,

@@ -35,7 +35,7 @@ class Core {
       this,
       process.env.DISCORD_WEBHOOK_URL,
       process.env.DISCORD_BOT_URL,
-      process.env.DISCORD_BOT_SECRET
+      process.env.DISCORD_BOT_SECRET,
     );
     this.keycloak = new Keycloak(
       {
@@ -48,7 +48,7 @@ class Core {
         "ssl-required": "external",
         resource: process.env.KEYCLOAK_CLIENTID,
         "confidential-port": 0,
-      }
+      },
     );
     this.keycloakAdmin = new KeycloakAdmin(this);
     this.keycloakAdmin.authKcClient().then(() => {
@@ -99,7 +99,7 @@ class Core {
       level: process.env.LOGLEVEL,
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json()
+        winston.format.json(),
       ),
       transports: [
         new winston.transports.File({
@@ -114,7 +114,7 @@ class Core {
       const consoleFormat = winston.format.printf(
         ({ level, message, timestamp }) => {
           return `${timestamp} | ${level} » ${message}`;
-        }
+        },
       );
 
       logger.add(
@@ -122,9 +122,9 @@ class Core {
           format: winston.format.combine(
             winston.format.colorize(),
             winston.format.simple(),
-            consoleFormat
+            consoleFormat,
           ),
-        })
+        }),
       );
     }
     logger.info(
@@ -145,7 +145,7 @@ class Core {
         "[38;5;254m@[38;5;254m&[38;5;017m.[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;233m [38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;017m,[38;5;017m.[38;5;254m&\n" +
         "[38;5;254m@[38;5;254m&[38;5;254m&[38;5;254m&[38;5;017m.[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;233m [38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;017m.[38;5;017m.[38;5;017m.[38;5;254m&[38;5;254m&[38;5;254m&\n" +
         "[38;5;254m@[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;017m.[38;5;060m/[38;5;060m/[38;5;060m/[38;5;060m/[38;5;235m.[38;5;235m.[38;5;004m,[38;5;004m,[38;5;017m.[38;5;017m.[38;5;233m [38;5;023m,[38;5;023m,[38;5;023m,[38;5;017m.[38;5;017m.[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&\n" +
-        "[0m"
+        "[0m",
     );
 
     this.logger = logger;

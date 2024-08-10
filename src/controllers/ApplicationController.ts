@@ -85,7 +85,7 @@ class ApplicationController {
       applications = applications.filter(
         (a) =>
           a.status == ApplicationStatus.REVIEWING ||
-          a.status == ApplicationStatus.SEND
+          a.status == ApplicationStatus.SEND,
       );
     }
 
@@ -97,7 +97,7 @@ class ApplicationController {
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
         ["team.application.list"],
-        req.query.id as string
+        req.query.id as string,
       )
     ) {
       res.send(applications);
@@ -234,10 +234,10 @@ class ApplicationController {
             application.buildteam.acceptionMessage,
             application,
             user,
-            application.buildteam
+            application.buildteam,
           ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
 
       // Update builder role on discord
@@ -256,10 +256,10 @@ class ApplicationController {
             application.buildteam.trialMessage,
             application,
             user,
-            application.buildteam
+            application.buildteam,
           ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
     } else {
       // Remove user from team (-> application was reviewed again)
@@ -284,10 +284,10 @@ class ApplicationController {
             application.buildteam.rejectionMessage,
             application,
             user,
-            application.buildteam
+            application.buildteam,
           ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
 
       // Remove builder role if user isnt in any team
@@ -295,7 +295,7 @@ class ApplicationController {
         await this.core
           .getDiscord()
           .updateBuilderRole(user.discordId, false, (e) =>
-            ERROR_GENERIC(req, res, 500, e)
+            ERROR_GENERIC(req, res, 500, e),
           );
       }
     }
@@ -309,7 +309,7 @@ class ApplicationController {
         this.core,
         application.buildteam.webhook,
         WebhookType.APPLICATION,
-        application
+        application,
       );
     }
 
@@ -334,7 +334,7 @@ class ApplicationController {
         req,
         res,
         428,
-        "Please join the BuildTheEarth.net Discord Server"
+        "Please join the BuildTheEarth.net Discord Server",
       );
       return;
     }
@@ -372,21 +372,21 @@ class ApplicationController {
           req,
           res,
           409,
-          "You are already a builder of this BuildTeam."
+          "You are already a builder of this BuildTeam.",
         );
       } else if (
         // User already applied, waiting for review
         pastApplications.some(
           (a) =>
             a.status == ApplicationStatus.REVIEWING ||
-            a.status == ApplicationStatus.SEND
+            a.status == ApplicationStatus.SEND,
         )
       ) {
         return ERROR_GENERIC(
           req,
           res,
           409,
-          "You already have an pending application for this BuildTeam."
+          "You already have an pending application for this BuildTeam.",
         );
       }
 
@@ -396,7 +396,7 @@ class ApplicationController {
           req,
           res,
           403,
-          "BuildTeam has disabled applications."
+          "BuildTeam has disabled applications.",
         );
       }
 
@@ -421,10 +421,10 @@ class ApplicationController {
               buildteam.acceptionMessage,
               application,
               req.user,
-              buildteam
+              buildteam,
             ),
             [req.user.discordId],
-            (e) => ERROR_GENERIC(req, res, 500, e)
+            (e) => ERROR_GENERIC(req, res, 500, e),
           );
       }
 
@@ -455,7 +455,7 @@ class ApplicationController {
                     req,
                     res,
                     400,
-                    "Minecraft username is not equal to verified username on profile."
+                    "Minecraft username is not equal to verified username on profile.",
                   );
                 }
               } else {
@@ -469,7 +469,7 @@ class ApplicationController {
                         minecraft: answer,
                         minecraftVerified: false,
                       },
-                    }
+                    },
                   );
                 req.kcUser = {
                   ...req.kcUser,
@@ -485,7 +485,7 @@ class ApplicationController {
               req,
               res,
               400,
-              "Required Questions are missing."
+              "Required Questions are missing.",
             );
           }
         }
@@ -529,7 +529,7 @@ class ApplicationController {
         await this.core.getDiscord().sendBotMessage(
           `**${buildteam.name}** \\nNew Application from <@${req.user.discordId}> (${req.kcUser.username}). Review it [here](${process.env.FRONTEND_URL}/teams/${buildteam.slug}/manage/review/${application.id})`,
           reviewers.map((r) => r.user.discordId),
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
 
         // Send Webhook to BuildTeam
@@ -538,7 +538,7 @@ class ApplicationController {
             this.core,
             application.buildteam.webhook,
             WebhookType.APPLICATION_SEND,
-            application
+            application,
           );
         }
 
@@ -563,7 +563,7 @@ class ApplicationController {
     message: string,
     application: Application,
     user: { discordId: string },
-    team: { slug: string; name: string }
+    team: { slug: string; name: string },
   ): string {
     return message
       .replace("{user}", `<@${user.discordId}>`)
@@ -576,7 +576,7 @@ class ApplicationController {
           year: "numeric",
           month: "numeric",
           day: "numeric",
-        })
+        }),
       )
       .replace(
         "{createdAt}",
@@ -584,7 +584,7 @@ class ApplicationController {
           year: "numeric",
           month: "numeric",
           day: "numeric",
-        })
+        }),
       )
       .replace("{id}", application.id.toString().split("-")[0]);
   }

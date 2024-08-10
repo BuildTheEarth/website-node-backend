@@ -7,7 +7,7 @@ import { ERROR_NO_PERMISSION } from "../../../util/Errors.js";
 export const checkUserPermission = (
   prisma: PrismaClient,
   permission: string,
-  buildteam?: string
+  buildteam?: string,
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
@@ -20,7 +20,7 @@ export const checkUserPermission = (
         prisma,
         req.kauth.grant.access_token.content.sub,
         [permission],
-        buildteam ? req.params[buildteam] : undefined
+        buildteam ? req.params[buildteam] : undefined,
       )
     ) {
       next();
@@ -35,7 +35,7 @@ export const checkUserPermission = (
 export const checkUserPermissions = (
   prisma: PrismaClient,
   permissions: string[],
-  buildteam?: string
+  buildteam?: string,
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.kauth.grant) {
@@ -48,7 +48,7 @@ export const checkUserPermissions = (
         prisma,
         req.kauth.grant.access_token.content.sub,
         permissions,
-        buildteam ? req.params[buildteam] : undefined
+        buildteam ? req.params[buildteam] : undefined,
       )
     ) {
       next();
@@ -64,7 +64,7 @@ export async function userHasPermissions(
   prisma: PrismaClient,
   ssoId: string,
   permission: string[],
-  buildteam?: string
+  buildteam?: string,
 ) {
   let user = await prisma.user.findUnique({
     where: {
@@ -86,7 +86,7 @@ export async function userHasPermissions(
       (p) =>
         p.buildTeamId == null ||
         p.buildTeamId == buildteam ||
-        p.buildTeam.slug == buildteam
+        p.buildTeam.slug == buildteam,
     )
     .filter((p) => permission.some((perm) => minimatch(perm, p.permission.id)));
   if (

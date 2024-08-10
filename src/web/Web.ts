@@ -63,7 +63,7 @@ class Web {
         resave: false,
         saveUninitialized: true,
         store: this.core.memoryStore,
-      })
+      }),
     );
     this.app.use(cors());
 
@@ -71,7 +71,7 @@ class Web {
       this.core.getKeycloak().middleware({
         logout: "/logout",
         admin: "/",
-      })
+      }),
     );
     this.core.getLogger().debug("Enabled keycloak-connect adapter");
     this.app.use(checkNewUser(this.getCore().getPrisma(), this.getCore()));

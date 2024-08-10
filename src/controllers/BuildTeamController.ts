@@ -71,7 +71,7 @@ class BuildTeamController {
       },
     });
     res.send(
-      buildteams.map((b) => ({ ...b, token: undefined, webhook: undefined }))
+      buildteams.map((b) => ({ ...b, token: undefined, webhook: undefined })),
     );
   }
 
@@ -137,7 +137,7 @@ class BuildTeamController {
    */
   public async updateBuildTeamApplicationQuestions(
     req: Request,
-    res: Response
+    res: Response,
   ) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -164,7 +164,7 @@ class BuildTeamController {
           icon: yup.string(),
           sort: yup.number(),
           type: yup.mixed().oneOf(Object.keys(ApplicationQuestionType)),
-        })
+        }),
       );
 
       schema
@@ -244,7 +244,7 @@ class BuildTeamController {
           name: yup.string(),
           icon: yup.string(),
           url: yup.string(),
-        })
+        }),
       );
 
       schema
@@ -423,13 +423,13 @@ class BuildTeamController {
           emailVerified: kcMember?.emailVerified,
           avatar: member.avatar,
         };
-      })
+      }),
     );
 
     res.send(
       req.query.page
         ? { pages: Math.ceil(count / 100), data: kcMembers }
-        : kcMembers
+        : kcMembers,
     );
   }
 
@@ -508,7 +508,7 @@ class BuildTeamController {
           emailVerified: kcMember?.emailVerified || false,
           permissions: member.permissions,
         };
-      })
+      }),
     );
     res.send(kcMembers);
   }
@@ -626,7 +626,7 @@ class BuildTeamController {
         req,
         res,
         403,
-        "You are not the Creator of this BuildTeam."
+        "You are not the Creator of this BuildTeam.",
       );
     }
     const token = crypto.randomBytes(21).toString("hex");
@@ -641,7 +641,7 @@ class BuildTeamController {
       .getDiscord()
       .sendBotMessage(
         `**${buildteam.name}** \\nGenerated new API Token: ||${token}|| \\nPlease save it somewhere secure.`,
-        [buildteam.creator.discordId]
+        [buildteam.creator.discordId],
       );
 
     res.send({ message: "Token generated, check your Discord DMs" });

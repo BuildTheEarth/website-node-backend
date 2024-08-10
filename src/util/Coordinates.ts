@@ -14,7 +14,7 @@ export function toPoint(coords: string, splitter?: string): Point {
 export function toPolygon(
   coords: string[],
   splitter?: string,
-  reverse?: boolean
+  reverse?: boolean,
 ): Polygon {
   return polygon([
     coords.map((c) => {
@@ -27,7 +27,7 @@ export function toPolygon(
 export function toLngLat(
   coords: string,
   latFirst?: boolean,
-  splitter?: string
+  splitter?: string,
 ): { lat: number; lng: number } {
   const s = coords.split(splitter || ", ");
   return {
@@ -72,7 +72,7 @@ export function useCoordinateInput(coordinates: string, required?: boolean) {
           req,
           res,
           500,
-          "Error parsing coordinates. Correct type?"
+          "Error parsing coordinates. Correct type?",
         );
       }
     }
@@ -114,7 +114,7 @@ export function parseCoordinates(coords: any, type: string) {
     // ["lat, lng","lat, lng","lat, lng"]
     case CoordinateType.STRING_ARRAY_REVERSE: {
       return coords.map(
-        (c) => `${c.split(",")[1].trim()}, ${c.split(",")[0].trim()}`
+        (c) => `${c.split(",")[1].trim()}, ${c.split(",")[0].trim()}`,
       );
     }
     // [["lng","lat"],["lng","lat"],["lng","lat"]]

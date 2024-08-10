@@ -111,9 +111,9 @@ class UserController {
               minecraft: query.minecraft as string,
               id: query.id as string,
               ssoId: query.ssoId as string,
-            }
-          )
-        )
+            },
+          ),
+        ),
       );
       res.send(users);
     } else {
@@ -127,8 +127,8 @@ class UserController {
             id: req.query.id as string,
             ssoId: req.query.ssoId as string,
           },
-          req.query.limit && parseInt(req.query.limit as string)
-        )
+          req.query.limit && parseInt(req.query.limit as string),
+        ),
       );
     }
   }
@@ -232,7 +232,7 @@ class UserController {
       await userHasPermissions(
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
-        ["users.list"]
+        ["users.list"],
       )
     ) {
       res.send(user);
@@ -242,7 +242,7 @@ class UserController {
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
         ["users.list"],
-        user.joinedBuildTeams.map((team) => team.slug)
+        user.joinedBuildTeams.map((team) => team.slug),
       ))
     ) {
       res.send(user);
@@ -280,7 +280,7 @@ class UserController {
       await userHasPermissions(
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
-        ["users.list"]
+        ["users.list"],
       )
     ) {
       res.send({ ...user, ...kcUser, sessions: kcSessions });
@@ -354,7 +354,7 @@ class UserController {
         .getKeycloakAdminClient()
         .users.update(
           { id: user.ssoId },
-          { firstName, lastName, username, email }
+          { firstName, lastName, username, email },
         );
       const kcUser = await this.core
         .getKeycloakAdmin()
@@ -397,7 +397,7 @@ class UserController {
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
           ["permission.add"],
-          req.query.buildteam as string
+          req.query.buildteam as string,
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -419,15 +419,15 @@ class UserController {
           this.core.getPrisma(),
           permissions,
           userId,
-          buildteam.id
-        )
+          buildteam.id,
+        ),
       );
     } else {
       if (
         !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          ["permission.add"]
+          ["permission.add"],
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -457,7 +457,7 @@ class UserController {
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
           ["permission.remove"],
-          req.query.buildteam as string
+          req.query.buildteam as string,
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -479,22 +479,22 @@ class UserController {
           this.core.getPrisma(),
           permissions,
           userId,
-          buildteam.id
-        )
+          buildteam.id,
+        ),
       );
     } else {
       if (
         !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          ["permission.remove"]
+          ["permission.remove"],
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
       }
 
       res.send(
-        await removePermission(this.core.getPrisma(), permissions, userId)
+        await removePermission(this.core.getPrisma(), permissions, userId),
       );
     }
   }
@@ -504,7 +504,7 @@ async function addPermission(
   prisma: PrismaClient,
   permissions: string[],
   user: string,
-  buildteam?: string
+  buildteam?: string,
 ) {
   return await prisma.userPermission.createMany({
     data: permissions.map((permission) => ({
@@ -518,7 +518,7 @@ async function removePermission(
   prisma: PrismaClient,
   permissions: string[],
   user: string,
-  buildteam?: string
+  buildteam?: string,
 ) {
   return await prisma.userPermission.deleteMany({
     where: {
@@ -538,7 +538,7 @@ async function searchUser(
     id?: string;
     ssoId?: string;
   },
-  limit?: number
+  limit?: number,
 ) {
   const users = await prisma.user.findMany({
     where: search,
@@ -563,7 +563,7 @@ async function searchUser(
         id: user.ssoId,
       });
       const discordIdentity = kcUser.federatedIdentities.find(
-        (identity) => identity.identityProvider == "discord"
+        (identity) => identity.identityProvider == "discord",
       );
       return {
         ...user,
@@ -575,7 +575,7 @@ async function searchUser(
         discordId: discordIdentity.userId,
         discordName: discordIdentity.userName.replace("#0", ""),
       };
-    })
+    }),
   );
   return kcUsers;
 }
@@ -585,7 +585,7 @@ async function userHasPermissionsInAnyTeam(
   prisma: PrismaClient,
   ssoId: string,
   permission: string[],
-  buildteams: string[]
+  buildteams: string[],
 ) {
   for (const team of buildteams) {
     if (await userHasPermissions(prisma, ssoId, permission, team)) {

@@ -52,7 +52,7 @@ class CronHandler {
         .info(
           `${id} - ${job.nextDate().toRelative({ locale: "en" })} (${job
             .nextDate()
-            .toISOTime()})`
+            .toISOTime()})`,
         );
     });
     this.core.getLogger().info("---------------------------------");

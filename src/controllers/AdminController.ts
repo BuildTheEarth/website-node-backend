@@ -38,7 +38,7 @@ class AdminController {
           running: job.running,
           cronTime: job.cronTime.source,
         };
-      })
+      }),
     );
   }
 
@@ -58,7 +58,7 @@ class AdminController {
         req,
         res,
         409,
-        "Recalculations are already ongoing."
+        "Recalculations are already ongoing.",
       );
     }
 
@@ -99,7 +99,7 @@ class AdminController {
         req,
         res,
         409,
-        "Recalculations are already ongoing."
+        "Recalculations are already ongoing.",
       );
     }
 
@@ -145,7 +145,7 @@ class AdminController {
         req,
         res,
         409,
-        "Recalculations are already ongoing."
+        "Recalculations are already ongoing.",
       );
     }
 
@@ -193,8 +193,8 @@ class AdminController {
 
     const hashes = await Promise.all(
       images.map((image) =>
-        getHash(`https://cdn.buildtheearth.net/uploads/${image.name}`)
-      )
+        getHash(`https://cdn.buildtheearth.net/uploads/${image.name}`),
+      ),
     );
 
     for (const [i, image] of images.entries()) {
@@ -217,7 +217,7 @@ class AdminController {
 async function getHash(src: string) {
   try {
     const buffer = await fetch(src).then(async (res) =>
-      Buffer.from(await res.arrayBuffer())
+      Buffer.from(await res.arrayBuffer()),
     );
 
     const { base64 } = await getPlaiceholder(buffer);

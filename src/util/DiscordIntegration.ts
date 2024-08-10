@@ -11,7 +11,7 @@ class DiscordIntegration {
     core: Core,
     webhookUrl: string,
     botUrl: string,
-    botSecret: string
+    botSecret: string,
   ) {
     this.core = core;
     this.webhookUrl = webhookUrl;
@@ -51,7 +51,7 @@ class DiscordIntegration {
   public async sendBotMessage(
     content: any,
     users: string[],
-    errorCallback?: (error: any) => void
+    errorCallback?: (error: any) => void,
   ) {
     try {
       await fetch(this.botUrl + "/api/v1/website/message/blank", {
@@ -73,7 +73,7 @@ class DiscordIntegration {
   public async updateBuilderRole(
     user: string,
     isBuilder: boolean,
-    errorCallback?: (error: any) => void
+    errorCallback?: (error: any) => void,
   ) {
     try {
       await fetch(this.botUrl + `/api/v1/builder/${user}`, {

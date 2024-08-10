@@ -205,7 +205,7 @@ class ShowcaseController {
     const isAdmin = await userHasPermissions(
       this.core.getPrisma(),
       req.user.ssoId,
-      ["admin.admin"]
+      ["admin.admin"],
     );
 
     const showcase = await this.core.getPrisma().showcase.update({

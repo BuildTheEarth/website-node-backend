@@ -94,45 +94,44 @@ class GeneralController {
       return ERROR_GENERIC(req, res, 500, "Unidentified User.");
     }
 
-    const id = req.params.id
+    const id = req.params.id;
 
     if (!id) {
       return ERROR_GENERIC(req, res, 404, "ID not found.");
     }
 
-    const jsonBody = req.body
+    const jsonBody = req.body;
 
     if (!jsonBody) {
       return ERROR_GENERIC(req, res, 404, "Body not found.");
     }
 
-
     const upload = await this.core.getPrisma().jsonStore.findUnique({
       where: {
         id: id,
-      }
-    })
+      },
+    });
 
     if (!upload) {
-        await this.core.getPrisma().jsonStore.create({
-          data: {
-            id: id,
-            data: jsonBody
-          }
-        })
+      await this.core.getPrisma().jsonStore.create({
+        data: {
+          id: id,
+          data: jsonBody,
+        },
+      });
     } else {
       await this.core.getPrisma().jsonStore.update({
         where: {
-          id: id
+          id: id,
         },
         data: {
           id: id,
-          data: jsonBody
-        }
-      })
+          data: jsonBody,
+        },
+      });
     }
 
-    res.send(jsonBody)
+    res.send(jsonBody);
   }
 
   public async getJsonStore(req: Request, res: Response) {
@@ -145,12 +144,11 @@ class GeneralController {
       return ERROR_GENERIC(req, res, 500, "Unidentified User.");
     }
 
-    const id = req.params.id
+    const id = req.params.id;
 
     if (!id) {
       return ERROR_GENERIC(req, res, 404, "ID not found.");
     }
-
 
     const upload = await this.core.getPrisma().jsonStore.findUnique({
       where: {
@@ -159,16 +157,14 @@ class GeneralController {
       select: {
         data: true,
       },
-    })
+    });
 
     if (!upload) {
       return ERROR_GENERIC(req, res, 404, "ID not found.");
     }
 
-    res.send(upload.data)
-
+    res.send(upload.data);
   }
-
 }
 
 export default GeneralController;

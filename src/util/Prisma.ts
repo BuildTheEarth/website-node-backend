@@ -80,20 +80,20 @@ export async function applicationReminder(core: Core) {
             app.user.minecraft
           }) Review it [here](${process.env.FRONTEND_URL}/teams/${
             app.buildteam.slug
-          }/manage/review/${app.id})`
+          }/manage/review/${app.id})`,
       );
       core.getDiscord().sendBotMessage(
         `**Application reminder for ${
           apps[0].buildteam.name
         }** \\nHere is a list of Applications that are older than two weeks. Please review them: \\n${content.join(
-          " \\n"
+          " \\n",
         )}`,
         apps[0].buildteam.UserPermission.map((u) => u.user.discordId),
-        (e) => core.getLogger().error(e)
+        (e) => core.getLogger().error(e),
       );
       console.log(
         apps[0].buildteam.name,
-        apps[0].buildteam.UserPermission.map((u) => u.user.discordId)
+        apps[0].buildteam.UserPermission.map((u) => u.user.discordId),
       );
     });
 

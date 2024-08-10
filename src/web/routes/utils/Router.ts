@@ -25,7 +25,7 @@ export default class Router {
       .debug(
         `Registering endpoint "${requestMethod.toString()} api/${
           this.version
-        }${endpoint}"`
+        }${endpoint}"`,
       );
     this.web
       .getApp()
@@ -38,7 +38,7 @@ export default class Router {
             return;
           }
           next();
-        }
+        },
       );
   }
 }

@@ -4,7 +4,7 @@ export async function sendBtWebhook(
   core: Core,
   url: string,
   type: WebhookType,
-  content: any
+  content: any,
 ) {
   if (url) {
     try {
@@ -28,7 +28,7 @@ export async function sendWebhook(
   core: Core,
   type: WebhookType,
   team: { slug: boolean; id: string },
-  content: any
+  content: any,
 ) {
   const { webhook } = await core.getPrisma().buildTeam.findUnique({
     where: team.slug ? { slug: team.id } : { id: team.id },
@@ -50,4 +50,4 @@ export const WebhookType = {
   CLAIM_DELETE: "CLAIM_DELETE",
 };
 
-export type WebhookType = typeof WebhookType[keyof typeof WebhookType];
+export type WebhookType = (typeof WebhookType)[keyof typeof WebhookType];

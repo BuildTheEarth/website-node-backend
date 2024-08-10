@@ -126,8 +126,8 @@ class TokenRouteContoller {
         res,
         404,
         `Could not find an owner with the following properties: ${Object.keys(
-          _owner
-        ).join(", ")}`
+          _owner,
+        ).join(", ")}`,
       );
     }
 
@@ -252,8 +252,8 @@ class TokenRouteContoller {
         res,
         404,
         `Could not find an owner with the following properties: ${Object.keys(
-          _owner
-        ).join(", ")}`
+          _owner,
+        ).join(", ")}`,
       );
     }
 
@@ -479,10 +479,10 @@ class TokenRouteContoller {
               application.buildteam.acceptionMessage,
               application,
               user,
-              application.buildteam
+              application.buildteam,
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
@@ -500,10 +500,10 @@ class TokenRouteContoller {
               application.buildteam.trialMessage,
               application,
               user,
-              application.buildteam
+              application.buildteam,
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
     } else {
       const user = await this.core.getPrisma().user.update({
@@ -529,17 +529,17 @@ class TokenRouteContoller {
               application.buildteam.rejectionMessage,
               application,
               user,
-              application.buildteam
+              application.buildteam,
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e)
+          (e) => ERROR_GENERIC(req, res, 500, e),
         );
 
       if (user._count.joinedBuildTeams < 1) {
         await this.core
           .getDiscord()
           .updateBuilderRole(user.discordId, false, (e) =>
-            ERROR_GENERIC(req, res, 500, e)
+            ERROR_GENERIC(req, res, 500, e),
           );
       }
     }
@@ -551,7 +551,7 @@ class TokenRouteContoller {
         this.core,
         application.buildteam.webhook,
         WebhookType.APPLICATION,
-        application
+        application,
       );
     }
 

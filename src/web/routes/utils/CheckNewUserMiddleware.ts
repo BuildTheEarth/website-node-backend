@@ -30,7 +30,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
       // User has KC IdPs linked
       if (kcUser.federatedIdentities.length > 0) {
         const discordIdentity = kcUser.federatedIdentities.find(
-          (fi) => fi.identityProvider === "discord"
+          (fi) => fi.identityProvider === "discord",
         );
 
         // User has discord IdP linked
@@ -68,7 +68,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
           .getKeycloakAdminClient()
           .users.update(
             { id: req.kauth.grant.access_token.content.sub },
-            { attributes: { minecraft: user.name, minecraftVerified: false } }
+            { attributes: { minecraft: user.name, minecraftVerified: false } },
           );
         req.kcUser = {
           ...kcUser,
@@ -109,7 +109,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
           .getKeycloakAdminClient()
           .users.update(
             { id: req.kauth.grant.access_token.content.sub },
-            { attributes: { minecraft: "", minecraftVerified: false } }
+            { attributes: { minecraft: "", minecraftVerified: false } },
           );
         req.kcUser = {
           ...kcUser,
@@ -119,7 +119,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
 
       // User has discord IdP linked
       const discordIdentity = kcUser.federatedIdentities.find(
-        (fi) => fi.identityProvider === "discord"
+        (fi) => fi.identityProvider === "discord",
       );
 
       // !! ONLY TO MIGRATE OLD WEBSITE BUILDERS
