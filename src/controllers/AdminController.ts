@@ -7,7 +7,11 @@ import { ERROR_GENERIC } from "../util/Errors.js";
 
 class AdminController {
   private core: Core;
-  private progress;
+  private progress: {
+    buildings: { done: number; total: number };
+    addresses: { done: number; total: number };
+    sizes: { done: number; total: number };
+  };
 
   constructor(core: Core) {
     this.core = core;
@@ -18,6 +22,9 @@ class AdminController {
     };
   }
 
+  /**
+   * Get currently registered Cron jobs and when they will run again
+   */
   public getCronJobs(req: Request, res: Response) {
     const jobs = this.core.getCron().getAll();
 
@@ -35,12 +42,18 @@ class AdminController {
     );
   }
 
+  /**
+   * Get current Admin progress of different recalculations
+   */
   public getProgress(req: Request, res: Response) {
     res.send(this.progress);
   }
 
+  /**
+   * Recalculate the building counts of claims
+   */
   public async getClaimBuildingCounts(req: Request, res: Response) {
-    if (this.progress.buildings > 0) {
+    if (this.progress.buildings.done > 0) {
       return ERROR_GENERIC(
         req,
         res,
@@ -77,8 +90,11 @@ class AdminController {
     this.progress.buildings = { done: 0, total: 0 };
   }
 
+  /**
+   * Recalculate the OSM addresses of claims
+   */
   public async getClaimOSMDetails(req: Request, res: Response) {
-    if (this.progress.addresses > 0) {
+    if (this.progress.addresses.done > 0) {
       return ERROR_GENERIC(
         req,
         res,
@@ -120,8 +136,11 @@ class AdminController {
     this.progress.addresses = { done: 0, total: 0 };
   }
 
+  /**
+   * Recalculate the sizes of claims
+   */
   public async getClaimSizes(req: Request, res: Response) {
-    if (this.progress.sizes > 0) {
+    if (this.progress.sizes.done > 0) {
       return ERROR_GENERIC(
         req,
         res,
@@ -162,6 +181,9 @@ class AdminController {
     this.progress.sizes = { done: 0, total: 0 };
   }
 
+  /**
+   * Update the hases of all uploaded images
+   */
   public async getImageHashes(req: Request, res: Response) {
     const images = await this.core.getPrisma().upload.findMany({
       where: { hash: "" },
@@ -187,6 +209,11 @@ class AdminController {
   }
 }
 
+/**
+ * Generates a base64 hash for an image
+ * @param src Image URL
+ * @returns Generated Has
+ */
 async function getHash(src: string) {
   try {
     const buffer = await fetch(src).then(async (res) =>
@@ -199,4 +226,5 @@ async function getHash(src: string) {
     return "";
   }
 }
+
 export default AdminController;
