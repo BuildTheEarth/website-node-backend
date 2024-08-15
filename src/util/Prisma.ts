@@ -34,6 +34,7 @@ export async function applicationReminder(core: Core) {
   const prisma = core.getPrisma();
 
   const handle = async () => {
+    core.getLogger().info("Sending application reminders...");
     const applications = await prisma.application.findMany({
       where: {
         status: ApplicationStatus.SEND,
@@ -80,7 +81,7 @@ export async function applicationReminder(core: Core) {
             app.user.minecraft
           }) Review it [here](${process.env.FRONTEND_URL}/teams/${
             app.buildteam.slug
-          }/manage/review/${app.id})`,
+          }/manage/review/${app.id})`
       );
       core.getDiscord().sendBotMessage(
         `**Application reminder for ${
@@ -90,10 +91,6 @@ export async function applicationReminder(core: Core) {
         )}`,
         apps[0].buildteam.UserPermission.map((u) => u.user.discordId),
         (e) => {}
-      );
-      console.log(
-        apps[0].buildteam.name,
-        apps[0].buildteam.UserPermission.map((u) => u.user.discordId),
       );
     });
 
