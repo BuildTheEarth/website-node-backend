@@ -622,7 +622,12 @@ class ClaimController {
         return parseInt(data?.elements[0]?.tags?.total) || 0;
       }
     } catch (e) {
-      this.core.getLogger().error(e.message);
+      this.core
+        .getLogger()
+        .error(
+          e.message +
+            ` (https://overpass.kumi.systems/api/interpreter; claim: ${claim.id})`
+        );
       return e;
     }
   }
@@ -641,7 +646,10 @@ class ClaimController {
         { headers: { "User-Agent": "BTE/1.0" } }
       );
 
-      if (data?.error) this.core.getLogger().error(data.error);
+      if (data?.error)
+        this.core
+          .getLogger()
+          .error(data.error + " (https://nominatim.openstreetmap.org/reverse)");
 
       const parsed = {
         osmName: data.display_name,
@@ -674,7 +682,9 @@ class ClaimController {
         return parsed;
       }
     } catch (e) {
-      this.core.getLogger().error(e);
+      this.core
+        .getLogger()
+        .error(e + " (https://nominatim.openstreetmap.org/reverse)");
       //return e;
     }
   }

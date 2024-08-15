@@ -124,7 +124,7 @@ const checkNewUser = (prisma: PrismaClient, core: Core) => {
 
       // !! ONLY TO MIGRATE OLD WEBSITE BUILDERS
       const oldUser = await prisma.user.findFirst({
-        where: { ssoId: "o_" + discordIdentity.userId },
+        where: { ssoId: "o_" + discordIdentity?.userId || "" },
       });
       if (oldUser) {
         // Update migrated user

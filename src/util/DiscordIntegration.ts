@@ -64,7 +64,9 @@ class DiscordIntegration {
       });
       return true;
     } catch (e) {
-      this.core.getLogger().error(e);
+      this.core
+        .getLogger()
+        .error(e + ` (sendBotMessage; ${content.slice(0, 10)})`);
       errorCallback(e);
       return false;
     }
@@ -86,7 +88,9 @@ class DiscordIntegration {
       });
       return true;
     } catch (e) {
-      this.core.getLogger().error(e);
+      this.core
+        .getLogger()
+        .error(e + ` (updateBuilderRole; ${user}; ${isBuilder})`);
       errorCallback(e);
       return false;
     }
@@ -102,7 +106,7 @@ class DiscordIntegration {
     })
       .then((res) => res.json())
       .catch((e) => {
-        this.core.getLogger().error(e);
+        this.core.getLogger().error(e + ` (getBuilderRole; ${user})`);
         return { error: "NOT_FOUND" };
       });
   }

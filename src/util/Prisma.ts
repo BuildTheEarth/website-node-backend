@@ -86,10 +86,10 @@ export async function applicationReminder(core: Core) {
         `**Application reminder for ${
           apps[0].buildteam.name
         }** \\nHere is a list of Applications that are older than two weeks. Please review them: \\n${content.join(
-          " \\n",
+          " \\n"
         )}`,
         apps[0].buildteam.UserPermission.map((u) => u.user.discordId),
-        (e) => core.getLogger().error(e),
+        (e) => {}
       );
       console.log(
         apps[0].buildteam.name,
