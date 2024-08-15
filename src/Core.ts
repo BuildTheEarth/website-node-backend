@@ -1,6 +1,12 @@
 import * as session from "express-session";
 import * as winston from "winston";
 
+import { Prisma, PrismaClient } from "@prisma/client";
+import {
+  DefaultArgs,
+  DynamicClientExtensionThis,
+  InternalArgs,
+} from "@prisma/client/runtime/library";
 import { LIB_LICENSE, LIB_VERSION } from "./util/package.js";
 import {
   applicationReminder,
@@ -8,7 +14,6 @@ import {
   purgeClaims,
 } from "./util/Prisma.js";
 
-import { PrismaClient } from "@prisma/client";
 import Keycloak from "keycloak-connect";
 import AmazonAWS from "./util/AmazonAWS.js";
 import CronHandler from "./util/CronHandler.js";
@@ -20,7 +25,7 @@ class Core {
   web: Web;
   keycloak: Keycloak.Keycloak;
   memoryStore: session.MemoryStore;
-  prisma: PrismaClient;
+  prisma: ExtendedPrismaClient;
   keycloakAdmin: KeycloakAdmin;
   logger: winston.Logger;
   aws: AmazonAWS;
@@ -35,7 +40,7 @@ class Core {
       this,
       process.env.DISCORD_WEBHOOK_URL,
       process.env.DISCORD_BOT_URL,
-      process.env.DISCORD_BOT_SECRET,
+      process.env.DISCORD_BOT_SECRET
     );
     this.keycloak = new Keycloak(
       {
@@ -48,13 +53,25 @@ class Core {
         "ssl-required": "external",
         resource: process.env.KEYCLOAK_CLIENTID,
         "confidential-port": 0,
-      },
+      }
     );
     this.keycloakAdmin = new KeycloakAdmin(this);
     this.keycloakAdmin.authKcClient().then(() => {
       this.getLogger().debug("Keycloak Admin is initialized.");
-      this.prisma = new PrismaClient();
-      this.prisma.$use(middlewareUploadSrc);
+      this.prisma = new PrismaClient().$extends({
+        name: "uploadSrc",
+        result: {
+          upload: {
+            src: {
+              needs: { name: true },
+              compute: (upload) => {
+                return `https://cdn.buildtheearth.net/uploads/${upload.name}`;
+              },
+            },
+          },
+        },
+      });
+      // this.prisma.$use(middlewareUploadSrc);
       this.web = new Web(this);
       this.web.startWebserver();
       this.cron = new CronHandler(this, [
@@ -82,7 +99,7 @@ class Core {
 
   public getKeycloak = (): Keycloak.Keycloak => this.keycloak;
 
-  public getPrisma = (): PrismaClient => this.prisma;
+  public getPrisma = (): ExtendedPrismaClient => this.prisma;
 
   public getKeycloakAdmin = (): KeycloakAdmin => this.keycloakAdmin;
 
@@ -99,7 +116,7 @@ class Core {
       level: process.env.LOGLEVEL,
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json(),
+        winston.format.json()
       ),
       transports: [
         new winston.transports.File({
@@ -114,7 +131,7 @@ class Core {
       const consoleFormat = winston.format.printf(
         ({ level, message, timestamp }) => {
           return `${timestamp} | ${level} » ${message}`;
-        },
+        }
       );
 
       logger.add(
@@ -122,9 +139,9 @@ class Core {
           format: winston.format.combine(
             winston.format.colorize(),
             winston.format.simple(),
-            consoleFormat,
+            consoleFormat
           ),
-        }),
+        })
       );
     }
     logger.info(
@@ -145,7 +162,7 @@ class Core {
         "[38;5;254m@[38;5;254m&[38;5;017m.[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;233m [38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;017m,[38;5;017m.[38;5;254m&\n" +
         "[38;5;254m@[38;5;254m&[38;5;254m&[38;5;254m&[38;5;017m.[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;004m,[38;5;233m [38;5;023m,[38;5;023m,[38;5;023m,[38;5;023m,[38;5;017m.[38;5;017m.[38;5;017m.[38;5;254m&[38;5;254m&[38;5;254m&\n" +
         "[38;5;254m@[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;017m.[38;5;060m/[38;5;060m/[38;5;060m/[38;5;060m/[38;5;235m.[38;5;235m.[38;5;004m,[38;5;004m,[38;5;017m.[38;5;017m.[38;5;233m [38;5;023m,[38;5;023m,[38;5;023m,[38;5;017m.[38;5;017m.[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&[38;5;254m&\n" +
-        "[0m",
+        "[0m"
     );
 
     this.logger = logger;
@@ -153,3 +170,37 @@ class Core {
 }
 
 export default Core;
+
+export type ExtendedPrismaClient =
+  | PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>
+  | DynamicClientExtensionThis<
+      Prisma.TypeMap<
+        InternalArgs & {
+          result: {
+            upload: {
+              src: () => {
+                needs: { name: true };
+                compute: (upload: { name: string }) => string;
+              };
+            };
+          };
+          model: {};
+          query: {};
+          client: {};
+        }
+      >,
+      Prisma.TypeMapCb,
+      {
+        result: {
+          upload: {
+            src: () => {
+              needs: { name: true };
+              compute: (upload: { name: string }) => string;
+            };
+          };
+        };
+        model: {};
+        query: {};
+        client: {};
+      }
+    >;

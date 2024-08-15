@@ -1,5 +1,6 @@
 import { ApplicationStatus, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
+import Core, { ExtendedPrismaClient } from "../Core.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
@@ -8,7 +9,6 @@ import {
 
 import type KcAdminClient from "@keycloak/keycloak-admin-client";
 import { validationResult } from "express-validator";
-import Core from "../Core.js";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
 
 class UserController {
@@ -501,10 +501,10 @@ class UserController {
 }
 
 async function addPermission(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   permissions: string[],
   user: string,
-  buildteam?: string,
+  buildteam?: string
 ) {
   return await prisma.userPermission.createMany({
     data: permissions.map((permission) => ({
@@ -515,10 +515,10 @@ async function addPermission(
   });
 }
 async function removePermission(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   permissions: string[],
   user: string,
-  buildteam?: string,
+  buildteam?: string
 ) {
   return await prisma.userPermission.deleteMany({
     where: {
@@ -530,7 +530,7 @@ async function removePermission(
 }
 
 async function searchUser(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   kcAdmin: KcAdminClient,
   search: {
     discordId?: string;
@@ -538,7 +538,7 @@ async function searchUser(
     id?: string;
     ssoId?: string;
   },
-  limit?: number,
+  limit?: number
 ) {
   const users = await prisma.user.findMany({
     where: search,
@@ -563,7 +563,7 @@ async function searchUser(
         id: user.ssoId,
       });
       const discordIdentity = kcUser.federatedIdentities.find(
-        (identity) => identity.identityProvider == "discord",
+        (identity) => identity.identityProvider == "discord"
       );
       return {
         ...user,
@@ -575,17 +575,17 @@ async function searchUser(
         discordId: discordIdentity.userId,
         discordName: discordIdentity.userName.replace("#0", ""),
       };
-    }),
+    })
   );
   return kcUsers;
 }
 export default UserController;
 
 async function userHasPermissionsInAnyTeam(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   ssoId: string,
   permission: string[],
-  buildteams: string[],
+  buildteams: string[]
 ) {
   for (const team of buildteams) {
     if (await userHasPermissions(prisma, ssoId, permission, team)) {
