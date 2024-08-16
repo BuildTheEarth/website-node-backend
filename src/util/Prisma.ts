@@ -99,3 +99,19 @@ export async function applicationReminder(core: Core) {
 
   handle().then(() => {});
 }
+
+export async function purgeVerifications(core: Core) {
+  const prisma = core.getPrisma();
+
+  const handle = async () => {
+    const codes = await prisma.minecraftVerifications.deleteMany({
+      where: {
+        createdAt: { lte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      },
+    });
+
+    core.getLogger().info(`Purged ${codes.count} expired Verification Codes`);
+  };
+
+  handle().then(() => {});
+}

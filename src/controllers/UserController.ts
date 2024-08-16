@@ -18,6 +18,9 @@ class UserController {
     this.core = core;
   }
 
+  /**
+   * Gets all users, supports pagination
+   */
   public async getUsers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -36,18 +39,16 @@ class UserController {
       res.send(users);
     }
   }
+
+  /**
+   * Finds users based on username
+   */
   public async searchBuilders(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    // const builders = await this.core
-    //   .getPrisma()
-    //   .user.findMany({
-    //     take: req.query.take ? parseInt(req.query.take as string) : 10,
-    //     where:{us}
-    //   });
     const kcBuilders = (
       await this.core
         .getKeycloakAdmin()
@@ -60,23 +61,6 @@ class UserController {
         })
     ).map((b) => ({ username: b.username, ssoId: b.id }));
 
-    // const builders = await Promise.all(
-    //   claim.builders?.map(async (member) => {
-    //     const kcMember = await this.core
-    //       .getKeycloakAdmin()
-    //       .getKeycloakAdminClient()
-    //       .users.findOne({
-    //         id: member.ssoId,
-    //       });
-    //     return {
-    //       discordId: member.discordId,
-    //       id: member.id,
-    //       username: kcMember?.username,
-    //       avatar: member.avatar,
-    //       name: member.name,
-    //     };
-    //   })
-    // );
     const builders = (
       await this.core.getPrisma().user.findMany({
         where: { ssoId: { in: kcBuilders.map((b) => b.ssoId) } },
@@ -94,6 +78,9 @@ class UserController {
     res.send(builders);
   }
 
+  /**
+   * Searches for Users in the DB, option for bulk search
+   */
   public async searchUsers(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -111,9 +98,9 @@ class UserController {
               minecraft: query.minecraft as string,
               id: query.id as string,
               ssoId: query.ssoId as string,
-            },
-          ),
-        ),
+            }
+          )
+        )
       );
       res.send(users);
     } else {
@@ -127,12 +114,15 @@ class UserController {
             id: req.query.id as string,
             ssoId: req.query.ssoId as string,
           },
-          req.query.limit && parseInt(req.query.limit as string),
-        ),
+          req.query.limit && parseInt(req.query.limit as string)
+        )
       );
     }
   }
 
+  /**
+   * Get a single User
+   */
   public async getUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -232,7 +222,7 @@ class UserController {
       await userHasPermissions(
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
-        ["users.list"],
+        ["users.list"]
       )
     ) {
       res.send(user);
@@ -242,7 +232,7 @@ class UserController {
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
         ["users.list"],
-        user.joinedBuildTeams.map((team) => team.slug),
+        user.joinedBuildTeams.map((team) => team.slug)
       ))
     ) {
       res.send(user);
@@ -251,6 +241,9 @@ class UserController {
     }
   }
 
+  /**
+   * Get Keycloak information about a user
+   */
   public async getKeycloakUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -280,7 +273,7 @@ class UserController {
       await userHasPermissions(
         this.core.getPrisma(),
         req.kauth.grant.access_token.content.sub,
-        ["users.list"],
+        ["users.list"]
       )
     ) {
       res.send({ ...user, ...kcUser, sessions: kcSessions });
@@ -289,6 +282,9 @@ class UserController {
     }
   }
 
+  /**
+   * Get all applications a user is allowed to review
+   */
   public async getUserReviews(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -326,12 +322,16 @@ class UserController {
       },
       include: {
         buildteam: { select: { slug: true, name: true, icon: true } },
+        user: { select: { id: true, name: true } },
       },
     });
 
     res.send(applications);
   }
 
+  /**
+   * Update User Information
+   */
   public async updateUser(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -354,7 +354,7 @@ class UserController {
         .getKeycloakAdminClient()
         .users.update(
           { id: user.ssoId },
-          { firstName, lastName, username, email },
+          { firstName, lastName, username, email }
         );
       const kcUser = await this.core
         .getKeycloakAdmin()
@@ -365,6 +365,117 @@ class UserController {
     }
   }
 
+  /**
+   * Generate a new verification code for verifying minecraft names
+   */
+  public async createVerificationCode(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    if (!req.user) {
+      return ERROR_NO_PERMISSION(req, res);
+    }
+
+    const oldCodes = await this.core
+      .getPrisma()
+      .minecraftVerifications.deleteMany({ where: { userId: req.user.id } });
+
+    const newCode = await this.core.getPrisma().minecraftVerifications.create({
+      data: {
+        user: { connect: { id: req.user.id } },
+        code: Math.floor(Math.random() * 90000 + 10000),
+        createdAt: new Date(),
+      },
+    });
+
+    return res.send({ code: newCode.code, user: { id: req.user.id } });
+  }
+
+  public async redeemVerificationCode(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return ERROR_VALIDATION(req, res, errors.array());
+    }
+
+    const minecraftInfo = {
+      uuid: req.body.uuid,
+      name: req.body.name,
+    };
+
+    // Get Code Info
+    const code = await this.core.getPrisma().minecraftVerifications.findUnique({
+      where: { code: req.body.code },
+      select: {
+        code: true,
+        user: {
+          select: {
+            id: true,
+            ssoId: true,
+            discordId: true,
+            name: true,
+            minecraft: true,
+          },
+        },
+      },
+    });
+
+    if(!code) {
+      return ERROR_GENERIC(req,res, 404, "Could not find the requested code. Make sure it is correct.")
+    }
+
+    // Update user profile in keycloak
+    await this.core
+      .getKeycloakAdmin()
+      .getKeycloakAdminClient()
+      .users.update(
+        { id: code.user.ssoId },
+        {
+          attributes: {
+            minecraft: minecraftInfo.name,
+            minecraftVerified: true,
+            minecraftUuid: minecraftInfo.uuid,
+          },
+        }
+      );
+
+    // Update user profile in db
+    const user = await this.core.getPrisma().user.update({
+      where: {
+        id: code.user.id,
+      },
+      data: {
+        minecraft: minecraftInfo.name,
+      },
+      select: {
+        id: true,
+        discordId: true,
+        ssoId: true,
+      },
+    });
+
+
+    // Get updated Keycloak info
+    const kcUser = await this.core
+      .getKeycloakAdmin()
+      .getKeycloakAdminClient()
+      .users.findOne({ id: user.ssoId });
+
+    return res.send({
+      message: "Linked successfully",
+      code: code.code,
+      minecraft: minecraftInfo,
+      user: {
+        ...user,
+        username: kcUser.username,
+      },
+    });
+  }
+
+  /**
+   * Get all permissions a user has
+   */
   public async getPermissions(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -377,6 +488,9 @@ class UserController {
     res.send(permissions);
   }
 
+  /**
+   * Add permissions to a user
+   */
   public async addPermission(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -397,7 +511,7 @@ class UserController {
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
           ["permission.add"],
-          req.query.buildteam as string,
+          req.query.buildteam as string
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -419,15 +533,15 @@ class UserController {
           this.core.getPrisma(),
           permissions,
           userId,
-          buildteam.id,
-        ),
+          buildteam.id
+        )
       );
     } else {
       if (
         !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          ["permission.add"],
+          ["permission.add"]
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -437,6 +551,9 @@ class UserController {
     }
   }
 
+  /**
+   * Remove permissions from a user
+   */
   public async removePermission(req: Request, res: Response) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -457,7 +574,7 @@ class UserController {
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
           ["permission.remove"],
-          req.query.buildteam as string,
+          req.query.buildteam as string
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
@@ -479,27 +596,35 @@ class UserController {
           this.core.getPrisma(),
           permissions,
           userId,
-          buildteam.id,
-        ),
+          buildteam.id
+        )
       );
     } else {
       if (
         !(await userHasPermissions(
           this.core.getPrisma(),
           req.kauth.grant.access_token.content.sub,
-          ["permission.remove"],
+          ["permission.remove"]
         ))
       ) {
         return ERROR_NO_PERMISSION(req, res);
       }
 
       res.send(
-        await removePermission(this.core.getPrisma(), permissions, userId),
+        await removePermission(this.core.getPrisma(), permissions, userId)
       );
     }
   }
 }
 
+/**
+ * Adds multiple permissions to a user
+ * @param prisma Prisma Client
+ * @param permissions List of permissions to add
+ * @param user User
+ * @param buildteam Optional BuildTeam ID
+ * @returns created permissions
+ */
 async function addPermission(
   prisma: ExtendedPrismaClient,
   permissions: string[],
@@ -514,6 +639,15 @@ async function addPermission(
     })),
   });
 }
+
+/**
+ * Removed multiple permissions from a user
+ * @param prisma Prisma Client
+ * @param permissions List of permissions to remove
+ * @param user User
+ * @param buildteam Optional BuildTeamID
+ * @returns deleted permissions
+ */
 async function removePermission(
   prisma: ExtendedPrismaClient,
   permissions: string[],
@@ -529,6 +663,14 @@ async function removePermission(
   });
 }
 
+/**
+ * Finds users based on discord, minecraft, id or ssoID
+ * @param prisma Prisma CLient
+ * @param kcAdmin Keycloak Admin Client
+ * @param search Search query
+ * @param limit Limit of results
+ * @returns users that match the search query
+ */
 async function searchUser(
   prisma: ExtendedPrismaClient,
   kcAdmin: KcAdminClient,
@@ -579,8 +721,15 @@ async function searchUser(
   );
   return kcUsers;
 }
-export default UserController;
 
+/**
+ * Checks if a user has a permission in any buildteam
+ * @param prisma Prisma Client
+ * @param ssoId User ssoId
+ * @param permission Permission to check
+ * @param buildteams List of buildteams
+ * @returns true if the user has the permission in any of the buildteams
+ */
 async function userHasPermissionsInAnyTeam(
   prisma: ExtendedPrismaClient,
   ssoId: string,
@@ -594,3 +743,5 @@ async function userHasPermissionsInAnyTeam(
   }
   return false;
 }
+
+export default UserController;

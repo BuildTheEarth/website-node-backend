@@ -10,8 +10,8 @@ import {
 import { LIB_LICENSE, LIB_VERSION } from "./util/package.js";
 import {
   applicationReminder,
-  middlewareUploadSrc,
   purgeClaims,
+  purgeVerifications,
 } from "./util/Prisma.js";
 
 import Keycloak from "keycloak-connect";
@@ -89,6 +89,14 @@ class Core {
             cronTime: "1 1 */14 * *",
             start: true,
             onTick: () => applicationReminder(this),
+          },
+        },
+        {
+          id: "purge_verifications",
+          params: {
+            cronTime: "1 */24 * * *",
+            start: true,
+            onTick: () => purgeVerifications(this),
           },
         },
       ]);

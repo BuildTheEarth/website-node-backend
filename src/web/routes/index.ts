@@ -51,11 +51,28 @@ class Routes {
       checkUserPermission(this.web.getCore().getPrisma(), "account.info"),
     );
     router.addRoute(
+      RequestMethods.POST,
+      "/minecraft/code",
+      async (request, response) => {
+        await controllers.user.createVerificationCode(request, response);
+      }
+    );
+    router.addRoute(
+      RequestMethods.PUT,
+      "/minecraft/code",
+      async (request, response) => {
+        await controllers.user.redeemVerificationCode(request, response);
+      },
+      body("code").isNumeric().notEmpty(),
+      body("uuid").isUUID().notEmpty(),
+      body("name").isString().notEmpty()
+    );
+    router.addRoute(
       RequestMethods.GET,
       "/permissions",
       async (request, response) => {
         await controllers.general.getPermissions(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.POST,
