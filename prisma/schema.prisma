@@ -8,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id                String           @id @default(uuid())
-  ssoId             String           @unique
+  id                String                   @id @default(uuid())
+  ssoId             String                   @unique
   discordId         String?
   avatar            String?
   name              String?
   minecraft         String?
-  reviewed          Application[]    @relation("reviewer")
-  applications      Application[]    @relation("user")
-  createdBuildTeams BuildTeam[]      @relation("creator")
-  claims            Claim[]          @relation("owner")
+  reviewed          Application[]            @relation("reviewer")
+  applications      Application[]            @relation("user")
+  createdBuildTeams BuildTeam[]              @relation("creator")
+  claims            Claim[]                  @relation("owner")
   permissions       UserPermission[]
-  claimsBuilder     Claim[]          @relation("builders")
-  joinedBuildTeams  BuildTeam[]      @relation("members")
+  claimsBuilder     Claim[]                  @relation("builders")
+  joinedBuildTeams  BuildTeam[]              @relation("members")
+  verifications     MinecraftVerifications[]
 }
 
 model BuildTeam {
@@ -103,6 +104,13 @@ model UserPermission {
   buildTeam    BuildTeam?  @relation(fields: [buildTeamId], references: [id])
   permission   Permisision @relation(fields: [permissionId], references: [id])
   user         User        @relation(fields: [userId], references: [id])
+}
+
+model MinecraftVerifications {
+  code      Int      @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @updatedAt()
 }
 
 model Permisision {
