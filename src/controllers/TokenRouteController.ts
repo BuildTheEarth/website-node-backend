@@ -1,12 +1,12 @@
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 import { Request, Response } from "express";
 import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
 import turf, { parseCoordinates, toPolygon } from "../util/Coordinates.js";
-import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
 import { ApplicationStatus } from "@prisma/client";
-import { validationResult } from "express-validator";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
+import { validationResult } from "express-validator";
 
 class TokenRouteContoller {
   private core: Core;
@@ -126,8 +126,8 @@ class TokenRouteContoller {
         res,
         404,
         `Could not find an owner with the following properties: ${Object.keys(
-          _owner,
-        ).join(", ")}`,
+          _owner
+        ).join(", ")}`
       );
     }
 
@@ -140,7 +140,7 @@ class TokenRouteContoller {
       .claim.updateClaimOSMDetails({ name, center });
 
     const data = {
-      owner: { connect: { id: owner.id } },
+      owner: owner ? { connect: { id: owner.id } } : undefined,
       buildTeam: { connect: { id: req.team.id } },
       builders: builders ? { connect: builders } : undefined,
       name: name,
