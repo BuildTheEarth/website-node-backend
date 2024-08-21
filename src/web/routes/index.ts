@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
 import { body, param, query } from "express-validator";
+import {
+  checkUserPermission,
+  checkUserPermissions,
+} from "./utils/CheckUserPermissionMiddleware.js";
 import turf, {
   CoordinateType,
   toPolygon,
   useCoordinateInput,
 } from "../../util/Coordinates.js";
-import {
-  checkUserPermission,
-  checkUserPermissions,
-} from "./utils/CheckUserPermissionMiddleware.js";
 
-import { Keycloak } from "keycloak-connect";
 import { ERROR_GENERIC } from "../../util/Errors.js";
-import Web from "../Web.js";
-import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
+import { Keycloak } from "keycloak-connect";
 import { RequestMethods } from "./utils/RequestMethods.js";
 import Router from "./utils/Router.js";
+import Web from "../Web.js";
+import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
 
 class Routes {
   app;
@@ -39,7 +39,7 @@ class Routes {
     router.addRoute(RequestMethods.GET, "/healthcheck", (req, res) => {
       ERROR_GENERIC(req, res, 200, "OK");
     });
-    router.addRoute(RequestMethods.GET, "/test", (req, res) => {
+    router.addRoute(RequestMethods.GET, "/test", async (req, res) => {
       res.send({ user: req.user, kcUser: req.kcUser, team: req.team });
     });
     router.addRoute(
@@ -48,7 +48,7 @@ class Routes {
       async (request, response) => {
         await controllers.general.getAccount(request, response);
       },
-      checkUserPermission(this.web.getCore().getPrisma(), "account.info"),
+      checkUserPermission(this.web.getCore().getPrisma(), "account.info")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -81,7 +81,7 @@ class Routes {
         await controllers.general.uploadImage(request, response);
       },
       query("claim").isUUID().optional(),
-      this.web.getFileUpload().single("image"),
+      this.web.getFileUpload().single("image")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -89,7 +89,7 @@ class Routes {
       async (request, response) => {
         await controllers.general.getJsonStore(request, response);
       },
-      param("id"),
+      param("id")
     );
 
     router.addRoute(
@@ -98,7 +98,7 @@ class Routes {
       async (request, response) => {
         await controllers.general.setJsonStore(request, response);
       },
-      param("id"),
+      param("id")
     );
 
     router.addRoute(
@@ -116,7 +116,7 @@ class Routes {
       },
       query("coordType").isString().optional(),
       body("coords"),
-      useCoordinateInput("coords", false),
+      useCoordinateInput("coords", false)
     );
 
     /*
@@ -131,7 +131,7 @@ class Routes {
       async (request, response) => {
         await controllers.buildTeam.getBuildTeams(request, response);
       },
-      query("page").isNumeric().optional(),
+      query("page").isNumeric().optional()
     );
     router.addRoute(
       RequestMethods.GET,
@@ -139,7 +139,7 @@ class Routes {
       async (request, response) => {
         await controllers.buildTeam.getBuildTeam(request, response);
       },
-      param("id"),
+      param("id")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -147,10 +147,10 @@ class Routes {
       async (request: Request, response: Response) => {
         await controllers.buildTeam.getBuildTeamApplicationQuestions(
           request,
-          response,
+          response
         );
       },
-      param("id"),
+      param("id")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -158,10 +158,10 @@ class Routes {
       async (request: Request, response: Response) => {
         await controllers.buildTeam.getBuildTeamResponseTemplates(
           request,
-          response,
+          response
         );
       },
-      param("id"),
+      param("id")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -169,7 +169,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await controllers.buildTeam.addBuildTeamResponseTemplate(
           request,
-          response,
+          response
         );
       },
       param("id"),
@@ -177,8 +177,8 @@ class Routes {
       checkUserPermissions(
         this.web.getCore().getPrisma(),
         ["team.application.edit", "team.application.review"],
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -186,7 +186,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await controllers.buildTeam.addBuildTeamResponseTemplate(
           request,
-          response,
+          response
         );
       },
       param("id"),
@@ -196,8 +196,8 @@ class Routes {
       checkUserPermissions(
         this.web.getCore().getPrisma(),
         ["team.application.edit", "team.application.review"],
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.POST,
@@ -205,7 +205,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await controllers.buildTeam.updateBuildTeamApplicationQuestions(
           request,
-          response,
+          response
         );
       },
       param("id"),
@@ -213,8 +213,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.application.edit",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.GET,
@@ -222,7 +222,7 @@ class Routes {
       async (request: Request, response: Response) => {
         await controllers.buildTeam.getBuildTeamSocials(request, response);
       },
-      param("id"),
+      param("id")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -235,8 +235,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "buildteam.socials.edit",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -249,8 +249,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "buildteam.socials.edit",
-        "team",
-      ),
+        "team"
+      )
     );
     router.addRoute(
       RequestMethods.GET,
@@ -262,8 +262,8 @@ class Routes {
       checkUserPermissions(
         this.web.getCore().getPrisma(),
         ["permissions.add", "permissions.remove"],
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -276,8 +276,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "buildteam.members.edit",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.GET,
@@ -289,8 +289,8 @@ class Routes {
       checkUserPermissions(
         this.web.getCore().getPrisma(),
         ["permissions.add", "permissions.remove"],
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.POST,
@@ -311,8 +311,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "buildteam.settings.edit",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.POST,
@@ -321,7 +321,7 @@ class Routes {
         await controllers.buildTeam.generateBuildTeamToken(request, response);
       },
       param("id"),
-      query("slug").optional(),
+      query("slug").optional()
       // Permission check later: Creator
     );
     router.addRoute(
@@ -335,8 +335,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.claim.list",
-        "team",
-      ),
+        "team"
+      )
     );
 
     /*
@@ -350,14 +350,14 @@ class Routes {
       "/claims",
       async (request, response) => {
         await controllers.claim.getClaims(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.GET,
       "/claims/geojson",
       async (request, response) => {
         await controllers.claim.getClaimsGeoJson(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.GET,
@@ -365,14 +365,14 @@ class Routes {
       async (request, response) => {
         await controllers.claim.getClaimImages(request, response);
       },
-      checkUserPermission(this.web.getCore().getPrisma(), "team.claim.list"),
+      checkUserPermission(this.web.getCore().getPrisma(), "team.claim.list")
     );
     router.addRoute(
       RequestMethods.GET,
       "/map/statistics",
       async (request, response) => {
         await controllers.claim.getStatistics(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.GET,
@@ -380,7 +380,7 @@ class Routes {
       async (request, response) => {
         await controllers.claim.getClaim(request, response);
       },
-      param("id").isUUID(),
+      param("id").isUUID()
     );
     router.addRoute(
       RequestMethods.POST,
@@ -395,7 +395,7 @@ class Routes {
       body("finished").isBoolean().optional(),
       body("active").isBoolean().optional(),
       body("builders").isArray().optional(),
-      useCoordinateInput("area", false),
+      useCoordinateInput("area", false)
     );
     router.addRoute(
       RequestMethods.POST,
@@ -410,7 +410,7 @@ class Routes {
       body("active").isBoolean().optional(),
       body("area").isArray().optional(),
       body("owner").isUUID().optional(),
-      useCoordinateInput("area", false),
+      useCoordinateInput("area", false)
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -418,7 +418,7 @@ class Routes {
       async (request, response) => {
         await controllers.claim.deleteClaim(request, response);
       },
-      param("id").isUUID(),
+      param("id").isUUID()
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -427,7 +427,7 @@ class Routes {
         await controllers.claim.deleteClaimImage(request, response);
       },
       param("image").isUUID(),
-      param("id").isUUID(),
+      param("id").isUUID()
     );
 
     /*
@@ -442,14 +442,14 @@ class Routes {
       async (request, response) => {
         await controllers.showcase.getShowcases(request, response);
       },
-      param("id"),
+      param("id")
     );
     router.addRoute(
       RequestMethods.GET,
       "/showcases",
       async (request, response) => {
         await controllers.showcase.getAllShowcases(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.GET,
@@ -457,7 +457,7 @@ class Routes {
       async (request, response) => {
         await controllers.showcase.getRandomShowcases(request, response);
       },
-      query("limit").isNumeric(),
+      query("limit").isNumeric()
     );
     router.addRoute(
       RequestMethods.POST,
@@ -469,8 +469,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.showcases.edit",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.POST,
@@ -482,9 +482,9 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.showcases.edit",
-        "id",
+        "id"
       ),
-      this.web.getFileUpload().single("image"),
+      this.web.getFileUpload().single("image")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -497,8 +497,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.showcases.edit",
-        "team",
-      ),
+        "team"
+      )
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -511,8 +511,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.showcases.edit",
-        "team",
-      ),
+        "team"
+      )
     );
 
     /*
@@ -532,8 +532,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.application.list",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.GET,
@@ -542,7 +542,7 @@ class Routes {
         await controllers.application.getUserApplications(request, response);
       },
       param("id"),
-      param("user").isUUID(),
+      param("user").isUUID()
     );
 
     router.addRoute(
@@ -559,8 +559,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.application.list",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.POST,
@@ -575,8 +575,8 @@ class Routes {
       checkUserPermission(
         this.web.getCore().getPrisma(),
         "team.application.review",
-        "id",
-      ),
+        "id"
+      )
     );
     router.addRoute(
       RequestMethods.POST,
@@ -584,7 +584,7 @@ class Routes {
       async (request, response) => {
         await controllers.application.apply(request, response);
       },
-      query("trial").isBoolean().optional(),
+      query("trial").isBoolean().optional()
     );
     router.addRoute(
       RequestMethods.GET,
@@ -595,7 +595,7 @@ class Routes {
       param("id").isUUID(),
       query("includeBuildteam").isBoolean().optional(),
       query("includeReviewer").isBoolean().optional(),
-      query("includeAnswers").isBoolean().optional(),
+      query("includeAnswers").isBoolean().optional()
       // Permission check later
     );
     router.addRoute(
@@ -608,7 +608,7 @@ class Routes {
       body("isTrial").isBoolean(),
       body("claimActive").isBoolean(),
       body("status").isIn(["reviewing", "accepted", "declined"]),
-      body("reason").isString().optional(),
+      body("reason").isString().optional()
     );
 
     /*
@@ -623,7 +623,7 @@ class Routes {
       async (request, response) => {
         await controllers.faq.getFaqQuestions(request, response);
       },
-      query("page").isNumeric().optional(),
+      query("page").isNumeric().optional()
     );
     router.addRoute(
       RequestMethods.POST,
@@ -633,14 +633,14 @@ class Routes {
       },
       body("question"),
       body("answer"),
-      checkUserPermission(this.web.getCore().getPrisma(), "faq.add"),
+      checkUserPermission(this.web.getCore().getPrisma(), "faq.add")
     );
     router.addRoute(
       RequestMethods.GET,
       "/faq/:id",
       async (request, response) => {
         await controllers.faq.getFaqQuestion(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.POST,
@@ -652,7 +652,7 @@ class Routes {
       body("answer").isString().optional(),
       body("question").isString().optional(),
       body("links").isArray().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "faq.edit"),
+      checkUserPermission(this.web.getCore().getPrisma(), "faq.edit")
     );
     router.addRoute(
       RequestMethods.DELETE,
@@ -661,7 +661,7 @@ class Routes {
         await controllers.faq.deleteFaqQuestions(request, response);
       },
       param("id").isUUID(),
-      checkUserPermission(this.web.getCore().getPrisma(), "faq.remove"),
+      checkUserPermission(this.web.getCore().getPrisma(), "faq.remove")
     );
 
     /*
@@ -676,7 +676,7 @@ class Routes {
       async (request, response) => {
         await controllers.calendar.getCalendarEvents(request, response);
       },
-      query("page").isNumeric().optional(),
+      query("page").isNumeric().optional()
     );
     router.addRoute(
       RequestMethods.POST,
@@ -693,14 +693,14 @@ class Routes {
       body("discordLink").isString().optional(),
       body("buildTeam").isString().optional(),
       query("slug").optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "calendar.manage"),
+      checkUserPermission(this.web.getCore().getPrisma(), "calendar.manage")
     );
     router.addRoute(
       RequestMethods.GET,
       "/calendar/:id",
       async (request, response) => {
         await controllers.calendar.getCalendarEvent(request, response);
-      },
+      }
     );
     // router.addRoute(
     //   RequestMethods.POST,
@@ -738,7 +738,7 @@ class Routes {
       },
       query("search").isString().optional(),
       query("take").isNumeric().optional(),
-      query("exact").isBoolean().optional(),
+      query("exact").isBoolean().optional()
     );
     router.addRoute(
       RequestMethods.GET,
@@ -750,7 +750,7 @@ class Routes {
       query("discord").isString().optional(),
       query("minecraft").isString().optional(),
       query("id").isUUID().optional(),
-      query("ssoId").isUUID().optional(),
+      query("ssoId").isUUID().optional()
     );
     router.addRoute(
       RequestMethods.GET,
@@ -759,7 +759,7 @@ class Routes {
         await controllers.user.getUsers(request, response);
       },
       query("page").isNumeric().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "users.list"),
+      checkUserPermission(this.web.getCore().getPrisma(), "users.list")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -767,7 +767,7 @@ class Routes {
       async (request, response) => {
         await controllers.user.getUser(request, response);
       },
-      param("id").isUUID(),
+      param("id").isUUID()
       // Permission check later
     );
     router.addRoute(
@@ -776,7 +776,7 @@ class Routes {
       async (request, response) => {
         await controllers.user.getKeycloakUser(request, response);
       },
-      param("id").isUUID(),
+      param("id").isUUID()
       // Permission check later
     );
     router.addRoute(
@@ -785,7 +785,7 @@ class Routes {
       async (request, response) => {
         await controllers.user.getUserReviews(request, response);
       },
-      param("id").isUUID(),
+      param("id").isUUID()
       // Permission check later
     );
     router.addRoute(
@@ -800,7 +800,7 @@ class Routes {
       body("lastName").isString().optional(),
       body("username").isString().optional(),
       body("name").isString().optional(),
-      body("avatar").isString().optional(),
+      body("avatar").isString().optional()
       // Permission check later
     );
     router.addRoute(
@@ -810,7 +810,7 @@ class Routes {
         await controllers.user.getPermissions(request, response);
       },
       param("id"),
-      checkUserPermission(this.web.getCore().getPrisma(), "users.list"),
+      checkUserPermission(this.web.getCore().getPrisma(), "users.list")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -821,7 +821,7 @@ class Routes {
       param("id"),
       body("permission").isString().optional(),
       body("permissions").isArray().optional(),
-      query("buildteam").isString().optional(),
+      query("buildteam").isString().optional()
       // Permission check later: permissions.add
     );
     router.addRoute(
@@ -833,7 +833,7 @@ class Routes {
       param("id"),
       body("permission").isString().optional(),
       body("permissions").isArray().optional(),
-      query("buildteam").isString().optional(),
+      query("buildteam").isString().optional()
       // Permission check later: permissions.remove
     );
 
@@ -848,7 +848,7 @@ class Routes {
       "/contacts",
       async (request, response) => {
         await controllers.contact.getContacts(request, response);
-      },
+      }
     );
     router.addRoute(
       RequestMethods.POST,
@@ -861,7 +861,7 @@ class Routes {
       body("discord").optional(),
       body("email").isEmail().optional(),
       body("avatar").isURL().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "contacts.add"),
+      checkUserPermission(this.web.getCore().getPrisma(), "contacts.add")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -875,7 +875,7 @@ class Routes {
       body("discord").optional(),
       body("email").isEmail().optional(),
       body("avatar").isURL().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "contacts.edit"),
+      checkUserPermission(this.web.getCore().getPrisma(), "contacts.edit")
     );
 
     /*
@@ -890,7 +890,7 @@ class Routes {
       async (request, response) => {
         await controllers.newsletter.getNewsletters(request, response);
       },
-      param("page").optional(),
+      param("page").optional()
     );
     router.addRoute(
       RequestMethods.GET,
@@ -899,7 +899,7 @@ class Routes {
         await controllers.newsletter.getNewsletter(request, response);
       },
       param("id"),
-      query("isIssue").optional(),
+      query("isIssue").optional()
     );
     router.addRoute(
       RequestMethods.POST,
@@ -908,7 +908,7 @@ class Routes {
         await controllers.newsletter.addNewsletter(request, response);
       },
       param("public").isBoolean().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "newsletter.add"),
+      checkUserPermission(this.web.getCore().getPrisma(), "newsletter.add")
     );
 
     /*
@@ -926,7 +926,7 @@ class Routes {
       param("team"),
       query("page").isNumeric().optional(),
       query("withBuilders").isBoolean().optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -938,7 +938,7 @@ class Routes {
       param("id"),
       query("withBuilders").isBoolean().optional(),
       query("external").optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     // router.addRoute(
     //   RequestMethods.POST,
@@ -968,7 +968,7 @@ class Routes {
       body("city").isString().optional(),
       body("builders").isArray({ max: 20 }).optional(),
       useCoordinateInput("area", true),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
 
     router.addRoute(
@@ -989,7 +989,7 @@ class Routes {
       body("city").isString().optional(),
       body("builders").isArray({ max: 20 }).optional(),
       useCoordinateInput("area", false),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
 
     router.addRoute(
@@ -1001,7 +1001,7 @@ class Routes {
       param("team"),
       param("id"),
       query("external").optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -1011,7 +1011,7 @@ class Routes {
       },
       param("id"),
       query("page").isNumeric().optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "id"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "id")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -1021,7 +1021,7 @@ class Routes {
       },
       param("team"),
       query("page").isNumeric().optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -1031,7 +1031,7 @@ class Routes {
       },
       param("id"),
       param("team"),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -1044,7 +1044,7 @@ class Routes {
       body("status").isString(),
       body("reviewer").isUUID(),
       body("reason").isString().optional(),
-      checkTokenValidity(this.web.getCore().getPrisma(), "team"),
+      checkTokenValidity(this.web.getCore().getPrisma(), "team")
     );
 
     /*
@@ -1058,7 +1058,7 @@ class Routes {
       async (request, response) => {
         await controllers.admin.getCronJobs(request, response);
       },
-      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
     router.addRoute(
       RequestMethods.GET,
@@ -1066,7 +1066,7 @@ class Routes {
       async (request, response) => {
         await controllers.admin.getProgress(request, response);
       },
-      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -1078,7 +1078,7 @@ class Routes {
       query("take").isNumeric().optional(),
       query("skip").isNumeric().optional(),
       query("gte").isNumeric().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -1089,7 +1089,7 @@ class Routes {
       query("skipExisting").isBoolean().optional(),
       query("take").isNumeric().optional(),
       query("skip").isNumeric().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -1099,7 +1099,7 @@ class Routes {
       },
       query("take").isNumeric().optional(),
       query("skip").isNumeric().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
     router.addRoute(
       RequestMethods.POST,
@@ -1107,7 +1107,7 @@ class Routes {
       async (request, response) => {
         await controllers.admin.getImageHashes(request, response);
       },
-      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin"),
+      checkUserPermission(this.web.getCore().getPrisma(), "admin.admin")
     );
     router.addRoute(
       RequestMethods.POST,

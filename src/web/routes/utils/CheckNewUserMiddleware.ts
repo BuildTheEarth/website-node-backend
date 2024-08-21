@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
 import Core, { ExtendedPrismaClient } from "../../../Core.js";
+import { NextFunction, Request, Response } from "express";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -68,11 +68,19 @@ const checkNewUser = (prisma: ExtendedPrismaClient, core: Core) => {
           .getKeycloakAdminClient()
           .users.update(
             { id: req.kauth.grant.access_token.content.sub },
-            { attributes: { minecraft: user.name, minecraftVerified: false } }
+            {
+              attributes: {
+                minecraft: user.minecraft,
+                minecraftVerified: false,
+              },
+            }
           );
         req.kcUser = {
           ...kcUser,
-          attributes: { minecraft: [user.name], minecraftVerified: ["false"] },
+          attributes: {
+            minecraft: [user.minecraft],
+            minecraftVerified: ["false"],
+          },
         };
       }
 
@@ -90,6 +98,19 @@ const checkNewUser = (prisma: ExtendedPrismaClient, core: Core) => {
           });
           req.user = user;
         }
+      }
+
+      // Update users username in db if needed
+      if (req.user.username == null || req.user.username != kcUser.username) {
+        const user = await prisma.user.update({
+          where: {
+            ssoId: req.kauth.grant.access_token.content.sub,
+          },
+          data: {
+            username: kcUser.username,
+          },
+        });
+        req.user = user;
       }
     } else {
       // Get KC user
