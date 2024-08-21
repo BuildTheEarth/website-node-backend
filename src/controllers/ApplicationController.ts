@@ -153,9 +153,9 @@ class ApplicationController {
         ...application,
         reviewer: {
           ...application.reviewer,
-          discordName: application.reviewer.username,
+          discordName: application?.reviewer?.username,
         },
-        user: { ...application.user, discordName: application.user.username },
+        user: { ...application.user, discordName: application.user?.username },
       });
     } else {
       ERROR_GENERIC(req, res, 404, "Application does not exist.");
