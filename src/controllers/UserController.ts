@@ -49,31 +49,22 @@ class UserController {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    const kcBuilders = (
-      await this.core
-        .getKeycloakAdmin()
-        .getKeycloakAdminClient()
-        .users.find({
-          max: req.query.take ? parseInt(req.query.take as string) : 10,
-          username: (req.query.search as string) || "",
-          enabled: true,
-          exact: req.query.exact == "true",
-        })
-    ).map((b) => ({ username: b.username, ssoId: b.id }));
-
-    const builders = (
-      await this.core.getPrisma().user.findMany({
-        where: { ssoId: { in: kcBuilders.map((b) => b.ssoId) } },
-        select: {
-          name: true,
-          minecraft: true,
-          id: true,
-          avatar: true,
-          discordId: true,
-          ssoId: true,
-        },
-      })
-    ).map((b) => ({ ...b, ...kcBuilders.find((c) => c.ssoId == b.ssoId) }));
+    const builders = await this.core.getPrisma().user.findMany({
+      where: {
+        username:
+          req.query.exact == "true"
+            ? (req.query.search as string)
+            : { contains: req.query.search as string },
+      },
+      select: {
+        username: true,
+        minecraft: true,
+        id: true,
+        avatar: true,
+        discordId: true,
+        ssoId: true,
+      },
+    });
 
     res.send(builders);
   }
@@ -210,7 +201,6 @@ class UserController {
           id: user.ssoId,
         });
       user.email = kcUser?.email;
-      user.username = kcUser?.username;
       user.enabled = kcUser?.enabled;
       user.emailVerified = kcUser?.emailVerified;
       user.createdTimestamp = kcUser?.createdTimestamp;
@@ -322,7 +312,7 @@ class UserController {
       },
       include: {
         buildteam: { select: { slug: true, name: true, icon: true } },
-        user: { select: { id: true, name: true } },
+        user: { select: { id: true, username: true } },
       },
     });
 
@@ -338,7 +328,7 @@ class UserController {
       return ERROR_VALIDATION(req, res, errors.array());
     }
 
-    const { email, firstName, lastName, username, name, avatar } = req.body;
+    const { email, firstName, lastName, username, avatar } = req.body;
 
     const user = await this.core.getPrisma().user.findFirst({
       where: {
@@ -346,9 +336,10 @@ class UserController {
       },
     });
     if (user.ssoId == req.kauth.grant.access_token.content.sub) {
-      const user = await this.core
-        .getPrisma()
-        .user.update({ where: { id: req.params.id }, data: { name, avatar } });
+      const user = await this.core.getPrisma().user.update({
+        where: { id: req.params.id },
+        data: { avatar, username },
+      });
       await this.core
         .getKeycloakAdmin()
         .getKeycloakAdminClient()
@@ -414,15 +405,20 @@ class UserController {
             id: true,
             ssoId: true,
             discordId: true,
-            name: true,
+            username: true,
             minecraft: true,
           },
         },
       },
     });
 
-    if(!code) {
-      return ERROR_GENERIC(req,res, 404, "Could not find the requested code. Make sure it is correct.")
+    if (!code) {
+      return ERROR_GENERIC(
+        req,
+        res,
+        404,
+        "Could not find the requested code. Make sure it is correct."
+      );
     }
 
     // Update user profile in keycloak
@@ -455,21 +451,11 @@ class UserController {
       },
     });
 
-
-    // Get updated Keycloak info
-    const kcUser = await this.core
-      .getKeycloakAdmin()
-      .getKeycloakAdminClient()
-      .users.findOne({ id: user.ssoId });
-
     return res.send({
       message: "Linked successfully",
       code: code.code,
       minecraft: minecraftInfo,
-      user: {
-        ...user,
-        username: kcUser.username,
-      },
+      user,
     });
   }
 
@@ -689,6 +675,7 @@ async function searchUser(
       id: true,
       ssoId: true,
       avatar: true,
+      username: true,
       _count: {
         select: {
           joinedBuildTeams: true,
@@ -709,7 +696,6 @@ async function searchUser(
       );
       return {
         ...user,
-        username: kcUser?.username,
         minecraft: kcUser?.attributes?.minecraft?.at(0) || null,
         minecraftVerified:
           kcUser?.attributes?.minecraftVerified?.at(0) == "true" || false,

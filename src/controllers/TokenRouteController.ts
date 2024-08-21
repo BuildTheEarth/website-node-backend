@@ -1,12 +1,12 @@
-import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 import { Request, Response } from "express";
 import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
 import turf, { parseCoordinates, toPolygon } from "../util/Coordinates.js";
+import { ERROR_GENERIC, ERROR_VALIDATION } from "../util/Errors.js";
 
 import { ApplicationStatus } from "@prisma/client";
+import { validationResult } from "express-validator";
 import Core from "../Core.js";
 import { parseApplicationStatus } from "../util/Parser.js";
-import { validationResult } from "express-validator";
 
 class TokenRouteContoller {
   private core: Core;
@@ -252,8 +252,8 @@ class TokenRouteContoller {
         res,
         404,
         `Could not find an owner with the following properties: ${Object.keys(
-          _owner,
-        ).join(", ")}`,
+          _owner
+        ).join(", ")}`
       );
     }
 
@@ -377,33 +377,28 @@ class TokenRouteContoller {
       include: {
         ApplicationAnswer: { include: { question: true } },
         user: {
-          select: { id: true, discordId: true, ssoId: true, avatar: true },
+          select: {
+            id: true,
+            discordId: true,
+            ssoId: true,
+            avatar: true,
+            username: true,
+          },
         },
         reviewer: {
-          select: { id: true, discordId: true, ssoId: true },
+          select: { id: true, discordId: true, ssoId: true, username: true },
         },
       },
     });
-
-    const kcReviewer = application.reviewer?.ssoId
-      ? await this.core
-          .getKeycloakAdmin()
-          .getKeycloakAdminClient()
-          .users.findOne({ id: application.reviewer.ssoId })
-      : undefined;
-    const kcUser = await this.core
-      .getKeycloakAdmin()
-      .getKeycloakAdminClient()
-      .users.findOne({ id: application.user.ssoId });
 
     if (application) {
       res.send({
         ...application,
         reviewer: {
           ...application.reviewer,
-          discordName: kcReviewer?.username,
+          discordName: application.reviewer.username,
         },
-        user: { ...application.user, discordName: kcUser.username },
+        user: { ...application.user, discordName: application.user.username },
       });
     } else {
       ERROR_GENERIC(req, res, 404, "Application does not exist.");
@@ -452,10 +447,20 @@ class TokenRouteContoller {
           },
         },
         user: {
-          select: { id: true, discordId: true, name: true, minecraft: true },
+          select: {
+            id: true,
+            discordId: true,
+            username: true,
+            minecraft: true,
+          },
         },
         reviewer: {
-          select: { id: true, discordId: true, name: true, minecraft: true },
+          select: {
+            id: true,
+            discordId: true,
+            username: true,
+            minecraft: true,
+          },
         },
       },
     });
@@ -479,10 +484,10 @@ class TokenRouteContoller {
               application.buildteam.acceptionMessage,
               application,
               user,
-              application.buildteam,
+              application.buildteam
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e),
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
       await this.core.getDiscord().updateBuilderRole(user.discordId, true);
     } else if (parseApplicationStatus(status) == ApplicationStatus.TRIAL) {
@@ -500,10 +505,10 @@ class TokenRouteContoller {
               application.buildteam.trialMessage,
               application,
               user,
-              application.buildteam,
+              application.buildteam
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e),
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
     } else {
       const user = await this.core.getPrisma().user.update({
@@ -529,17 +534,17 @@ class TokenRouteContoller {
               application.buildteam.rejectionMessage,
               application,
               user,
-              application.buildteam,
+              application.buildteam
             ),
           [user.discordId],
-          (e) => ERROR_GENERIC(req, res, 500, e),
+          (e) => ERROR_GENERIC(req, res, 500, e)
         );
 
       if (user._count.joinedBuildTeams < 1) {
         await this.core
           .getDiscord()
           .updateBuilderRole(user.discordId, false, (e) =>
-            ERROR_GENERIC(req, res, 500, e),
+            ERROR_GENERIC(req, res, 500, e)
           );
       }
     }
@@ -551,7 +556,7 @@ class TokenRouteContoller {
         this.core,
         application.buildteam.webhook,
         WebhookType.APPLICATION,
-        application,
+        application
       );
     }
 
