@@ -7,6 +7,7 @@ import {
   ERROR_VALIDATION,
 } from "../util/Errors.js";
 
+import { Claim } from "@prisma/client";
 import axios from "axios";
 import { validationResult } from "express-validator";
 import Core from "../Core.js";
@@ -366,6 +367,14 @@ class ClaimController {
 
     const { name, finished, active, area, description, owner } = req.body;
     const center = turf.center(toPolygon(area)).geometry.coordinates.join(", ");
+
+    const buildingCount =
+      area && (await this.updateClaimBuildingCount({ area }));
+
+    if (!buildingCount || typeof buildingCount != "number") {
+      return ERROR_GENERIC(req, res, 500, "Could not update building count");
+    }
+
     const updatedClaim = await this.core.getPrisma().claim.update({
       where: {
         id: req.params.id,
@@ -382,7 +391,7 @@ class ClaimController {
         builders: req.body.builders
           ? { set: req.body.builders.map((b: any) => ({ id: b.id })) }
           : undefined,
-        buildings: area && (await this.updateClaimBuildingCount({ area })),
+        buildings: buildingCount,
         ...(await this.updateClaimOSMDetails(
           { id: req.params.id, name, center },
           false
@@ -443,6 +452,13 @@ class ClaimController {
     const center =
       area && turf.center(toPolygon(area)).geometry.coordinates.join(", ");
 
+    const buildingCount =
+      area && (await this.updateClaimBuildingCount({ area }));
+
+    if (!buildingCount || typeof buildingCount != "number") {
+      return ERROR_GENERIC(req, res, 500, "Could not update building count");
+    }
+
     const claim = await this.core.getPrisma().claim.create({
       data: {
         buildTeam: {
@@ -461,7 +477,7 @@ class ClaimController {
         description: req.body.description,
         finished: req.body.finished,
         active: req.body.active,
-        buildings: area && (await this.updateClaimBuildingCount({ area })),
+        buildings: buildingCount,
         ...(area
           ? await this.updateClaimOSMDetails(
               { name: req.body.name, center },
@@ -593,7 +609,7 @@ class ClaimController {
       area: string[];
     },
     update?: boolean
-  ) {
+  ): Promise<number | { message: string } | Claim> {
     const polygon = toOverpassPolygon(claim.area);
 
     const overpassQuery = `[out:json][timeout:25];
@@ -605,11 +621,9 @@ class ClaimController {
       out count;`;
 
     try {
-      const { data } = await axios.get(
-        `https://overpass.kumi.systems/api/interpreter?data=${overpassQuery.replace(
-          "\n",
-          ""
-        )}`
+      const { data } = await axios.post(
+        `https://overpass.kumi.systems/api/interpreter?`,
+        `data=${overpassQuery.replace("\n", "")}`
       );
 
       if (update) {
