@@ -39,7 +39,8 @@ class Routes {
     router.addRoute(RequestMethods.GET, "/healthcheck", (req, res) => {
       ERROR_GENERIC(req, res, 200, "OK");
     });
-    router.addRoute(RequestMethods.GET, "/test", async (req, res) => {
+
+    router.addRoute(RequestMethods.GET, "/test", (req, res) => {
       res.send({ user: req.user, kcUser: req.kcUser, team: req.team });
     });
     router.addRoute(

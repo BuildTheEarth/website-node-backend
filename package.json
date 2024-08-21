@@ -6,14 +6,15 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "node --import ./src/util/SentryInstrument.js index.js",
     "start-nodemon": "nodemon index.js",
     "start:migrate": "npx prisma migrate deploy && node index.js",
     "prebuild": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'+'export const LIB_LICENSE = ' + JSON.stringify(require('./package.json').license) + ';'\" > src/util/package.ts",
-    "build": "yarn install --pure-lockfile && tsc",
+    "build": "yarn install --pure-lockfile && tsc && yarn sentry:sourcemaps",
     "studio": "prisma studio",
     "prettier": "prettier --write ./src",
-    "seed": "esbuild prisma/seed.ts --outfile=node_modules/tmp-seed.cjs --platform=node --bundle --format=cjs --external:prisma --external:@prisma/client && node node_modules/tmp-seed.cjs --preview-feature"
+    "seed": "esbuild prisma/seed.ts --outfile=node_modules/tmp-seed.cjs --platform=node --bundle --format=cjs --external:prisma --external:@prisma/client && node node_modules/tmp-seed.cjs --preview-feature",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org buildtheearth --project main-backend ./src && sentry-cli --url https://sentry.buildtheearth.net sourcemaps upload --org buildtheearth --project main-backend ./src"
   },
   "repository": {
     "type": "git",
@@ -48,6 +49,8 @@
     "@bte-germany/terraconvert": "^1.0.1",
     "@keycloak/keycloak-admin-client": "^20.0.2",
     "@prisma/client": "5",
+    "@sentry/cli": "^2.33.1",
+    "@sentry/node": "^8.26.0",
     "@turf/helpers": "^6.5.0",
     "@turf/turf": "^6.5.0",
     "axios": "^1.6.7",
