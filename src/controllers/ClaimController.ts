@@ -1,17 +1,17 @@
-import { Request, Response } from "express";
-import { WebhookType, sendBtWebhook, sendWebhook } from "../util/BtWebhooks.js";
-import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
   ERROR_VALIDATION,
 } from "../util/Errors.js";
+import { Request, Response } from "express";
+import { WebhookType, sendBtWebhook, sendWebhook } from "../util/BtWebhooks.js";
+import turf, { toOverpassPolygon, toPolygon } from "../util/Coordinates.js";
 
 import { Claim } from "@prisma/client";
-import axios from "axios";
-import { validationResult } from "express-validator";
 import Core from "../Core.js";
+import axios from "axios";
 import { userHasPermissions } from "../web/routes/utils/CheckUserPermissionMiddleware.js";
+import { validationResult } from "express-validator";
 
 class ClaimController {
   private core: Core;
@@ -74,10 +74,16 @@ class ClaimController {
                 ssoId: true,
                 avatar: true,
                 minecraft: true,
+                username: true,
               },
             },
             builders: {
-              select: { id: true, avatar: true, minecraft: true },
+              select: {
+                id: true,
+                avatar: true,
+                minecraft: true,
+                username: true,
+              },
             },
             buildings: true,
             buildTeam: {
