@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 
+import { ERROR_GENERIC } from "../../../util/Errors.js";
 import Web from "../../Web.js";
 import { Executor } from "./Executor.js";
 import { RequestMethods } from "./RequestMethods.js";
@@ -25,7 +26,7 @@ export default class Router {
       .debug(
         `Registering endpoint "${requestMethod.toString()} api/${
           this.version
-        }${endpoint}"`,
+        }${endpoint}"`
       );
     this.web
       .getApp()
@@ -34,11 +35,21 @@ export default class Router {
         middlewares,
         (rq: Request, rs: Response, next: any) => {
           if (rq.method === requestMethod.valueOf()) {
-            executor(rq, rs);
+            try {
+              executor(rq, rs);
+            } catch (e) {
+              ERROR_GENERIC(
+                rq,
+                rs,
+                500,
+                "Internal Server Error. Please try again and report this bug."
+              );
+            }
+
             return;
           }
           next();
-        },
+        }
       );
   }
 }
