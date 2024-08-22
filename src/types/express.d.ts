@@ -12,11 +12,6 @@ declare global {
       user: User;
       team?: BuildTeam;
       kcUser?: UserRepresentation;
-      sentry?: string;
-    }
-
-    interface Response {
-      sentry?: string;
     }
   }
 }

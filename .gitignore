@@ -7,5 +7,3 @@ package-lock.json
 keycloak.json
 logs/
 prisma/seed.ts
-# Sentry Config File
-.sentryclirc

@@ -1,24 +1,23 @@
-import * as Sentry from "@sentry/node";
 import * as session from "express-session";
 import * as winston from "winston";
 
+import { Prisma, PrismaClient } from "@prisma/client";
 import {
   DefaultArgs,
   DynamicClientExtensionThis,
   InternalArgs,
 } from "@prisma/client/runtime/library";
 import { LIB_LICENSE, LIB_VERSION } from "./util/package.js";
-import { Prisma, PrismaClient } from "@prisma/client";
 import {
   applicationReminder,
   purgeClaims,
   purgeVerifications,
 } from "./util/Prisma.js";
 
+import Keycloak from "keycloak-connect";
 import AmazonAWS from "./util/AmazonAWS.js";
 import CronHandler from "./util/CronHandler.js";
 import DiscordIntegration from "./util/DiscordIntegration.js";
-import Keycloak from "keycloak-connect";
 import KeycloakAdmin from "./util/KeycloakAdmin.js";
 import Web from "./web/Web.js";
 
@@ -59,7 +58,6 @@ class Core {
     this.keycloakAdmin = new KeycloakAdmin(this);
     this.keycloakAdmin.authKcClient().then(() => {
       this.getLogger().debug("Keycloak Admin is initialized.");
-
       this.prisma = new PrismaClient().$extends({
         name: "uploadSrc",
         result: {
