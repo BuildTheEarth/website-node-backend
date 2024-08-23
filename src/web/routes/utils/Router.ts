@@ -34,10 +34,6 @@ export default class Router {
         `/api/${this.version}${endpoint}`,
         middlewares,
         (rq: Request, rs: Response, next: any) => {
-              this.web
-                .getCore()
-                .getLogger()
-                .debug(`Calling endpoint "${rq.method} ${endpoint}"`);
           if (rq.method === requestMethod.valueOf()) {
             try {
               executor(rq, rs);

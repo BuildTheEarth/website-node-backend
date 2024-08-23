@@ -24,7 +24,11 @@ class BlogController {
       const blogPosts = await this.core.getPrisma().blog.findMany({
         skip: page * 10,
         take: 10,
-        include: {
+        select: {
+          title: true,
+          summary: true,
+          publishedAt: true,
+          slug: true,
           author: {
             select: {
               id: true,
@@ -35,13 +39,26 @@ class BlogController {
               ssoId: true,
             },
           },
+          thumbnail: {
+            select: {
+              id: true,
+              name: true,
+              hash: true,
+              height: true,
+              width: true,
+            },
+          },
         },
       });
       let count = await this.core.getPrisma().blog.count();
       res.send({ pages: Math.ceil(count / 10), data: blogPosts });
     } else {
       const blogPosts = await this.core.getPrisma().blog.findMany({
-        include: {
+        select: {
+          title: true,
+          summary: true,
+          publishedAt: true,
+          slug: true,
           author: {
             select: {
               id: true,
@@ -50,6 +67,15 @@ class BlogController {
               username: true,
               minecraft: true,
               ssoId: true,
+            },
+          },
+          thumbnail: {
+            select: {
+              id: true,
+              name: true,
+              hash: true,
+              height: true,
+              width: true,
             },
           },
         },
@@ -78,6 +104,15 @@ class BlogController {
             username: true,
             minecraft: true,
             ssoId: true,
+          },
+        },
+        thumbnail: {
+          select: {
+            id: true,
+            name: true,
+            hash: true,
+            height: true,
+            width: true,
           },
         },
       },
@@ -126,7 +161,15 @@ class BlogController {
             ssoId: true,
           },
         },
-        thumbnail: { select: {} },
+        thumbnail: {
+          select: {
+            id: true,
+            name: true,
+            hash: true,
+            height: true,
+            width: true,
+          },
+        },
       },
     });
 

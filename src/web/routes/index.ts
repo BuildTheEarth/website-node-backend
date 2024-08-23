@@ -3,11 +3,11 @@ import { body, param, query } from "express-validator";
 import turf, {
   CoordinateType,
   toPolygon,
-  useCoordinateInput,
+  useCoordinateInput
 } from "../../util/Coordinates.js";
 import {
   checkUserPermission,
-  checkUserPermissions,
+  checkUserPermissions
 } from "./utils/CheckUserPermissionMiddleware.js";
 
 import { Keycloak } from "keycloak-connect";
@@ -909,9 +909,11 @@ class Routes {
       },
       body("title").isString(),
       body("content").isString(),
+      body("summary").isString(),
       body("public").isBoolean(),
       body("slug").isString(),
       body("authorId").isUUID(),
+      body("thumbnailId").isUUID(),
       checkUserPermission(this.web.getCore().getPrisma(), "blog.add")
     );
 
