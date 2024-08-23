@@ -433,6 +433,7 @@ class UserController {
             minecraftVerified: true,
             minecraftUuid: minecraftInfo.uuid,
           },
+          username: code.user.username,
         }
       );
 

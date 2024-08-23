@@ -1,14 +1,14 @@
 import {
   Application,
   ApplicationQuestionType,
-  ApplicationStatus,
+  ApplicationStatus
 } from "@prisma/client";
 import { Request, Response } from "express";
-import { WebhookType, sendBtWebhook } from "../util/BtWebhooks.js";
+import { sendBtWebhook, WebhookType } from "../util/BtWebhooks.js";
 import {
   ERROR_GENERIC,
   ERROR_NO_PERMISSION,
-  ERROR_VALIDATION,
+  ERROR_VALIDATION
 } from "../util/Errors.js";
 
 import { validationResult } from "express-validator";
@@ -471,6 +471,7 @@ class ApplicationController {
                         minecraft: answer,
                         minecraftVerified: false,
                       },
+                      username: req.kcUser.username,
                     }
                   );
                 req.kcUser = {

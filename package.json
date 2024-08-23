@@ -46,7 +46,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.427.0",
     "@bte-germany/terraconvert": "^1.0.1",
-    "@keycloak/keycloak-admin-client": "^20.0.2",
+    "@keycloak/keycloak-admin-client": "24.0.5",
     "@prisma/client": "^5.18.0",
     "@turf/helpers": "^6.5.0",
     "@turf/turf": "^6.5.0",
