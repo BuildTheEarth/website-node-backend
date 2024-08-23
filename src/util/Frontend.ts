@@ -43,8 +43,8 @@ export const frontendRoutes = [
   "/me/settings/accounts",
   "/me/settings/security",
   "/me/settings/session",
-  "/newsletter/[newsletter]",
-  "/newsletter",
+  "/blog/[slug]",
+  "/blog",
   "/teams/[team]",
   "/teams",
   "/teams/[team]/apply",
@@ -62,5 +62,6 @@ export enum FrontendRoutesGroups {
   NEWSLETTER = "/newsletter",
   ME = "/me",
   FAQ = "/faq",
+  BLOG = "/blog",
   ALL = "/",
 }

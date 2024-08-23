@@ -6,13 +6,13 @@ import session from "express-session";
 import multer from "multer";
 import AdminController from "../controllers/AdminController.js";
 import ApplicationController from "../controllers/ApplicationController.js";
+import BlogController from "../controllers/BlogController.js";
 import BuildTeamController from "../controllers/BuildTeamController.js";
 import CalendarController from "../controllers/CalendarController.js";
 import ClaimController from "../controllers/ClaimController.js";
 import ContactController from "../controllers/ContactController.js";
 import FaqController from "../controllers/FAQController.js";
 import GeneralController from "../controllers/GeneralController.js";
-import NewsletterController from "../controllers/NewsletterController.js";
 import ShowcaseController from "../controllers/ShowcaseController.js";
 import TokenRouteContoller from "../controllers/TokenRouteController.js";
 import UserController from "../controllers/UserController.js";
@@ -37,7 +37,7 @@ class Web {
     faq: FaqController;
     user: UserController;
     contact: ContactController;
-    newsletter: NewsletterController;
+    blog: BlogController;
     admin: AdminController;
     tokenRoute: TokenRouteContoller;
     calendar: CalendarController;
@@ -63,7 +63,7 @@ class Web {
         resave: false,
         saveUninitialized: true,
         store: this.core.memoryStore,
-      }),
+      })
     );
     this.app.use(cors());
 
@@ -71,7 +71,7 @@ class Web {
       this.core.getKeycloak().middleware({
         logout: "/logout",
         admin: "/",
-      }),
+      })
     );
     this.core.getLogger().debug("Enabled keycloak-connect adapter");
     this.app.use(checkNewUser(this.getCore().getPrisma(), this.getCore()));
@@ -102,7 +102,7 @@ class Web {
       faq: new FaqController(core),
       user: new UserController(core),
       contact: new ContactController(core),
-      newsletter: new NewsletterController(core),
+      blog: new BlogController(core),
       tokenRoute: new TokenRouteContoller(core),
       admin: new AdminController(core),
       calendar: new CalendarController(core),

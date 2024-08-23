@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
 import { body, param, query } from "express-validator";
-import {
-  checkUserPermission,
-  checkUserPermissions,
-} from "./utils/CheckUserPermissionMiddleware.js";
 import turf, {
   CoordinateType,
   toPolygon,
   useCoordinateInput,
 } from "../../util/Coordinates.js";
+import {
+  checkUserPermission,
+  checkUserPermissions,
+} from "./utils/CheckUserPermissionMiddleware.js";
 
-import { ERROR_GENERIC } from "../../util/Errors.js";
 import { Keycloak } from "keycloak-connect";
-import { RequestMethods } from "./utils/RequestMethods.js";
-import Router from "./utils/Router.js";
+import { ERROR_GENERIC } from "../../util/Errors.js";
 import Web from "../Web.js";
 import { checkTokenValidity } from "./utils/CheckTokenValidity.js";
+import { RequestMethods } from "./utils/RequestMethods.js";
+import Router from "./utils/Router.js";
 
 class Routes {
   app;
@@ -880,35 +880,39 @@ class Routes {
 
     /*
      *
-     * Newsletter Routes
+     * Blog Routes
      *
      */
 
     router.addRoute(
       RequestMethods.GET,
-      "/newsletter",
+      "/blog",
       async (request, response) => {
-        await controllers.newsletter.getNewsletters(request, response);
+        await controllers.blog.getBlogPosts(request, response);
       },
       param("page").optional()
     );
     router.addRoute(
       RequestMethods.GET,
-      "/newsletter/:id",
+      "/blog/:id",
       async (request, response) => {
-        await controllers.newsletter.getNewsletter(request, response);
+        await controllers.blog.getBlogPost(request, response);
       },
       param("id"),
-      query("isIssue").optional()
+      query("slug").optional()
     );
     router.addRoute(
       RequestMethods.POST,
-      "/newsletter",
+      "/blog",
       async (request, response) => {
-        await controllers.newsletter.addNewsletter(request, response);
+        await controllers.blog.createBlogPost(request, response);
       },
-      param("public").isBoolean().optional(),
-      checkUserPermission(this.web.getCore().getPrisma(), "newsletter.add")
+      body("title").isString(),
+      body("content").isString(),
+      body("public").isBoolean(),
+      body("slug").isString(),
+      body("authorId").isUUID(),
+      checkUserPermission(this.web.getCore().getPrisma(), "blog.add")
     );
 
     /*

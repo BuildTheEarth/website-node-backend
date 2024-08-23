@@ -243,16 +243,15 @@ class AdminController {
  * @returns Generated Has
  */
 async function getHash(src: string) {
-  try {
-    const buffer = await fetch(src).then(async (res) =>
-      Buffer.from(await res.arrayBuffer()),
-    );
+  
+    const buffer = await fetch(src)
+      .then(async (res) => Buffer.from(await res.arrayBuffer()))
+      .catch((r) => console.error(`getHash error for ${src}: $${r}`));
+
+    if (!buffer) return "";
 
     const { base64 } = await getPlaiceholder(buffer);
     return base64;
-  } catch (e) {
-    return "";
-  }
 }
 
 export default AdminController;
