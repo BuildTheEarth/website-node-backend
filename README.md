@@ -1,11 +1,14 @@
+
+**Warning: This repository has been archived. All code has been moved to the /web monorepo at [BuildTheEarth/web](https://github.com/BuildTheEarth/web)!**
+
+
 #
 
 <div style="text-align: center;">
-<img src="https://buildtheearth.net/assets/img/site-logo-animated.gif" alt="">
+<img src="https://cdn.buildtheearth.net/static/logos/bte.gif" alt="">
 <h1>Build the Earth Website Backend</h1>
 The backend for the BuildTheEarth.net website
 </div>
-
 # Start Developing
 
 #### If you are using JetBrains WebStorm, look below under `Start Developing in WebStorm`
